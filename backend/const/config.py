@@ -1,7 +1,9 @@
 from typing import Dict
+from models import User
 from dotenv import load_dotenv
 from datetime import time
 import os
+
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -60,3 +62,29 @@ class Config:
         "http://localhost:5173",  # Default Vite dev server port
         "http://localhost:3000",  # Default Create React App port
     ]
+
+    # --- SECURITY CONFIGURATION ---
+    # In production, generate a random key with: openssl rand -hex 32
+    SECRET_KEY = os.getenv('FASTAPI_SECRET_KEY')
+    ALGORITHM = os.getenv('FASTAPI_ALGORITHM')
+    ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+    # --- MOCK USER DATABASE ---
+    # In a real application, this would come from your Postgres DB.
+    # For now, we hardcode a user for simplicity.
+    # The password hash was generated with: get_password_hash("testpassword")
+    MOCK_USERS_DB = {
+        "testuser": {
+            "username": "testuser",
+            "full_name": "Test User",
+            "email": "test@example.com",
+            "hashed_password": "$2b$12$EixZaYVK1fsbw1yJp20d5eY1q.7b1.vn2b.ffwW3c9.i8aMv.9C4i",
+            "disabled": False,
+        }
+    }
+
+    @classmethod
+    def get_user(cls, username: str):
+        if username in cls.MOCK_USERS_DB:
+            user_dict = cls.MOCK_USERS_DB[username]
+            return User(**user_dict)
