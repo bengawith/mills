@@ -1,0 +1,14 @@
+index-j_gJFhPL.js:40  POST http://localhost:8000/token 401 (Unauthorized)
+Y$ @ index-j_gJFhPL.js:40
+u @ index-j_gJFhPL.js:40
+eT @ index-j_gJFhPL.js:37
+rT @ index-j_gJFhPL.js:37
+nT @ index-j_gJFhPL.js:37
+Hm @ index-j_gJFhPL.js:37
+B1 @ index-j_gJFhPL.js:37
+(anonymous) @ index-j_gJFhPL.js:37
+Vv @ index-j_gJFhPL.js:40
+s1 @ index-j_gJFhPL.js:37
+Wf @ index-j_gJFhPL.js:37
+bv @ index-j_gJFhPL.js:37
+bT @ index-j_gJFhPL.js:37

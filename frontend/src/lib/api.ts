@@ -1,7 +1,7 @@
 const API_BASE_URL = 'http://localhost:8000'; // Your FastAPI backend URL
 
 // Function to handle login
-export const loginUser = async (username, password) => {
+export const loginUser = async (username: string, password: string) => {
   const response = await fetch(`${API_BASE_URL}/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -16,7 +16,7 @@ export const loginUser = async (username, password) => {
 };
 
 // Function to fetch protected data
-export const getMachineData = async (token, params) => {
+export const getMachineData = async (token: string, params: Record<string, string>) => {
   const query = new URLSearchParams(params).toString();
   const response = await fetch(`${API_BASE_URL}/api/v1/machine-data?${query}`, {
     headers: { Authorization: `Bearer ${token}` },

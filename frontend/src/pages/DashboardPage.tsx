@@ -2,7 +2,7 @@ import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
 import { LayoutDashboard, LogOut, Settings } from 'lucide-react';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadialBarChart, RadialBar, PieChart, Pie, Cell
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 
 // Mock data based on your example images
@@ -67,6 +67,7 @@ export const DashboardPage = () => {
           </div>
 
           {/* Example Chart 2: Utilisation Readout */}
+           {/*
            <div className="bg-white p-6 rounded-lg shadow flex flex-col items-center justify-center">
             <h3 className="font-bold text-lg mb-4">Mill 1 Utilisation Readout</h3>
              <ResponsiveContainer width="100%" height={300}>
@@ -84,6 +85,7 @@ export const DashboardPage = () => {
                 </RadialBarChart>
             </ResponsiveContainer>
           </div>
+          */}
 
           {/* Example Chart 3: Status Breakdown */}
           <div className="bg-white p-6 rounded-lg shadow">

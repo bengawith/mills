@@ -65,8 +65,8 @@ class Config:
 
     # --- SECURITY CONFIGURATION ---
     # In production, generate a random key with: openssl rand -hex 32
-    SECRET_KEY = os.getenv('FASTAPI_SECRET_KEY')
-    ALGORITHM = os.getenv('FASTAPI_ALGORITHM')
+    SECRET_KEY = os.getenv('SECRET_KEY', 'my-super-secret-key')
+    ALGORITHM = os.getenv('ALGORITHM', 'HS256')
     ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
     # --- MOCK USER DATABASE ---
@@ -78,7 +78,7 @@ class Config:
             "username": "testuser",
             "full_name": "Test User",
             "email": "test@example.com",
-            "hashed_password": "$2b$12$EixZaYVK1fsbw1yJp20d5eY1q.7b1.vn2b.ffwW3c9.i8aMv.9C4i",
+            "hashed_password": "$2b$12$kGMhv5.Pve6rzW1cfoZ3uOjwRvrUUlKxq5FJIGiyo3X7r0E7Yy1Su",
             "disabled": False,
         }
     }
@@ -87,4 +87,5 @@ class Config:
     def get_user(cls, username: str):
         if username in cls.MOCK_USERS_DB:
             user_dict = cls.MOCK_USERS_DB[username]
-            return User(**user_dict)
+            from models import UserInDB # Import here to avoid circular dependency
+            return UserInDB(**user_dict)

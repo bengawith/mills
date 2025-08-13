@@ -24,9 +24,13 @@ export const LoginPage = () => {
         description: "Welcome to the Mill Dashboard.",
       });
     } catch (error) {
+      let errorMessage = 'An unknown error occurred.';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
       toast({
         title: "Login Failed",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
       setIsLoading(false);
