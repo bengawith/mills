@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import pandas as pd
-from api import FourJaw
+from .api import FourJaw
 from const import Config
 import datetime as dt
 pd.set_option('display.max_columns', None)
@@ -16,7 +16,7 @@ class DataProcessorConfig:
     end_time: str = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=1)).isoformat().replace('+00:00', 'Z')
     page_size: int = 1000
     page: int = 1
-    machine_ids: list[str] = Config.MACHINE_IDS
+    machine_ids: list[str] = [mi for mi in Config.MACHINE_IDS]
 
 
 

@@ -16,4 +16,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # 5. Copy your application code into the container
-COPY ./api /app/
+COPY . /app/
+
+# 6. Run the application
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

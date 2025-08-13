@@ -1,17 +1,13 @@
 services:
   # Backend Django API Service
   backend:
+
     build: ./backend # Path to the backend Dockerfile
     container_name: mill_dash_backend
     command: >
-      sh -c "python /app/manage.py makemigrations users &&
-            python /app/manage.py makemigrations companies &&
-            python /app/manage.py makemigrations timesheets &&
-            python /app/manage.py makemigrations invoicing &&
-            python /app/manage.py migrate &&
-            python /app/manage.py runserver 0.0.0.0:8000"
+      sh -c "uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
     volumes:
-      - ./backend/api/:/app/ # Mounts the local code into the container for live-reloading
+      - ./backend/:/app/ # Mounts the local code into the container for live-reloading
     ports:
       - "8000:8000" # Exposes port 8000 to host machine
     env_file:
