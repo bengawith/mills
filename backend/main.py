@@ -1,5 +1,6 @@
 import os
-from fastapi import FastAPI, Depends, HTTPException
+from typing import List
+from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import your existing logic
@@ -33,45 +34,41 @@ async def read_root():
 
 
 # --- Placeholder for future data endpoint ---
-# We will build this out properly later. This shows how it will work.
-@app.get("/api/v1/machine-data/{machine_id}", tags=["Machine Data"])
-async def get_machine_data(machine_id: list[str]):
-    """
-    A placeholder endpoint to fetch processed data for a single machine.
-    
-    This demonstrates how we will use the existing DataProcessor logic.
-    """
-    # In a real scenario, we would pass start and end times from the frontend.
+@app.get("/api/v1/machine-data", tags=["Machine Data"])
+async def get_machine_data(
+    machine_ids: List[str] = Query(...),
+    page_size: int = 1000,
+    page: int = 1
+):
     from datetime import datetime, timedelta
-    
-    # For now, we'll just use a fixed window for the example.
+
     end_time = datetime.now()
     start_time = end_time - timedelta(days=1)
-    
+
     start_iso = start_time.isoformat().replace('+00:00', 'Z')
     end_iso = end_time.isoformat().replace('+00:00', 'Z')
-    page_size = 1000
 
     try:
-        # Initialize your FourJaw client and processor inside the endpoint
         fourjaw_client = FourJaw()
         processor_config = DataProcessorConfig(
             client=fourjaw_client,
             start_time=start_iso,
             end_time=end_iso,
             page_size=page_size,
-            machine_ids=machine_id
+            page=page,
+            machine_ids=machine_ids
         )
         processor = DataProcessor(processor_config)
-        
-        # This will call your existing logic
-        # Note: We'd need to adapt process_time_entries to handle a single machine ID
-        # For now, this illustrates the concept.
-        
-        # Faking a response for now
-        # processed_data = processor.process_time_entries(start_iso, end_iso)
-        
-        return {"machine_id": machine_id, "message": "This endpoint is a work in progress. Data will be returned here."}
+
+        processed_data = processor.process_time_entries()
+
+        # You can convert the DataFrame to JSON here if needed
+        return {
+            "machine_ids": machine_ids,
+            "message": "Data processed successfully",
+            "row_count": len(processed_data),
+            # "data": processed_data.to_dict(orient="records")  # optional
+        }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
