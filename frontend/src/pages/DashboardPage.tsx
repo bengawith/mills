@@ -188,7 +188,7 @@ export const DashboardPage = () => {
                 <ul>
                   {downtimeAnalysisData.excessive_downtimes.map((d: any, index: number) => (
                     <li key={index}>
-                      {d.name} ({d.machine_id}): {d.downtime_reason_name} for {Math.round(d.duration_seconds / 60)} minutes
+                      {d.name}: {d.downtime_reason_name} for {Math.round(d.duration_seconds / 60)} minutes and {Math.round(d.duration_seconds % 60)} seconds
                     </li>
                   ))}
                 </ul>
@@ -202,7 +202,7 @@ export const DashboardPage = () => {
                   <BarChart data={Object.entries(downtimeAnalysisData.recurring_downtime_reasons).map(([name, value]) => ({ name, value: value as number }))}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} interval={0} />
-                    <YAxis />
+                    <YAxis formatter={(value: number) => `${Math.round(value / 3600)} hours`} />
                     <Tooltip formatter={(value: number) => `${Math.round(value / 3600)} hours`} />
                     <Bar dataKey="value" fill="#8884d8" />
                   </BarChart>
