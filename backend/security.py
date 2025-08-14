@@ -4,8 +4,10 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
 
-from models import TokenData, User
+from database import get_db
+from models import TokenData, User, UserCreate
 from const.config import Config
 
 # --- Password Hashing Setup ---
@@ -36,10 +38,21 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     encoded_jwt = jwt.encode(to_encode, Config.SECRET_KEY, algorithm=Config.ALGORITHM)
     return encoded_jwt
 
+def get_user(db: Session, username: str):
+    return db.query(User).filter(User.username == username).first()
+
+def create_user(db: Session, user: UserCreate):
+    hashed_password = get_password_hash(user.password)
+    db_user = User(username=user.username, full_name=user.full_name, email=user.email, hashed_password=hashed_password)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
 # --- User Authentication Dependency ---
 # This is a dependency that other endpoints will use to get the current user.
 # It finds the user based on the token in the request's Authorization header.
-async def get_current_active_user(token: str = Depends(oauth2_scheme)) -> User:
+async def get_current_active_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
     """
     Decodes the JWT token to get the current user.
     Raises an exception if the token is invalid or the user is inactive.
@@ -58,9 +71,7 @@ async def get_current_active_user(token: str = Depends(oauth2_scheme)) -> User:
     except JWTError:
         raise credentials_exception
     
-    # In a real app, you would fetch the user from the database here.
-    # For now, we'll use a hardcoded user from our config.
-    user = Config.get_user(token_data.username)
+    user = get_user(db, username=token_data.username)
     
     if user is None:
         raise credentials_exception

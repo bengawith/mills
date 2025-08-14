@@ -21,6 +21,9 @@ export const getMachineData = async (token: string, params: Record<string, strin
   const response = await fetch(`${API_BASE_URL}/api/v1/machine-data?${query}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+  if (response.status === 401) {
+    throw new Error('Unauthorized');
+  }
   if (!response.ok) {
     throw new Error('Failed to fetch machine data');
   }

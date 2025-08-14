@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Import the new routers
 from routers import auth, data
 from const.config import Config
+from database import Base, engine
 
 # --- Application Setup ---
 app = FastAPI(
@@ -25,6 +26,11 @@ app.add_middleware(
 # This adds all the endpoints from your auth.py and data.py files to the main app
 app.include_router(auth.router)
 app.include_router(data.router)
+
+
+@app.on_event("startup")
+def startup_event():
+    Base.metadata.create_all(bind=engine)
 
 
 # --- Root Endpoint ---

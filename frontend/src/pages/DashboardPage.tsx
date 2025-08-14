@@ -1,29 +1,89 @@
+import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { getMachineData } from '../lib/api';
 import { Button } from '../components/ui/Button';
 import { LayoutDashboard, LogOut, Settings } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 
-// Mock data based on your example images
-const mockUtilisationTrend = [
-  { name: '00:00', Mill1: 18 }, { name: '03:00', Mill1: 55 }, { name: '06:00', Mill1: 40 },
-  { name: '09:00', Mill1: 80 }, { name: '12:00', Mill1: 25 }, { name: '15:00', Mill1: 65 },
-  { name: '18:00', Mill1: 78 }, { name: '21:00', Mill1: 82 },
-];
-
-const mockStatusBreakdown = [
-  { name: 'Uptime', value: 65, fill: '#22c55e' },
-  { name: 'Productive Downtime', value: 10, fill: '#3b82f6' },
-  { name: 'Unproductive Downtime', value: 25, fill: '#ef4444' },
-];
-
 export const DashboardPage = () => {
-  const { logout } = useAuth();
+  const { logout, token } = useAuth();
+  const [utilisationTrend, setUtilisationTrend] = useState([]);
+  const [statusBreakdown, setStatusBreakdown] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleLogout = useCallback(() => {
+    logout();
+  }, [logout]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!token) {
+        setError("Authentication token not found.");
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const now = new Date();
+        const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+        const params = {
+          start_time: twentyFourHoursAgo.toISOString(),
+          end_time: now.toISOString(),
+          machine_ids: ['mill_1', 'mill_2', 'mill_3'],
+        };
+
+        const data = await getMachineData(token, params);
+
+        const processedTrend = data.map((item: any) => ({
+          name: new Date(item.start_timestamp).toLocaleTimeString(),
+          Mill1: item.productivity === 'productive' ? (item.duration_seconds / 60) : 0,
+        }));
+
+        const breakdownMap = new Map();
+        data.forEach((item: any) => {
+          const category = item.utilisation_category || item.classification;
+          const duration = item.duration_seconds || 0;
+          breakdownMap.set(category, (breakdownMap.get(category) || 0) + duration);
+        });
+
+        const processedBreakdown = Array.from(breakdownMap.entries()).map(([name, value]) => {
+          let fill = '#cccccc';
+          if (name.includes('UPTIME')) fill = '#22c55e';
+          else if (name.includes('PRODUCTIVE DOWNTIME')) fill = '#3b82f6';
+          else if (name.includes('UNPRODUCTIVE DOWNTIME')) fill = '#ef4444';
+          return { name, value, fill };
+        });
+
+        setUtilisationTrend(processedTrend);
+        setStatusBreakdown(processedBreakdown);
+
+      } catch (err) {
+        if (err instanceof Error && err.message === 'Unauthorized') {
+          handleLogout();
+        } else {
+          setError("Failed to fetch machine data.");
+          console.error("Error fetching machine data:", err);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [token, handleLogout]);
+
+  if (loading) return <div className="flex justify-center items-center h-screen">Loading dashboard...</div>;
+  if (error) return <div className="flex justify-center items-center h-screen text-red-500">Error: {error}</div>;
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
         <div className="h-16 flex items-center justify-center border-b">
           <h1 className="text-xl font-bold">Mill Dash</h1>
@@ -46,17 +106,14 @@ export const DashboardPage = () => {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 p-8 overflow-y-auto">
         <h2 className="text-3xl font-bold mb-8">Factory Overview</h2>
         
-        {/* Grid for charts */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Example Chart 1: Utilisation Trend */}
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="font-bold text-lg mb-4">Mill 1 Utilisation Trend</h3>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={mockUtilisationTrend}>
+              <BarChart data={utilisationTrend}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis unit="%" />
@@ -66,34 +123,12 @@ export const DashboardPage = () => {
             </ResponsiveContainer>
           </div>
 
-          {/* Example Chart 2: Utilisation Readout */}
-           {/*
-           <div className="bg-white p-6 rounded-lg shadow flex flex-col items-center justify-center">
-            <h3 className="font-bold text-lg mb-4">Mill 1 Utilisation Readout</h3>
-             <ResponsiveContainer width="100%" height={300}>
-                <RadialBarChart 
-                    innerRadius="70%" 
-                    outerRadius="100%" 
-                    data={[{name: 'Utilisation', value: 57.7, fill: '#8884d8'}]} 
-                    startAngle={90} 
-                    endAngle={-270}
-                >
-                    <RadialBar minAngle={15} background clockWise={true} dataKey='value' />
-                    <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="text-4xl font-bold">
-                        57.7%
-                    </text>
-                </RadialBarChart>
-            </ResponsiveContainer>
-          </div>
-          */}
-
-          {/* Example Chart 3: Status Breakdown */}
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="font-bold text-lg mb-4">Mill 1 Status Breakdown</h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
-                <Pie data={mockStatusBreakdown} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} label>
-                    {mockStatusBreakdown.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
+                <Pie data={statusBreakdown} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} label>
+                    {statusBreakdown.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
                 </Pie>
                 <Tooltip />
                 <Legend />

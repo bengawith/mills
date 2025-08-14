@@ -67,25 +67,6 @@ class Config:
     # In production, generate a random key with: openssl rand -hex 32
     SECRET_KEY = os.getenv('SECRET_KEY', 'my-super-secret-key')
     ALGORITHM = os.getenv('ALGORITHM', 'HS256')
-    ACCESS_TOKEN_EXPIRE_MINUTES = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
-    # --- MOCK USER DATABASE ---
-    # In a real application, this would come from your Postgres DB.
-    # For now, we hardcode a user for simplicity.
-    # The password hash was generated with: get_password_hash("testpassword")
-    MOCK_USERS_DB = {
-        "testuser": {
-            "username": "testuser",
-            "full_name": "Test User",
-            "email": "test@example.com",
-            "hashed_password": "$2b$12$kGMhv5.Pve6rzW1cfoZ3uOjwRvrUUlKxq5FJIGiyo3X7r0E7Yy1Su",
-            "disabled": False,
-        }
-    }
-
-    @classmethod
-    def get_user(cls, username: str):
-        if username in cls.MOCK_USERS_DB:
-            user_dict = cls.MOCK_USERS_DB[username]
-            from models import UserInDB # Import here to avoid circular dependency
-            return UserInDB(**user_dict)
+    
