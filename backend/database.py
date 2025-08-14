@@ -16,6 +16,25 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
+from sqlalchemy import Column, String, Integer, DateTime, Float, Boolean
+
+class MillData(Base):
+    __tablename__ = "mill_data"
+
+    id = Column(String, primary_key=True, index=True)
+    name = Column(String, index=True)
+    machine_id = Column(String, index=True)
+    downtime_reason_name = Column(String)
+    end_timestamp = Column(DateTime(timezone=True))
+    start_timestamp = Column(DateTime(timezone=True))
+    productivity = Column(String)
+    classification = Column(String)
+    duration_seconds = Column(Float)
+    shift = Column(String)
+    day_of_week = Column(String)
+    utilisation_category = Column(String)
+
+
 def get_db():
     db = SessionLocal()
     try:

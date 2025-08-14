@@ -1,3 +1,60 @@
-:8000/token:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
 localhost/:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
 localhost/:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received
+:8000/api/v1/utilization?start_time=2025-08-11T11%3A54&machine_ids=mill_2&shift=NIGHT:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+index-Dsvw39aX.js:197 Error fetching dashboard data: Error: Failed to fetch utilization data
+    at fk (index-Dsvw39aX.js:40:58853)
+    at async Promise.all (:3000/index 1)
+    at async index-Dsvw39aX.js:197:30856
+(anonymous) @ index-Dsvw39aX.js:197
+:8000/api/v1/downtime-analysis?start_time=2025-08-11T11%3A54&machine_ids=mill_2&shift=NIGHT:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+:8000/api/v1/oee?start_time=2025-08-11T11%3A54&machine_ids=mill_2&shift=NIGHT:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+
+
+
+index-Dsvw39aX.js:40  GET http://localhost:8000/api/v1/oee?start_time=2025-08-12T11%3A56&end_time=2025-08-14T11%3A57&machine_ids=mill_2&day_of_week=WEDNESDAY 500 (Internal Server Error)
+ck @ index-Dsvw39aX.js:40
+(anonymous) @ index-Dsvw39aX.js:197
+(anonymous) @ index-Dsvw39aX.js:197
+ef @ index-Dsvw39aX.js:40
+ao @ index-Dsvw39aX.js:40
+Xj @ index-Dsvw39aX.js:40
+Xn @ index-Dsvw39aX.js:40
+T0 @ index-Dsvw39aX.js:40
+Dn @ index-Dsvw39aX.js:38
+(anonymous) @ index-Dsvw39aX.js:40
+index-Dsvw39aX.js:197 Error fetching dashboard data: Error: Failed to fetch OEE data
+    at ck (index-Dsvw39aX.js:40:58588)
+    at async Promise.all (:3000/index 0)
+    at async index-Dsvw39aX.js:197:30856
+(anonymous) @ index-Dsvw39aX.js:197
+await in (anonymous)
+(anonymous) @ index-Dsvw39aX.js:197
+ef @ index-Dsvw39aX.js:40
+ao @ index-Dsvw39aX.js:40
+Xj @ index-Dsvw39aX.js:40
+Xn @ index-Dsvw39aX.js:40
+T0 @ index-Dsvw39aX.js:40
+Dn @ index-Dsvw39aX.js:38
+(anonymous) @ index-Dsvw39aX.js:40
+index-Dsvw39aX.js:40  GET http://localhost:8000/api/v1/downtime-analysis?start_time=2025-08-12T11%3A56&end_time=2025-08-14T11%3A57&machine_ids=mill_2&day_of_week=WEDNESDAY 500 (Internal Server Error)
+dk @ index-Dsvw39aX.js:40
+(anonymous) @ index-Dsvw39aX.js:197
+(anonymous) @ index-Dsvw39aX.js:197
+ef @ index-Dsvw39aX.js:40
+ao @ index-Dsvw39aX.js:40
+Xj @ index-Dsvw39aX.js:40
+Xn @ index-Dsvw39aX.js:40
+T0 @ index-Dsvw39aX.js:40
+Dn @ index-Dsvw39aX.js:38
+(anonymous) @ index-Dsvw39aX.js:40
+index-Dsvw39aX.js:40  GET http://localhost:8000/api/v1/utilization?start_time=2025-08-12T11%3A56&end_time=2025-08-14T11%3A57&machine_ids=mill_2&day_of_week=WEDNESDAY 500 (Internal Server Error)
+fk @ index-Dsvw39aX.js:40
+(anonymous) @ index-Dsvw39aX.js:197
+(anonymous) @ index-Dsvw39aX.js:197
+ef @ index-Dsvw39aX.js:40
+ao @ index-Dsvw39aX.js:40
+Xj @ index-Dsvw39aX.js:40
+Xn @ index-Dsvw39aX.js:40
+T0 @ index-Dsvw39aX.js:40
+Dn @ index-Dsvw39aX.js:38
+(anonymous) @ index-Dsvw39aX.js:40

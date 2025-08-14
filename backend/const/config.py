@@ -1,13 +1,13 @@
 from typing import Dict
 from models import User
-from dotenv import load_dotenv
+
 from datetime import time
 import os
 
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-load_dotenv(f'{ROOT_DIR}/.env')
+
 
 class Config:
     ROOT_DIR: str = ROOT_DIR

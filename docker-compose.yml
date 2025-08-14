@@ -5,7 +5,7 @@ services:
     build: ./backend # Path to the backend Dockerfile
     container_name: mill_dash_backend
     command: >
-      sh -c "uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+      sh -c "PYTHONPATH=/app uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
     volumes:
       - ./backend/:/app/ # Mounts the local code into the container for live-reloading
       - ./data/:/app/data/ # Mounts the local data directory into the container
