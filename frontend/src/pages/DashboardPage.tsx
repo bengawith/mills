@@ -7,6 +7,27 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 import { machineOptions, shiftOptions, dayOfWeekOptions } from '@/assets/constants';
+import { CollapsibleLegend } from '../components/CollapsibleLegend';
+
+const getUtilizationColor = (percentage: number): string => {
+  // Define color range: Red (0%) to Green (70%)
+  const red = [255, 0, 0]; // RGB for Red
+  const green = [0, 128, 0]; // RGB for Green (a darker green for better contrast)
+
+  if (percentage >= 70) {
+    return `rgb(${green[0]}, ${green[1]}, ${green[2]})`;
+  }
+
+  // Interpolate between red and green based on percentage towards 70%
+  // Normalize percentage to a 0-1 scale where 0 is 0% and 1 is 70%
+  const normalizedPercentage = Math.min(1, percentage / 70);
+
+  const r = red[0] + normalizedPercentage * (green[0] - red[0]);
+  const g = red[1] + normalizedPercentage * (green[1] - red[1]);
+  const b = red[2] + normalizedPercentage * (green[2] - red[2]);
+
+  return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+};
 
 export const DashboardPage = () => {
   const { logout, token } = useAuth();
@@ -157,13 +178,27 @@ export const DashboardPage = () => {
         {/* Dashboard Data Display */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
           {/* OEE Card */}
+          {/* OEE Card */}
           {oeeData && (
             <div className="bg-white p-6 rounded-lg shadow">
               <h3 className="font-bold text-lg mb-4">Overall Equipment Effectiveness (OEE)</h3>
-              <p>OEE: {oeeData.oee}%</p>
-              <p>Availability: {oeeData.availability}%</p>
-              <p>Performance: {oeeData.performance}%</p>
-              <p>Quality: {oeeData.quality}%</p>
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart
+                  data={[
+                    { name: 'OEE', value: oeeData.oee },
+                    { name: 'Availability', value: oeeData.availability },
+                    { name: 'Performance', value: oeeData.performance },
+                    { name: 'Quality', value: oeeData.quality },
+                  ]}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="value" fill="#8884d8" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           )}
 
@@ -171,11 +206,41 @@ export const DashboardPage = () => {
           {utilizationData && (
             <div className="bg-white p-6 rounded-lg shadow">
               <h3 className="font-bold text-lg mb-4">Utilization</h3>
-              <p>Total Time: {Math.round(utilizationData.total_time_seconds / 3600)} hours</p>
-              <p>Productive Uptime: {Math.round(utilizationData.productive_uptime_seconds / 3600)} hours</p>
-              <p>Unproductive Downtime: {Math.round(utilizationData.unproductive_downtime_seconds / 3600)} hours</p>
-              <p>Productive Downtime: {Math.round(utilizationData.productive_downtime_seconds / 3600)} hours</p>
-              <p>Utilization Percentage: {utilizationData.utilization_percentage}%</p>
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: 'Productive Uptime', value: utilizationData.productive_uptime_seconds },
+                      { name: 'Productive Downtime', value: utilizationData.productive_downtime_seconds },
+                      { name: 'Unproductive Downtime', value: utilizationData.unproductive_downtime_seconds },
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                    // label // Removed label prop
+                  >
+                    <Cell key={`cell-0`} fill="#4CAF50" /> {/* Green */}
+                    <Cell key={`cell-1`} fill="#2196F3" /> {/* Blue */}
+                    <Cell key={`cell-2`} fill="#F44336" /> {/* Red */}
+                  </Pie>
+                  <Tooltip formatter={(value: number) => `${Math.round(value / 3600)} hours`} />
+                  <CollapsibleLegend title="Utilization Legend">
+                    <Legend />
+                  </CollapsibleLegend>
+                </PieChart>
+              </ResponsiveContainer>
+              <p className="mt-4">Total Time: {Math.round(utilizationData.total_time_seconds / 3600)} hours</p>
+              <p className="mt-1">Productive Uptime: {Math.round(utilizationData.productive_uptime_seconds / 3600)} hours</p>
+              <p className="mt-1">Unproductive Downtime: {Math.round(utilizationData.unproductive_downtime_seconds / 3600)} hours</p>
+              <p className="mt-1">Productive Downtime: {Math.round(utilizationData.productive_downtime_seconds / 3600)} hours</p>
+              <p className="mt-1">
+                Utilization Percentage:{" "}
+                <span style={{ color: getUtilizationColor(utilizationData.utilization_percentage) }}>
+                  {utilizationData.utilization_percentage}%
+                </span>
+              </p>
             </div>
           )}
 
@@ -184,32 +249,48 @@ export const DashboardPage = () => {
             <div className="bg-white p-6 rounded-lg shadow col-span-1 lg:col-span-2 xl:col-span-1">
               <h3 className="font-bold text-lg mb-4">Downtime Analysis</h3>
               <h4 className="font-semibold mb-2">Excessive Downtimes:</h4>
-              {downtimeAnalysisData.excessive_downtimes.length > 0 ? (
-                <ul>
-                  {downtimeAnalysisData.excessive_downtimes.map((d: any, index: number) => (
-                    <li key={index}>
-                      {d.name}: {d.downtime_reason_name} for {Math.round(d.duration_seconds / 60)} minutes and {Math.round(d.duration_seconds % 60)} seconds
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No excessive downtimes found.</p>
-              )}
+              <div className="max-h-40 overflow-y-auto"> {/* Added scrollable div */}
+                {downtimeAnalysisData.excessive_downtimes.length > 0 ? (
+                  <ul>
+                    {downtimeAnalysisData.excessive_downtimes.map((d: any, index: number) => (
+                      <li key={index}>
+                        {d.name}: {d.downtime_reason_name} for {Math.round(d.duration_seconds / 60)} minutes and {Math.round(d.duration_seconds % 60)} seconds
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No excessive downtimes found.</p>
+                )}
+              </div>
 
               <h4 className="font-semibold mt-4 mb-2">Recurring Downtime Reasons:</h4>
-              {Object.keys(downtimeAnalysisData.recurring_downtime_reasons).length > 0 ? (
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={Object.entries(downtimeAnalysisData.recurring_downtime_reasons).map(([name, value]) => ({ name, value: value as number }))}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} interval={0} />
-                    <YAxis formatter={(value: number) => `${Math.round(value / 3600)} hours`} />
-                    <Tooltip formatter={(value: number) => `${Math.round(value / 3600)} hours`} />
-                    <Bar dataKey="value" fill="#8884d8" />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <p>No recurring downtime reasons found.</p>
-              )}
+              <div className="max-h-40 overflow-y-auto"> {/* Added scrollable div */}
+                {Object.keys(downtimeAnalysisData.recurring_downtime_reasons).length > 0 ? (
+                  <ResponsiveContainer width="100%" height={200}>
+                    <PieChart>
+                      <Pie
+                        data={Object.entries(downtimeAnalysisData.recurring_downtime_reasons).map(([name, value]) => ({ name, value: value as number }))}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                        // label // Removed label prop
+                      >
+                        {Object.keys(downtimeAnalysisData.recurring_downtime_reasons).map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={`hsl(${index * 60}, 70%, 50%)`} /> // Dynamic colors
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value: number) => `${Math.round(value / 3600)} hours`} />
+                      <CollapsibleLegend title="Downtime Reasons Legend">
+                        <Legend />
+                      </CollapsibleLegend>
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p>No recurring downtime reasons found.</p>
+                )}
+              </div>
             </div>
           )}
         </div>
