@@ -7,8 +7,8 @@ def sort_csv_by_date(file_path):
     """
     try:
         df = pd.read_csv(file_path)
-        df['timestamp'] = pd.to_datetime(df['start_timestamp'], format='ISO8601')
-        df_sorted = df.sort_values(by='timestamp')
+        df['start_timestamp'] = pd.to_datetime(df['start_timestamp'], format='ISO8601')
+        df_sorted = df.sort_values(by='start_timestamp')
         df_sorted.to_csv(file_path, index=False)
         print(f"Successfully sorted {file_path}")
     except Exception as e:
