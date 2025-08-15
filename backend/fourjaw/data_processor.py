@@ -80,14 +80,18 @@ class DataProcessor:
         # Calculate the duration of each entry in seconds
         df['duration_seconds'] = (df['end_timestamp'] - df['start_timestamp']).dt.total_seconds()
         
-        # Drop rows where 'downtime_reason_name' is 'Not On Shift'
-        df = df[df['downtime_reason_name'] != 'Not On Shift']
+        if 'downtime_reason_name' in df.columns:
+            df = df[df['downtime_reason_name'] != 'Not On Shift']
 
         # Add shift and day information
-        df['shift'], df['day_of_week'] = zip(*df['start_timestamp'].apply(self.get_shift_info))
+        shift_info = df['start_timestamp'].apply(self.get_shift_info)
+        df.loc[:, 'shift'] = [info[0] for info in shift_info]
+        df.loc[:, 'day_of_week'] = [info[1] for info in shift_info]
         
         # Map statuses to our utilisation categories
-        df['utilisation_category'] = df['productivity'].apply(lambda x: x.upper()) + " " + df['classification']
+        df.loc[:, 'productivity'] = df['productivity'].astype(str).fillna('')
+        df.loc[:, 'classification'] = df['classification'].astype(str).fillna('')
+        df.loc[:, 'utilisation_category'] = df['productivity'].apply(lambda x: x.upper()) + " " + df['classification']
         
         logger.info(f"DataFrame after process_data: {df.head()}")
         return df
@@ -178,6 +182,7 @@ class DataProcessor:
 
             # Excessive Downtimes
             excessive_downtimes = downtime_df[downtime_df['duration_seconds'] > excessive_downtime_threshold_seconds]
+            excessive_downtimes[['name', 'downtime_reason_name']] = excessive_downtimes[['name', 'downtime_reason_name']].fillna('')
             excessive_downtimes_list = excessive_downtimes[['name', 'machine_id', 'downtime_reason_name', 'duration_seconds', 'start_timestamp', 'end_timestamp']].to_dict(orient='records')
 
             # Recurring Downtime Reasons
