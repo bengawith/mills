@@ -226,9 +226,14 @@ export const DashboardPage = () => {
                     <Cell key={`cell-2`} fill="#F44336" /> {/* Red */}
                   </Pie>
                   <Tooltip formatter={(value: number) => `${Math.round(value / 3600)} hours`} />
-                  <CollapsibleLegend title="Utilization Legend">
-                    <Legend />
-                  </CollapsibleLegend>
+                  <CollapsibleLegend
+                    title="Utilization Legend"
+                    payload={[
+                      { value: 'Productive Uptime', color: '#4CAF50' },
+                      { value: 'Productive Downtime', color: '#2196F3' },
+                      { value: 'Unproductive Downtime', color: '#F44336' },
+                    ]}
+                  />
                 </PieChart>
               </ResponsiveContainer>
               <p className="mt-4">Total Time: {Math.round(utilizationData.total_time_seconds / 3600)} hours</p>
@@ -282,15 +287,42 @@ export const DashboardPage = () => {
                         ))}
                       </Pie>
                       <Tooltip formatter={(value: number) => `${Math.round(value / 3600)} hours`} />
-                      <CollapsibleLegend title="Downtime Reasons Legend">
-                        <Legend />
-                      </CollapsibleLegend>
+                      <CollapsibleLegend
+                        title="Downtime Reasons Legend"
+                        payload={Object.entries(downtimeAnalysisData.recurring_downtime_reasons).map(([name, value], index) => ({
+                          value: name,
+                          color: `hsl(${index * 60}, 70%, 50%)`
+                        }))}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
                   <p>No recurring downtime reasons found.</p>
                 )}
               </div>
+
+              <h4 className="font-bold text-lg mb-4 mt-8">Downtime Reasons Bar Chart</h4>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={Object.entries(downtimeAnalysisData.recurring_downtime_reasons).map(([name, value]) => ({
+                    name,
+                    duration: Math.round(value as number / 3600) // Convert seconds to hours
+                  }))}
+                  margin={{
+                    top: 5,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis label={{ value: 'Duration (hours)', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip formatter={(value: number) => `${value} hours`} />
+                  <Legend />
+                  <Bar dataKey="duration" fill="#82ca9d" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           )}
         </div>
