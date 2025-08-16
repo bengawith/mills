@@ -30,7 +30,7 @@ export const CollapsibleLegend = ({ title, payload }: CollapsibleLegendProps) =>
             <div key={`legend-item-${index}`} className="flex items-center">
               <span
                 className="inline-block w-3 h-3 rounded-full mr-2"
-                style={{ backgroundColor: entry.color || '#8884d8' }} // Default color if not provided
+                style={{ backgroundColor: entry.color || '#8884d8' }}
               ></span>
               <span className="text-sm text-gray-700">{entry.value}</span>
             </div>

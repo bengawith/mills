@@ -65,9 +65,6 @@ def ingest_data(df: pd.DataFrame):
         print(f"[{datetime.now()}] Inserting data into the database...")
         try:
             existing_ids = pd.read_sql('SELECT id FROM mill_data', engine)['id'].tolist()
-            # Remove duplicates within the current DataFrame based on 'id'
-            processed_df.drop_duplicates(subset=['id'], inplace=True)
-            # Filter out records that already exist in the database
             processed_df = processed_df[~processed_df['id'].isin(existing_ids)]
             processed_df.to_sql('mill_data', engine, if_exists='append', index=False)
             print(f"[{datetime.now()}] Ingestion job completed. Total unique records processed: {len(processed_df)}.")
@@ -182,8 +179,8 @@ def fetch_and_ingest_fourjaw_data():
                 # Read existing CSV, append new data, and save
                 existing_df = pd.read_csv(csv_file_path)
                 combined_df = pd.concat([existing_df, new_data_df], ignore_index=True)
-                # Drop duplicates based on start_timestamp, end_timestamp and machine_id if they are in both the API and CSV
-                combined_df.drop_duplicates(subset=['id'], inplace=True)
+                # Drop duplicates based on start_timestamp if they are in both the API and CSV
+                combined_df.drop_duplicates(subset=['start_timestamp'], inplace=True)
                 combined_df.to_csv(csv_file_path, index=False)
                 print(f"Appended {len(new_data_df)} new entries to {csv_file_path}")
             else:

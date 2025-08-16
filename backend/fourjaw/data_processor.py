@@ -76,6 +76,12 @@ class DataProcessor:
         if df.empty:
             logger.info("Input DataFrame is empty in process_data.")
             return pd.DataFrame()
+        
+        if not 'name' in df.columns:
+            df.insert(0, 'name', df['machine_id'].copy().apply(lambda x: Config.MACHINE_ID_MAP.get(x, 'Unknown')))
+
+        df['start_timestamp'] = pd.to_datetime(df['start_timestamp'], format='mixed', utc=True)
+        df['end_timestamp'] = pd.to_datetime(df['end_timestamp'], format='mixed', utc=True)
 
         # Calculate the duration of each entry in seconds
         df['duration_seconds'] = (df['end_timestamp'] - df['start_timestamp']).dt.total_seconds()
