@@ -1,0 +1,20 @@
+New maintenance page, log 'ticket' explain what issue is and then description
+Log where things are breaking - dropdown and then written description
+Compare to fourjaw categories - how it was fixed box
+Downtime caused by this issue - what is recurring
+
+Ticket Logging Page
+Logged time
+Incident category
+Description
+Priority
+Work notes – how incident was fixed
+Time resolved
+Option to attach to FourJaw downtimes
+Components required for repair work
+Stock of key components for repair work
+Data analytics
+Breakdown of incident resolution times
+Downtimes caused by maintenance categories
+Maintenance trends
+ 
