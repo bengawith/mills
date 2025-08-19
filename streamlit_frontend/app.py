@@ -56,16 +56,25 @@ def main():
         days_of_week_response = get_days_of_week(st.session_state.token)
         days_of_week = ["All"] + (days_of_week_response.json() if days_of_week_response.status_code == 200 else [])
 
+        def on_change_machine():
+            st.session_state.machine_id = st.session_state.machine_selectbox
+
         start_date = st.sidebar.date_input("Start Date")
         end_date = st.sidebar.date_input("End Date")
-        machine = st.sidebar.selectbox("Machine", [MACHINE_ID_MAP[m] if m != "All" else m for m in machines])
+        machine = st.sidebar.selectbox(
+            "Machine",
+            machines,
+            key="machine_selectbox",
+            on_change=on_change_machine,
+            format_func=lambda m: MACHINE_ID_MAP.get(m, "All")
+        )
         shift = st.sidebar.selectbox("Shift", shifts)
         day_of_week = st.sidebar.selectbox("Day of Week", days_of_week)
 
         params = {
             "start_time": start_date.isoformat(),
             "end_time": end_date.isoformat(),
-            "machine_id": [k for k, v in MACHINE_ID_MAP.items() if v == machine][0] if machine != "All" else None,
+            "machine_id": machine if machine != "All" else None,
             "shift": shift if shift != "All" else None,
             "day_of_week": day_of_week if day_of_week != "All" else None
         }

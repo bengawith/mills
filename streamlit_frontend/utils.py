@@ -32,5 +32,4 @@ def clean_downtime_data(data: List[Dict[str, Any]], machine_id: str = "All") -> 
     renamed_data = pd.DataFrame(renamed_data, columns=name_map.values())
     renamed_data["Start Time"] = pd.to_datetime(renamed_data["Start Time"], format="ISO8601", utc=True)
     renamed_data["End Time"] = pd.to_datetime(renamed_data["End Time"], format="ISO8601", utc=True)
-    renamed_data["Duration (hours)"] = round(renamed_data["Duration (hours)"] / 3600, 4).astype(float)
     return renamed_data
