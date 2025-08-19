@@ -18,23 +18,14 @@ services:
         condition: service_healthy
 
 
-#  # Frontend React Service
-#  frontend:
-#    build: ./frontend # Path to the frontend Dockerfile
-#    container_name: mill_dash_frontend
-#    ports:
-#      - "3000:80" # Exposes the React dev server port
-#    stdin_open: true
-#    tty: true
-
-  # Streamlit Frontend Service
-  streamlit_frontend:
-    build: ./streamlit_frontend
-    container_name: mill_dash_streamlit_frontend
+  # Frontend React Service
+  frontend:
+    build: ./frontend # Path to the frontend Dockerfile
+    container_name: mill_dash_frontend
     ports:
-      - "8501:8501"
-    depends_on:
-      - backend
+      - "3000:80" # Exposes the React dev server port
+    stdin_open: true
+    tty: true
 
   # PostgreSQL Database Service
   db:

@@ -172,3 +172,25 @@ async def get_downtime_analysis(
 
     downtime_data = processor.analyze_downtime(processed_df, excessive_downtime_threshold_seconds)
     return DowntimeAnalysisResponse(**downtime_data)
+
+@router.get("/machines", response_model=List[str])
+async def get_machines(db: Session = Depends(get_db)):
+    """
+    Returns a list of all available machines.
+    """
+    machines = db.query(MillData.machine_id).distinct().all()
+    return [m[0] for m in machines]
+
+@router.get("/shifts", response_model=List[str])
+async def get_shifts():
+    """
+    Returns a list of all available shifts.
+    """
+    return ["DAY", "NIGHT"]
+
+@router.get("/days-of-week", response_model=List[str])
+async def get_days_of_week():
+    """
+    Returns a list of all available days of the week.
+    """
+    return ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]
