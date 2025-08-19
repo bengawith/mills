@@ -4,7 +4,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine
-from models import User, UserCreate, Base
+from database_models import User, Base
+from schemas import UserCreate
 from security import create_user, get_user
 
 

@@ -16,16 +16,27 @@ services:
     depends_on:
       db: # Ensures the database is started and healthy before the backend
         condition: service_healthy
+      mosquitto:
+        condition: service_started
 
+  # NEW: MQTT Data Ingestor Service
+  ingestor:
+    build: ./backend
+    container_name: mill_dash_ingestor
+    command: >
+      sh -c "python ingestor.py"
+    volumes:
+      - ./backend/:/app/
+      - ./data/:/app/data/ # Mounts the local data directory into the container
+    env_file:
+      - ./.env
+    depends_on:
+      db:
+        condition: service_healthy
+      mosquitto:
+        condition: service_started
+    restart: on-failure
 
-#  # Frontend React Service
-#  frontend:
-#    build: ./frontend # Path to the frontend Dockerfile
-#    container_name: mill_dash_frontend
-#    ports:
-#      - "3000:80" # Exposes the React dev server port
-#    stdin_open: true
-#    tty: true
 
   # Streamlit Frontend Service
   streamlit_frontend:
@@ -52,18 +63,20 @@ services:
       timeout: 5s
       retries: 5
 
-  ingestor:
-    build: ./backend
-    container_name: mill_dash_ingestor
-    command: bash -c "PYTHONPATH=/app python /app/ingestor.py"
+  # NEW: Mosquitto MQTT Broker Service
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: mill_dash_mosquitto
+    ports:
+      - "1883:1883" # Standard MQTT port
+      - "9001:9001" # Port for WebSocket connections (optional)
     volumes:
-      - ./backend/:/app/
-      - ./data/:/app/data/
-    env_file:
-      - ./.env
-    depends_on:
-      db:
-        condition: service_healthy
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+    # To add configuration like users/passwords, you would mount a config file:
+    # - ./mosquitto/config:/mosquitto/config
 
 volumes:
-  postgres_data: # Defines the named volume for data persistence
+  postgres_data:
+  mosquitto_data:
+  mosquitto_log:

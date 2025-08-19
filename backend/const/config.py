@@ -1,6 +1,4 @@
 from typing import Dict
-from models import User
-
 from datetime import time
 import os
 
@@ -34,6 +32,9 @@ class Config:
         "maintenance": "Unproductive Downtime",
         "breakdown": "Unproductive Downtime"
     }
+
+    FOURJAW_POLLING_INTERVAL_SECONDS = 5
+    FOURJAW_HISTORICAL_FETCH_DAYS = 30
 
 
     # ===== MACHINE IDENTIFICATION =====
@@ -69,4 +70,11 @@ class Config:
     ALGORITHM = os.getenv('ALGORITHM', 'HS256')
     ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
-    
+
+    # ===== MQTT CONFIGURATION =====
+    MQTT_BROKER_HOST = "mosquitto" # The service name from docker-compose
+    MQTT_BROKER_PORT = 1883
+    MQTT_TOPIC = "plc/events/cuts"
+    # MQTT_USER = "your_username" # Uncomment if needed
+    # MQTT_PASSWORD = "your_password" # Uncomment if needed
+        

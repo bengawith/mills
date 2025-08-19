@@ -7,7 +7,8 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import TokenData, User, UserCreate
+from database_models import User
+from schemas import TokenData, UserCreate
 from const.config import Config
 
 # --- Password Hashing Setup ---

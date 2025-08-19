@@ -10,7 +10,7 @@ def clean_utilization_data(data: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def clean_downtime_data(data: List[Dict[str, Any]]) -> pd.DataFrame:
+def clean_downtime_data(data: List[Dict[str, Any]], machine_id: str = "All") -> pd.DataFrame:
     name_map: Dict[str, str] = {
         "name": "Name",
         "machine_id": "Machine ID",
@@ -20,15 +20,17 @@ def clean_downtime_data(data: List[Dict[str, Any]]) -> pd.DataFrame:
         "end_timestamp": "End Time"
     }
     renamed_data = [
-    {
-        name_map[k]: v
-        for k, v in dt_data.items()
-        if k in name_map
-    }
-    for dt_data in data
+        {
+            name_map[k]: v
+            for k, v in dt_data.items()
+            if k in name_map
+        }
+        for dt_data in data
     ]
-    renamed_data = pd.DataFrame(renamed_data)
+    if machine_id != "All":
+        renamed_data = [dt_data for dt_data in renamed_data if dt_data["Machine ID"] == machine_id]
+    renamed_data = pd.DataFrame(renamed_data, columns=name_map.values())
     renamed_data["Start Time"] = pd.to_datetime(renamed_data["Start Time"], format="ISO8601", utc=True)
     renamed_data["End Time"] = pd.to_datetime(renamed_data["End Time"], format="ISO8601", utc=True)
-    renamed_data["Duration (hours)"] = round(renamed_data["Duration (hours)"] / 3600, 2)
+    renamed_data["Duration (hours)"] = round(renamed_data["Duration (hours)"] / 3600, 4).astype(float)
     return renamed_data

@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 
 from database import engine
-from models import HistoricalMachineData # Assuming HistoricalMachineData is defined in models.py
+from database_models import HistoricalMachineData # Assuming HistoricalMachineData is defined in models.py
 
 # Define paths to your CSV files
 # Assuming the script is run from the project root or backend directory

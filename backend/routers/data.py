@@ -7,10 +7,10 @@ import logging
 logger = logging.getLogger(__name__)
 from pydantic import BaseModel
 
-from fourjaw import DataProcessor, DataProcessorConfig
+from fourjaw import DataProcessor
 from security import get_current_active_user
 from database import get_db # Import the database session dependency
-from database import MillData # Import the MillData model
+from database_models import HistoricalMachineData # Import the HistoricalMachineData model
 
 class OeeResponse(BaseModel):
     oee: float
@@ -178,7 +178,7 @@ async def get_machines(db: Session = Depends(get_db)):
     """
     Returns a list of all available machines.
     """
-    machines = db.query(MillData.machine_id).distinct().all()
+    machines = db.query(HistoricalMachineData.machine_id).distinct().all()
     return [m[0] for m in machines]
 
 @router.get("/shifts", response_model=List[str])

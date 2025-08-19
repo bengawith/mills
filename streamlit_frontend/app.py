@@ -1,4 +1,5 @@
 
+import os
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -8,16 +9,13 @@ from utils import clean_utilization_data, clean_downtime_data
 import requests
 
 MACHINE_ID_MAP = {
-    "All": "All",
     '6809f67ffc54c40ff1b489cf': 'Mill 1',
     '6809f8df20e024b627b489eb': 'Mill 2',
     '6809f8df20e024b627b489ed': 'Mill 3',
-    '6809f8df20e024b627b489f0': 'Spot 1 (TBC)', 
-    '6809f8df20e024b627b489f2': 'Spot 2 (TBC)'
 }
 
-def get_color(value: float):
-    color_scale = px.colors.diverging.RdYlGn
+def get_color(value: float) -> str:
+    color_scale: list[str] = px.colors.diverging.RdYlGn
     normalised_percentage = min(1, max(0, value / 70))
     color_index = int(normalised_percentage * (len(color_scale) - 1))
     return color_scale[color_index]
@@ -60,7 +58,7 @@ def main():
 
         start_date = st.sidebar.date_input("Start Date")
         end_date = st.sidebar.date_input("End Date")
-        machine = st.sidebar.selectbox("Machine", [MACHINE_ID_MAP[m] for m in machines])
+        machine = st.sidebar.selectbox("Machine", [MACHINE_ID_MAP[m] if m != "All" else m for m in machines])
         shift = st.sidebar.selectbox("Shift", shifts)
         day_of_week = st.sidebar.selectbox("Day of Week", days_of_week)
 
@@ -92,7 +90,7 @@ def main():
 
         # Utilization Data
         utilization_response = get_utilization_data(st.session_state.token, params)
-        if utilization_response.status_code == 200:
+        if utilization_response.status_code == 200 and utilization_response.json():
             utilization_data = utilization_response.json()
             st.write("### Utilization")
             df = pd.DataFrame.from_dict(clean_utilization_data(utilization_data), orient='index', columns=['value'])
@@ -109,16 +107,21 @@ def main():
             )
             st.plotly_chart(fig)
             st.write(f"Total Time: {utilization_data['total_time_seconds'] / 3600:.2f} (hours)")
-            st.write(f"Productive Uptime: {utilization_data['productive_uptime_seconds']:.2f} (hours)")
-            st.write(f"Productive Downtime: {utilization_data['productive_downtime_seconds']:.2f} (hours)")
-            st.write(f"Unproductive Downtime: {utilization_data['unproductive_downtime_seconds']:.2f} (hours)")
-            st.write(f"Utilization Percentage: {utilization_data['utilization_percentage']:.2%}")
-            
+            st.write(f"Productive Uptime: {utilization_data['productive_uptime_seconds'] / 3600:.2f} (hours)")
+            st.write(f"Productive Downtime: {utilization_data['productive_downtime_seconds'] / 3600:.2f} (hours)")
+            st.write(f"Unproductive Downtime: {utilization_data['unproductive_downtime_seconds'] / 3600:.2f} (hours)")            
+            st.write(
+                f"<span style='color: {get_color(utilization_data['utilization_percentage'])}; font-size: 18px;'>Utilization Percentage: {utilization_data['utilization_percentage']:.2f}%</span>",
+                unsafe_allow_html=True
+            )
+        else:
+            st.write("### Utilization")
+            st.write("No data available for the selected filters.")
 
 
         # Downtime Analysis Data
         downtime_response = get_downtime_analysis_data(st.session_state.token, params)
-        if downtime_response.status_code == 200:
+        if downtime_response.status_code == 200 and downtime_response.json():
             downtime_data = downtime_response.json()
             st.write("### Downtime Analysis")
             st.write("#### Excessive Downtimes")
@@ -128,6 +131,10 @@ def main():
             df = pd.DataFrame.from_dict({k: round(v / 3600, 2) for k, v in downtime_data["recurring_downtime_reasons"].items()}, orient='index', columns=['value'])
             fig = px.bar(df, x=df.index, y='value')
             st.plotly_chart(fig)
+
+        else:
+            st.write("### Downtime Analysis")
+            st.write("No data available for the selected filters.")
 
 
         if st.sidebar.button("Logout"):

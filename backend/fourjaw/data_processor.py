@@ -4,7 +4,8 @@ import pandas as pd
 from const import Config
 import datetime as dt
 from sqlalchemy.orm import Session
-from database import MillData, SessionLocal
+from database import SessionLocal
+from database_models import HistoricalMachineData
 from sqlalchemy import func
 import logging
 
@@ -42,14 +43,14 @@ class DataProcessor:
 
     def get_data_from_db(self, db: Session, start_time: Optional[dt.datetime] = None, end_time: Optional[dt.datetime] = None, machine_ids: Optional[List[str]] = None) -> pd.DataFrame:
         logger.info(f"Fetching data from DB with start_time={start_time}, end_time={end_time}, machine_ids={machine_ids}")
-        query = db.query(MillData)
+        query = db.query(HistoricalMachineData)
 
         if start_time:
-            query = query.filter(MillData.start_timestamp >= start_time)
+            query = query.filter(HistoricalMachineData.start_timestamp >= start_time)
         if end_time:
-            query = query.filter(MillData.end_timestamp <= end_time)
+            query = query.filter(HistoricalMachineData.end_timestamp <= end_time)
         if machine_ids:
-            query = query.filter(MillData.machine_id.in_(machine_ids))
+            query = query.filter(HistoricalMachineData.machine_id.in_(machine_ids))
 
         data = query.all()
         logger.info(f"Fetched {len(data)} records from DB.")
@@ -162,7 +163,7 @@ class DataProcessor:
             unproductive_downtime_seconds = df[(df['productivity'] == 'unproductive') & (df['classification'] == 'DOWNTIME')]['duration_seconds'].sum()
             productive_downtime_seconds = df[(df['productivity'] == 'productive') & (df['classification'] == 'DOWNTIME')]['duration_seconds'].sum()
 
-            utilization_percentage = (productive_uptime_seconds / total_time_seconds) * 100 if total_time_seconds > 0 else 0
+            utilization_percentage = (productive_uptime_seconds / (productive_downtime_seconds + unproductive_downtime_seconds + productive_uptime_seconds)) * 100 if total_time_seconds > 0 else 0
 
             result = {
                 "total_time_seconds": round(total_time_seconds, 2),
