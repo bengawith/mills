@@ -169,6 +169,8 @@ async def get_downtime_analysis(
         processed_df = processed_df[processed_df['shift'] == shift.upper()]
     if day_of_week:
         processed_df = processed_df[processed_df['day_of_week'] == day_of_week.upper()]
+    if machine_ids:
+        processed_df = processed_df[processed_df['machine_id'].isin(machine_ids)]
 
     downtime_data = processor.analyze_downtime(processed_df, excessive_downtime_threshold_seconds)
     return DowntimeAnalysisResponse(**downtime_data)
