@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 import shutil
 from pathlib import Path
+import datetime
 
 # Import your schemas, database models, and database session logic
 import schemas
@@ -77,12 +78,12 @@ def upload_image_for_ticket(ticket_id: int, db: Session = Depends(get_db), file:
     
     # Create a unique filename to prevent overwrites
     file_extension = Path(file.filename).suffix
-    file_path = upload_dir / f"{ticket_id}_{int(datetime.now().timestamp())}{file_extension}"
+    file_path = upload_dir / f"{ticket_id}_{int(datetime.datetime.now(datetime.timezone.utc).timestamp())}{file_extension}"
     
     # Save the file
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
-        
+
     # Create the database record
     image_url = str(file_path)
     db_image = database_models.TicketImage(ticket_id=ticket_id, image_url=image_url)

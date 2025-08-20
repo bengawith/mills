@@ -24,7 +24,8 @@ with st.form("log_ticket_form", clear_on_submit=True):
         machine_name = st.selectbox(
             "Machine*",
             options=[""] + list(Config.MACHINE_ID_MAP.values()),
-            index=0
+            index=0,
+            key="selected_machine" # Use a key to access the value outside the form if needed
         )
         incident_category = st.selectbox(
             "Incident Category*",
@@ -46,29 +47,38 @@ with st.form("log_ticket_form", clear_on_submit=True):
     if machine_name:
         machine_id = next((mid for mid, mname in Config.MACHINE_ID_MAP.items() if mname == machine_name), None)
         if machine_id:
-            # Fetch recent downtimes for the selected machine
             with st.spinner(f"Fetching recent downtimes for {machine_name}..."):
-                # Fetch last 24 hours of data
                 end_time = datetime.utcnow()
                 start_time = end_time - timedelta(days=1)
                 downtime_events = get_recent_downtimes(machine_id, start_time, end_time)
     
     selected_downtime_id = None
-    if downtime_events:
-        downtime_options = {f"{evt['start_timestamp']} ({int(evt['duration_seconds']/60)} mins) - {evt['downtime_reason_name']}": evt['id'] for evt in downtime_events}
-        downtime_options["None"] = None # Add option to not link
+    
+    # --- FIX #1: Check if downtime_events is a valid list of dictionaries ---
+    # This prevents the TypeError if the API returns an error or an empty list.
+    if isinstance(downtime_events, list) and downtime_events:
+        # Create a mapping from a user-friendly display string to the event ID
+        downtime_options = {
+            f"{evt.get('start_timestamp', 'N/A')} ({int(evt.get('duration_seconds', 0)/60)} mins) - {evt.get('downtime_reason_name', 'N/A')}": evt.get('id')
+            for evt in downtime_events
+        }
+        
+        # Add a "None" option to allow users to not link any event
+        downtime_display_options = ["None"] + list(downtime_options.keys())
         
         selected_downtime_display = st.selectbox(
             "Link to FourJaw Downtime Event (Optional)",
-            options=["None"] + list(downtime_options.keys())
+            options=downtime_display_options
         )
         if selected_downtime_display != "None":
             selected_downtime_id = downtime_options[selected_downtime_display]
+    elif machine_name:
+        st.write("No recent downtime events found for the selected machine.")
 
     # --- Image Upload ---
     uploaded_image = st.file_uploader("Upload Image (Optional)", type=["png", "jpg", "jpeg"])
 
-    # --- Form Submission ---
+    # --- FIX #2: Add the required st.form_submit_button ---
     submitted = st.form_submit_button("Submit Ticket", type="primary")
 
     if submitted:
@@ -92,6 +102,7 @@ with st.form("log_ticket_form", clear_on_submit=True):
             
             if new_ticket and uploaded_image:
                 with st.spinner("Uploading image..."):
+                    # Pass the actual ticket ID from the response
                     upload_ticket_image(new_ticket['id'], uploaded_image)
 
             if new_ticket:
