@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import the new routers
-from routers import auth, data, maintenance, inventory
+from routers import auth, data, maintenance, inventory, production, events
 from const.config import Config
 from database import Base, engine
 
@@ -26,8 +26,10 @@ app.add_middleware(
 # This adds all the endpoints from your auth.py and data.py files to the main app
 app.include_router(auth.router)
 app.include_router(data.router)
+app.include_router(production.router)
 app.include_router(maintenance.router)
 app.include_router(inventory.router)
+app.include_router(events.router)
 
 
 @app.on_event("startup")
