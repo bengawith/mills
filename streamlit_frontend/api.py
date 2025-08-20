@@ -83,6 +83,34 @@ def get_days_of_week(token):
     return response
 
 
+def get_analytical_data(start_time: datetime, end_time: datetime, machine_ids: list):
+    """
+    Fetches the full, enriched analytical dataset from the new dashboard endpoint.
+    """
+    headers = get_auth_headers()
+    if not headers: return None
+
+    try:
+        # FastAPI expects query parameters for lists to be passed this way
+        params = {
+            "start_time": start_time.isoformat(),
+            "end_time": end_time.isoformat(),
+            "machine_ids": machine_ids
+        }
+        # The requests library can handle list parameters correctly if passed like this
+        response = requests.get(
+            f"{BACKEND_URL}/api/v1/dashboard/analytical-data",
+            headers=headers,
+            params=params,
+        )
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        st.error(f"Failed to fetch analytical data: {e}")
+        return None
+
+
+
 # --- Production Endpoints ---
 def get_products():
     """Fetches a list of all products."""
