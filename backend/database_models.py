@@ -60,7 +60,7 @@ class ProductionRun(Base):
     id = Column(Integer, primary_key=True, index=True)
     machine_id = Column(String, index=True, nullable=False)
     product_id = Column(Integer, ForeignKey('products.id'), nullable=False)
-    start_time = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    start_time = Column(DateTime, nullable=False, default=datetime.datetime.now(datetime.timezone.utc))
     end_time = Column(DateTime, nullable=True)
     status = Column(String, default='ACTIVE') # e.g., ACTIVE, COMPLETED
     scrap_length = Column(Float, nullable=True)

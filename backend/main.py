@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import the new routers
-from routers import auth, data, maintenance, inventory, production, events
+from routers import auth, data, maintenance, inventory, production, events, fourjaw_proxy
 from const.config import Config
 from database import Base, engine
 
@@ -30,6 +30,7 @@ app.include_router(production.router)
 app.include_router(maintenance.router)
 app.include_router(inventory.router)
 app.include_router(events.router)
+app.include_router(fourjaw_proxy.router)
 
 
 @app.on_event("startup")

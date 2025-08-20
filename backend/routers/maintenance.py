@@ -1,6 +1,8 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
+import shutil
+from pathlib import Path
 
 # Import your schemas, database models, and database session logic
 import schemas
@@ -14,6 +16,7 @@ router = APIRouter(
     dependencies=[Depends(get_current_active_user)]
 )
 
+
 @router.post("/", response_model=schemas.MaintenanceTicket, status_code=status.HTTP_201_CREATED)
 def create_maintenance_ticket(ticket: schemas.MaintenanceTicketCreate, db: Session = Depends(get_db)):
     """
@@ -25,6 +28,7 @@ def create_maintenance_ticket(ticket: schemas.MaintenanceTicketCreate, db: Sessi
     db.refresh(db_ticket)
     return db_ticket
 
+
 @router.get("/", response_model=List[schemas.MaintenanceTicket])
 def read_maintenance_tickets(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """
@@ -32,6 +36,7 @@ def read_maintenance_tickets(skip: int = 0, limit: int = 100, db: Session = Depe
     """
     tickets = db.query(database_models.MaintenanceTicket).offset(skip).limit(limit).all()
     return tickets
+
 
 @router.get("/{ticket_id}", response_model=schemas.MaintenanceTicket)
 def read_maintenance_ticket(ticket_id: int, db: Session = Depends(get_db)):
@@ -42,6 +47,7 @@ def read_maintenance_ticket(ticket_id: int, db: Session = Depends(get_db)):
     if db_ticket is None:
         raise HTTPException(status_code=404, detail="Ticket not found")
     return db_ticket
+
 
 @router.post("/{ticket_id}/notes", response_model=schemas.TicketWorkNote)
 def create_work_note_for_ticket(ticket_id: int, note: schemas.TicketWorkNoteCreate, db: Session = Depends(get_db)):
@@ -57,3 +63,31 @@ def create_work_note_for_ticket(ticket_id: int, note: schemas.TicketWorkNoteCrea
     db.commit()
     db.refresh(db_note)
     return db_note
+
+
+@router.post("/{ticket_id}/upload-image", response_model=schemas.TicketImage)
+def upload_image_for_ticket(ticket_id: int, db: Session = Depends(get_db), file: UploadFile = File(...)):
+    """
+    Uploads an image and associates it with a maintenance ticket.
+    """
+    # Define a secure path to save the uploaded files
+    # In production, this should point to a persistent volume or cloud storage
+    upload_dir = Path("uploads/ticket_images")
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Create a unique filename to prevent overwrites
+    file_extension = Path(file.filename).suffix
+    file_path = upload_dir / f"{ticket_id}_{int(datetime.now().timestamp())}{file_extension}"
+    
+    # Save the file
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    # Create the database record
+    image_url = str(file_path)
+    db_image = database_models.TicketImage(ticket_id=ticket_id, image_url=image_url)
+    db.add(db_image)
+    db.commit()
+    db.refresh(db_image)
+    
+    return db_image
