@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 # Import the new routers
 from routers import auth, data, maintenance, inventory, production, events, fourjaw_proxy, dashboard
 from const.config import Config
@@ -21,6 +22,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# --- Mount Static Files Directory for Image Uploads ---
+# This makes the 'uploads' directory accessible to the frontend
+uploads_dir = Path("uploads")
+uploads_dir.mkdir(exist_ok=True) # Ensure the directory exists
+app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 
 # --- Include Routers ---
 # This adds all the endpoints from your auth.py and data.py files to the main app

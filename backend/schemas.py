@@ -128,3 +128,26 @@ class RepairComponent(RepairComponentBase):
     id: int
     class Config:
         orm_mode = True
+
+
+# NEW: Schema for components used in a ticket response
+class TicketComponentUsed(BaseModel):
+    quantity_used: int
+    component: "RepairComponent" # Use string forward reference for nested model
+
+    class Config:
+        orm_mode = True
+
+class MaintenanceTicket(MaintenanceTicketBase):
+    id: int
+    logged_time: datetime.datetime
+    resolved_time: Optional[datetime.datetime] = None
+    status: str
+    work_notes: List[TicketWorkNote] = []
+    images: List[TicketImage] = []
+    components_used: List[TicketComponentUsed] = [] # <-- ADD THIS LINE
+
+    class Config:
+        orm_mode = True
+
+TicketComponentUsed.update_forward_refs()

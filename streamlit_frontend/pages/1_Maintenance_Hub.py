@@ -16,7 +16,7 @@ if 'token' not in st.session_state or st.session_state.token is None:
 # --- Page Content ---
 
 # Button to navigate to the form for logging a new ticket
-st.page_link("pages/3_Log_New_Ticket.py", label="Log New Incident", icon="➕")
+st.page_link("pages/2_Log_New_Ticket.py", label="Log New Incident", icon="➕")
 
 st.divider()
 

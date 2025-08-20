@@ -110,4 +110,4 @@ with st.form("log_ticket_form", clear_on_submit=True):
                 st.balloons()
 
 
-st.page_link("pages/2_Maintenance_Hub.py", label="Back to Maintenance Hub", icon="⬅️")
+st.page_link("pages/1_Maintenance_Hub.py", label="Back to Maintenance Hub", icon="⬅️")

@@ -236,3 +236,58 @@ def upload_ticket_image(ticket_id: int, uploaded_file):
     except requests.exceptions.RequestException as e:
         st.error(f"Failed to upload image: {e}")
         return None
+
+
+def get_ticket_details(ticket_id: int):
+    """Fetches all details for a single maintenance ticket."""
+    headers = get_auth_headers()
+    if not headers: return None
+    try:
+        response = requests.get(f"{BACKEND_URL}/api/v1/tickets/{ticket_id}", headers=headers)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        st.error(f"Failed to fetch ticket details: {e}")
+        return None
+
+def update_ticket_status(ticket_id: int, new_status: str):
+    """Updates the status of a maintenance ticket."""
+    headers = get_auth_headers()
+    if not headers: return None
+    try:
+        params = {"status": new_status}
+        response = requests.put(f"{BACKEND_URL}/api/v1/tickets/{ticket_id}", headers=headers, params=params)
+        response.raise_for_status()
+        st.success(f"Ticket #{ticket_id} status updated to '{new_status}'")
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        st.error(f"Failed to update ticket status: {e}")
+        return None
+
+def add_work_note(ticket_id: int, note: str, author: str):
+    """Adds a new work note to a ticket."""
+    headers = get_auth_headers()
+    if not headers: return None
+    try:
+        payload = {"note": note, "author": author}
+        response = requests.post(f"{BACKEND_URL}/api/v1/tickets/{ticket_id}/notes", headers=headers, json=payload)
+        response.raise_for_status()
+        st.success("Work note added successfully.")
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        st.error(f"Failed to add work note: {e}")
+        return None
+
+def add_component_to_ticket(ticket_id: int, component_id: int, quantity: int):
+    """Logs a component used for a ticket repair."""
+    headers = get_auth_headers()
+    if not headers: return None
+    try:
+        params = {"component_id": component_id, "quantity_used": quantity}
+        response = requests.post(f"{BACKEND_URL}/api/v1/tickets/{ticket_id}/components", headers=headers, params=params)
+        response.raise_for_status()
+        st.success("Component usage logged successfully.")
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        st.error(f"Failed to log component usage: {e.json().get('detail', e)}")
+        return None
