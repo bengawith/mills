@@ -3,7 +3,7 @@ import pandas as pd
 from api import get_products, start_production_run, complete_production_run, get_active_runs
 from config import Config
 
-st.set_page_config(layout="wide")
+st.set_page_config(page_title="Mill Terminal", layout="wide", page_icon="👨‍🏭")
 
 st.title("👨‍🏭 Operator Terminal")
 

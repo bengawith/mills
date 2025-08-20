@@ -1,148 +1,66 @@
-
-import os
 import streamlit as st
-import pandas as pd
-import numpy as np
-import plotly.express as px
-from api import login, get_oee_data, get_utilization_data, get_downtime_analysis_data, get_machines, get_shifts, get_days_of_week
-from utils import clean_utilization_data, clean_downtime_data
+from api import login
 import requests
 from config import Config
 
-def get_color(value: float) -> str:
-    color_scale: list[str] = px.colors.diverging.RdYlGn
-    normalised_percentage = min(1, max(0, value / 70))
-    color_index = int(normalised_percentage * (len(color_scale) - 1))
-    return color_scale[color_index]
+
+st.set_page_config(
+    page_title="Mill Dash Home",
+    page_icon="🏭",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': f'{Config.BASE_URL}/docs/help',
+        'Report a bug': f"{Config.BASE_URL}/bug",
+    }
+)
 
 
-# Main app
-def main():
-    st.set_page_config(page_title="Mill Dash", layout="wide")
-    st.title("Mill Dash")
+def show_login_form():
+    """Displays the login form."""
+    with st.form("login_form"):
+        if "token" not in st.session_state:
+            st.subheader("Login")
+            username = st.text_input("Username", value="testuser")
+            password = st.text_input("Password", type="password", value="testpassword")
+            submitted = st.form_submit_button("Login")
 
-    if "token" not in st.session_state:
-        st.subheader("Login")
-        username = st.text_input("Username", value="testuser")
-        password = st.text_input("Password", type="password", value="testpassword")
-        if st.button("Login"):
-            try:
-                response: requests.Response | None = login(username, password)
-                if response:
-                    if response.status_code == 200:
-                        st.session_state.token = response.json()["access_token"]
-                        st.rerun()
-                    elif response.status_code == 401:
-                        st.error("Invalid username or password")
-                    else:
-                        st.error(f"An error occurred: {response.status_code}")
-            except requests.exceptions.RequestException as e:
-                st.error(f"A network error occurred: {e}")
+            if submitted:
+                try:
+                    response: requests.Response | None = login(username, password)
+                    if response:
+                        if response.status_code == 200:
+                            st.session_state.token = response.json()["access_token"]
+                            st.rerun()
+                        elif response.status_code == 401:
+                            st.error("Invalid username or password")
+                        else:
+                            st.error(f"An error occurred: {response.status_code}")
+                except requests.exceptions.RequestException as e:
+                    st.error(f"A network error occurred: {e}")
 
-    else:
-        st.sidebar.title("Mill Dash")
-        st.sidebar.markdown("------")
-        st.sidebar.header("Filters")
+def show_landing_page():
+    """Displays the main landing page after login."""
+    st.title(f"Welcome to the Mill Dashboard, {st.session_state.get('username', 'User')}!")
+    
+    st.markdown("""
+        This is the central hub for monitoring and managing production at CSS Support Systems.
+        
+        Please use the navigation sidebar on the left to access the different sections of the application:
 
-        # Fetch filter data
-        machines_response = get_machines(st.session_state.token)
-        machines = ["All"] + (machines_response.json() if machines_response.status_code == 200 else [])
-        shifts_response = get_shifts(st.session_state.token)
-        shifts = ["All"] + (shifts_response.json() if shifts_response.status_code == 200 else [])
-        days_of_week_response = get_days_of_week(st.session_state.token)
-        days_of_week = ["All"] + (days_of_week_response.json() if days_of_week_response.status_code == 200 else [])
+        - **Dashboard:** View live and historical performance metrics for all mills.
+        - **Operator Terminal:** Log the start and end of production runs.
+        - **Maintenance Hub:** View and manage maintenance tickets.
+    """)
 
-        start_date = st.sidebar.date_input("Start Date")
-        end_date = st.sidebar.date_input("End Date")
-        machine = st.sidebar.selectbox(
-            "Machine",
-            machines,
-            format_func=lambda m: Config.MACHINE_ID_MAP.get(m, "All")
-        )
-        shift = st.sidebar.selectbox("Shift", shifts)
-        day_of_week = st.sidebar.selectbox("Day of Week", days_of_week)
+    if st.button("Logout"):
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        st.rerun()
 
-        if st.sidebar.button("Refresh"):
-            st.rerun()
-
-        params = {
-            "start_time": start_date.isoformat(),
-            "end_time": end_date.isoformat(),
-            "machine_ids": [machine] if machine != "All" else None,
-            "shift": shift if shift != "All" else None,
-            "day_of_week": day_of_week if day_of_week != "All" else None
-        }
-
-        st.subheader("Dashboard")
-
-        # OEE Data
-        oee_response = get_oee_data(st.session_state.token, params)
-        if oee_response.status_code == 200:
-            oee_data = oee_response.json()
-            st.write("### OEE (Overall Equipment Effectiveness)")
-            df = pd.DataFrame(oee_data, index=[0])
-            df = df.T.reset_index()
-            df.columns = ['metric', 'value']
-            fig = px.bar(df, x='metric', y='value', color='metric', color_discrete_map={
-                'oee': get_color(df[df['metric'] == 'oee']['value'].values[0]),
-                'availability': get_color(df[df['metric'] == 'availability']['value'].values[0]),
-                'performance': get_color(df[df['metric'] == 'performance']['value'].values[0]),
-                'quality': get_color(df[df['metric'] == 'quality']['value'].values[0])
-            })
-            st.plotly_chart(fig)
-
-        # Utilization Data
-        utilization_response = get_utilization_data(st.session_state.token, params)
-        if utilization_response.status_code == 200 and utilization_response.json():
-            utilization_data = utilization_response.json()
-            st.write("### Utilization")
-            df = pd.DataFrame.from_dict(clean_utilization_data(utilization_data), orient='index', columns=['value'])
-            fig = px.pie(
-                df,
-                values='value',
-                names=df.index,
-                color=df.index,
-                color_discrete_map={
-                    'Productive Uptime (hours)': "forestgreen",
-                    'Productive Downtime (hours)': "dodgerblue",
-                    'Unproductive Downtime (hours)': "red"
-                }
-            )
-            st.plotly_chart(fig)
-            st.write(f"Total Time: {utilization_data['total_time_seconds'] / 3600:.2f} (hours)")
-            st.write(f"Productive Uptime: {utilization_data['productive_uptime_seconds'] / 3600:.2f} (hours)")
-            st.write(f"Productive Downtime: {utilization_data['productive_downtime_seconds'] / 3600:.2f} (hours)")
-            st.write(f"Unproductive Downtime: {utilization_data['unproductive_downtime_seconds'] / 3600:.2f} (hours)")            
-            st.write(
-                f"<span style='color: {get_color(utilization_data['utilization_percentage'])}; font-size: 18px;'>Utilization Percentage: {utilization_data['utilization_percentage']:.2f}%</span>",
-                unsafe_allow_html=True
-            )
-        else:
-            st.write("### Utilization")
-            st.write("No data available for the selected filters.")
-
-
-        # Downtime Analysis Data
-        downtime_response = get_downtime_analysis_data(st.session_state.token, params)
-        if downtime_response.status_code == 200 and downtime_response.json():
-            downtime_data = downtime_response.json()
-            st.write("### Downtime Analysis")
-            st.write("#### Excessive Downtimes")
-            with st.container(height=300):
-                st.table(clean_downtime_data(downtime_data["excessive_downtimes"]))
-            st.write("#### Recurring Downtime Reasons")
-            df = pd.DataFrame.from_dict({k: round(v / 3600, 2) for k, v in downtime_data["recurring_downtime_reasons"].items()}, orient='index', columns=['value'])
-            fig = px.bar(df, x=df.index, y='value')
-            st.plotly_chart(fig)
-
-        else:
-            st.write("### Downtime Analysis")
-            st.write("No data available for the selected filters.")
-
-
-        if st.sidebar.button("Logout"):
-            del st.session_state.token
-            st.rerun()
-
-if __name__ == "__main__":
-    main()
+# --- Main App Logic ---
+if 'token' not in st.session_state or st.session_state.token is None:
+    st.title("Mill Dash Login")
+    show_login_form()
+else:
+    show_landing_page()

@@ -4,7 +4,7 @@ from api import create_maintenance_ticket, get_recent_downtimes, upload_ticket_i
 from config import Config
 from datetime import datetime, timedelta
 
-st.set_page_config(layout="wide")
+st.set_page_config(page_title="Maintenance Hub", layout="wide", page_icon="🔧")
 
 st.title("➕ Log New Maintenance Incident")
 

@@ -3,7 +3,7 @@ import pandas as pd
 from api import get_maintenance_tickets
 from config import Config
 
-st.set_page_config(layout="wide")
+st.set_page_config(page_title="Maintenance Hub", layout="wide", page_icon="🔧")
 
 st.title("🔧 Maintenance Hub")
 

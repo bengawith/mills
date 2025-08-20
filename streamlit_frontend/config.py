@@ -1,6 +1,7 @@
 from typing import Dict
 from datetime import time
 import os
+import streamlit as st
 
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -8,6 +9,8 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class Config:
+    BASE_URL = st.secrets.get("BASE_URL", "http://backend:8000")
+    
     # ===== DATA PROCESSOR CONFIGURATION =====
     DAY_SHIFT_START = time(6, 0)
     DAY_SHIFT_END = time(18, 0)
