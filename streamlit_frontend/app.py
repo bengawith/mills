@@ -7,12 +7,7 @@ import plotly.express as px
 from api import login, get_oee_data, get_utilization_data, get_downtime_analysis_data, get_machines, get_shifts, get_days_of_week
 from utils import clean_utilization_data, clean_downtime_data
 import requests
-
-MACHINE_ID_MAP = {
-    '6809f67ffc54c40ff1b489cf': 'Mill 1',
-    '6809f8df20e024b627b489eb': 'Mill 2',
-    '6809f8df20e024b627b489ed': 'Mill 3',
-}
+from config import Config
 
 def get_color(value: float) -> str:
     color_scale: list[str] = px.colors.diverging.RdYlGn
@@ -32,14 +27,15 @@ def main():
         password = st.text_input("Password", type="password", value="testpassword")
         if st.button("Login"):
             try:
-                response = login(username, password)
-                if response.status_code == 200:
-                    st.session_state.token = response.json()["access_token"]
-                    st.rerun()
-                elif response.status_code == 401:
-                    st.error("Invalid username or password")
-                else:
-                    st.error(f"An error occurred: {response.status_code}")
+                response: requests.Response | None = login(username, password)
+                if response:
+                    if response.status_code == 200:
+                        st.session_state.token = response.json()["access_token"]
+                        st.rerun()
+                    elif response.status_code == 401:
+                        st.error("Invalid username or password")
+                    else:
+                        st.error(f"An error occurred: {response.status_code}")
             except requests.exceptions.RequestException as e:
                 st.error(f"A network error occurred: {e}")
 
@@ -61,7 +57,7 @@ def main():
         machine = st.sidebar.selectbox(
             "Machine",
             machines,
-            format_func=lambda m: MACHINE_ID_MAP.get(m, "All")
+            format_func=lambda m: Config.MACHINE_ID_MAP.get(m, "All")
         )
         shift = st.sidebar.selectbox("Shift", shifts)
         day_of_week = st.sidebar.selectbox("Day of Week", days_of_week)
