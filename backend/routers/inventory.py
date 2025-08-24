@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 @router.post("/components", response_model=schemas.RepairComponent, status_code=status.HTTP_201_CREATED)
-def create_repair_component(component: schemas.RepairComponentCreate, db: Session = Depends(get_db)):
+def create_repair_component(component: schemas.RepairComponent, db: Session = Depends(get_db)):
     """
     Adds a new repair component to the inventory.
     """

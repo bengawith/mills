@@ -142,5 +142,3 @@ class MaintenanceTicket(MaintenanceTicketBase):
 
     class Config:
         from_attributes = True
-
-# No need for update_forward_refs() if all models are defined in order
