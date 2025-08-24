@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PoundSterling, Eye, EyeOff } from "lucide-react";
+import { Factory, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import apiClient from "@/lib/api"; // Import our API client
 
@@ -90,7 +90,7 @@ export default function Register() {
         {/* Logo and Header */}
         <div className="text-center">
           <div className="mx-auto w-16 h-16 bg-gradient-to-br from-primary to-primary-glow rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-            <PoundSterling className="w-8 h-8 text-primary-foreground" />
+            <Factory className="w-8 h-8 text-primary-foreground" />
           </div>
           <h2 className="text-3xl font-bold text-foreground">Create account</h2>
           <p className="text-muted-foreground mt-2">Join TimePay and streamline your payroll</p>

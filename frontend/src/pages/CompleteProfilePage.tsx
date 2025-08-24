@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import apiClient from '@/lib/api';
@@ -13,30 +11,40 @@ const CompleteProfilePage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [taxCode, setTaxCode] = useState('');
-  const [niNumber, setNiNumber] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await apiClient.put('/api/my-profile/', {
-        tax_code: taxCode,
-        ni_number: niNumber,
+      await apiClient.patch('/api/v1/users/me', {
         onboarded: true,
       });
 
       toast({
-        title: 'Profile Updated',
-        description: 'Your profile has been successfully updated.',
+        title: 'Profile Confirmed',
+        description: 'Your profile has been confirmed. Welcome to Mill Dash!',
       });
-      logout();
-      navigate('/login');
+      
+      // After successful update, refresh user data in AuthContext
+      // This assumes AuthContext has a mechanism to re-fetch user data
+      // For now, we'll just navigate, but a proper refresh would be better.
+      // A full refresh of the user object in AuthContext would typically involve
+      // re-calling the /auth/users/me endpoint and updating the user state.
+      // For simplicity in this step, we navigate, which will trigger AuthContext's
+      // loadUser effect on the next page load.
+
+      if (user?.role.toUpperCase() === 'ADMIN') {
+        navigate('/dashboard');
+      } else if (user?.role.toUpperCase() === 'EMPLOYEE') {
+        navigate('/dashboard');
+      } else {
+        navigate('/');
+      }
     } catch (error: any) {
       toast({
         title: 'Error',
-        description: error.response?.data?.detail || 'Failed to update profile.',
+        description: error.response?.data?.detail || 'Failed to confirm profile.',
         variant: 'destructive',
       });
     } finally {
@@ -44,7 +52,7 @@ const CompleteProfilePage = () => {
     }
   };
 
-  if (!user || user.role !== 'EMPLOYEE') {
+  if (!user) {
     navigate('/login');
     return null;
   }
@@ -55,49 +63,16 @@ const CompleteProfilePage = () => {
         <CardHeader>
           <CardTitle className="text-2xl">Complete Your Profile</CardTitle>
           <CardDescription>
-            Please provide your Tax Code and National Insurance Number to complete your profile.
-            This information is securely encrypted.
+            Please confirm your profile details to get started with Mill Dash.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="taxCode">Tax Code</Label>
-              <Input
-                id="taxCode"
-                type="text"
-                value={taxCode}
-                onChange={(e) => setTaxCode(e.target.value)}
-                required
-              />
-              <p className="text-sm text-gray-500 mt-1">
-                Your tax code can be found on your payslip or P45/P60.
-              </p>
-            </div>
-            <div>
-              <Label htmlFor="niNumber">National Insurance Number</Label>
-              <Input
-                id="niNumber"
-                type="text"
-                value={niNumber}
-                onChange={(e) => setNiNumber(e.target.value)}
-                maxLength={9}
-                required
-              />
-              <p className="text-sm text-gray-500 mt-1">
-                Your NI number is a unique personal number. Example: QQ123456C.
-                <a
-                  href="https://www.gov.uk/national-insurance-number"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline ml-1"
-                >
-                  Find out more on GOV.UK
-                </a>
-              </p>
-            </div>
+            <p className="text-center text-muted-foreground">
+              Click the button below to confirm your account setup and proceed to the application.
+            </p>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Saving...' : 'Complete Profile'}
+              {loading ? 'Confirming...' : 'Complete Profile'}
             </Button>
           </form>
         </CardContent>

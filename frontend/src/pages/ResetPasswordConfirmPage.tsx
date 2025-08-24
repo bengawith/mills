@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { PoundSterling, Eye, EyeOff } from "lucide-react";
+import { Factory, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import apiClient from "@/lib/api";
 
@@ -72,7 +72,7 @@ export default function ResetPasswordConfirmPage() {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <div className="mx-auto w-16 h-16 bg-gradient-to-br from-primary to-primary-glow rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-            <PoundSterling className="w-8 h-8 text-primary-foreground" />
+            <Factory className="w-8 h-8 text-primary-foreground" />
           </div>
           <h2 className="text-3xl font-bold text-foreground">Reset Your Password</h2>
           <p className="text-muted-foreground mt-2">Enter a new password for your TimePay account</p>

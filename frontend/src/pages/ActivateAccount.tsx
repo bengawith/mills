@@ -81,7 +81,7 @@ export default function ActivateAccountPage() {
         <CardHeader>
           <CardTitle className="text-2xl text-center">Account Activation</CardTitle>
           <CardDescription className="text-center">
-            Finalising your TimePay account setup
+            Finalising your Mill Dash account setup
           </CardDescription>
         </CardHeader>
         <CardContent className="py-8">

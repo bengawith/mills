@@ -39,12 +39,19 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     encoded_jwt = jwt.encode(to_encode, Config.SECRET_KEY, algorithm=Config.ALGORITHM)
     return encoded_jwt
 
-def get_user(db: Session, username: str):
-    return db.query(User).filter(User.username == username).first()
+def get_user(db: Session, email: str):
+    return db.query(User).filter(User.email == email).first()
 
 def create_user(db: Session, user: UserCreate):
     hashed_password = get_password_hash(user.password)
-    db_user = User(username=user.username, full_name=user.full_name, email=user.email, hashed_password=hashed_password)
+    db_user = User(
+        email=user.email,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        hashed_password=hashed_password,
+        role=user.role,
+        onboarded=False # New users are not onboarded by default
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -65,14 +72,14 @@ async def get_current_active_user(token: str = Depends(oauth2_scheme), db: Sessi
     )
     try:
         payload = jwt.decode(token, Config.SECRET_KEY, algorithms=[Config.ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        email: str = payload.get("sub")
+        if email is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        token_data = TokenData(email=email)
     except JWTError:
         raise credentials_exception
     
-    user = get_user(db, username=token_data.username)
+    user = get_user(db, email=token_data.email)
     
     if user is None:
         raise credentials_exception

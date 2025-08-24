@@ -13,14 +13,16 @@ def main():
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
-        test_user = get_user(db, "testuser")
+        test_user = get_user(db, email="test@example.com")
         if not test_user:
             print("Creating test user")
             user_in = UserCreate(
-                username="testuser",
-                full_name="Test User",
                 email="test@example.com",
+                first_name="Test",
+                last_name="User",
                 password="testpassword",
+                re_password="testpassword", # Added re_password
+                role="ADMIN" # Default role
             )
             print("Calling create_user")
             create_user(db, user_in)
@@ -29,7 +31,7 @@ def main():
         else:
             print("Test user already exists")
     finally:
-        pass
+        db.close()
 
 
 if __name__ == "__main__":

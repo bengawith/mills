@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { PoundSterling, Eye, EyeOff } from "lucide-react";
+import { Factory, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext"; // Import the useAuth hook
 
@@ -64,10 +64,10 @@ export default function Login() {
         {/* Logo and Header */}
         <div className="text-center">
           <div className="mx-auto w-16 h-16 bg-gradient-to-br from-primary to-primary-glow rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-            <PoundSterling className="w-8 h-8 text-primary-foreground" />
+            <Factory className="w-8 h-8 text-primary-foreground" />
           </div>
           <h2 className="text-3xl font-bold text-foreground">Welcome back</h2>
-          <p className="text-muted-foreground mt-2">Sign in to your TimePay account</p>
+          <p className="text-muted-foreground mt-2">Sign in to your MillDash account</p>
         </div>
 
         {/* Login Form (No visual changes here) */}

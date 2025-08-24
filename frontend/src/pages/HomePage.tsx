@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, DollarSign, Shield, Zap } from "lucide-react";
+import { Gauge, Settings, Lock, Activity } from "lucide-react"; // Updated icons
 import { Link } from "react-router-dom";
 
 const HomePage = () => {
@@ -9,10 +9,10 @@ const HomePage = () => {
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            TimePay
+            Mill Dash
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-            Streamline your payroll management with our comprehensive platform. Track time, manage employees, and process payments with ease.
+            Streamline your manufacturing operations with our comprehensive platform. Track machine data, manage maintenance, and optimize production with ease.
           </p>
           <Link to="/register">
             <Button size="lg" className="text-lg px-8 py-4">
@@ -24,56 +24,56 @@ const HomePage = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
           <Card className="border-2 hover:border-primary/50 transition-colors">
             <CardHeader>
-              <Clock className="h-8 w-8 text-primary mb-2" />
-              <CardTitle className="text-xl">Time Tracking</CardTitle>
+              <Gauge className="h-8 w-8 text-primary mb-2" />
+              <CardTitle className="text-xl">Machine Monitoring</CardTitle>
             </CardHeader>
             <CardContent>
               <CardDescription className="text-base">
-                Employees can easily log their working hours with detailed descriptions and automatic approval workflows.
+                Monitor machine performance, uptime, and utilization in real-time to identify bottlenecks.
               </CardDescription>
             </CardContent>
           </Card>
 
           <Card className="border-2 hover:border-primary/50 transition-colors">
             <CardHeader>
-              <DollarSign className="h-8 w-8 text-primary mb-2" />
-              <CardTitle className="text-xl">Payroll Management</CardTitle>
+              <Settings className="h-8 w-8 text-primary mb-2" />
+              <CardTitle className="text-xl">Maintenance Management</CardTitle>
             </CardHeader>
             <CardContent>
               <CardDescription className="text-base">
-                Automated payroll calculations with tax deductions, NI contributions, and instant payslip generation.
+                Efficiently manage maintenance tickets, track repairs, and schedule preventative maintenance.
               </CardDescription>
             </CardContent>
           </Card>
 
           <Card className="border-2 hover:border-primary/50 transition-colors">
             <CardHeader>
-              <Shield className="h-8 w-8 text-primary mb-2" />
-              <CardTitle className="text-xl">Secure & Compliant</CardTitle>
+              <Lock className="h-8 w-8 text-primary mb-2" />
+              <CardTitle className="text-xl">Secure & Reliable</CardTitle>
             </CardHeader>
             <CardContent>
               <CardDescription className="text-base">
-                Bank-level security with GDPR compliance and encrypted data storage to protect sensitive information.
+                Ensure data integrity and operational security with robust access controls and encrypted data storage.
               </CardDescription>
             </CardContent>
           </Card>
 
           <Card className="border-2 hover:border-primary/50 transition-colors">
             <CardHeader>
-              <Zap className="h-8 w-8 text-primary mb-2" />
-              <CardTitle className="text-xl">Real-time Insights</CardTitle>
+              <Activity className="h-8 w-8 text-primary mb-2" />
+              <CardTitle className="text-xl">Production Optimization</CardTitle>
             </CardHeader>
             <CardContent>
               <CardDescription className="text-base">
-                Live dashboard with analytics, employee metrics, and comprehensive reporting for better decision making.
+                Optimize production schedules, track output, and minimize downtime with actionable insights.
               </CardDescription>
             </CardContent>
           </Card>
         </div>
 
         <div className="mt-16 text-center">
-          <h2 className="text-3xl font-bold mb-8">Ready to streamline your payroll?</h2>
-          <Link to="/auth">
+          <h2 className="text-3xl font-bold mb-8">Ready to optimize your manufacturing?</h2>
+          <Link to="/register">
             <Button variant="outline" size="lg" className="text-lg px-8 py-4">
               Sign Up Now
             </Button>

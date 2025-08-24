@@ -1,23 +1,35 @@
 import datetime
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
 
 # --- Pydantic Models (API Schemas) ---
 
 class UserCreate(BaseModel):
-    username: str
-    full_name: str
-    email: str
+    email: EmailStr
+    first_name: str
+    last_name: str
     password: str
+    re_password: str # For password confirmation in registration
+    role: str = "EMPLOYEE" # Default role
 
 class UserResponse(BaseModel):
-    username: str
-    full_name: Optional[str] = None
-    email: Optional[str] = None
-    disabled: Optional[bool] = None
+    user_id: int = Field(alias="id") # Map 'id' from DB to 'user_id' for frontend
+    email: EmailStr
+    first_name: str
+    last_name: str
+    role: str
+    onboarded: bool
+    disabled: bool
 
     class Config:
         from_attributes = True
+        populate_by_name = True # Allow population by field name or alias
+
+class UserUpdate(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    onboarded: Optional[bool] = None
+    # Add other fields that can be updated by the user
 
 class Token(BaseModel):
     """Pydantic model for the authentication token response."""
@@ -26,7 +38,7 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     """Pydantic model for the data encoded within a JWT token."""
-    username: Optional[str] = None
+    email: Optional[str] = None
 
 # --- Schemas for PLC Cut Events ---
 class CutEvent(BaseModel):
@@ -101,39 +113,20 @@ class MaintenanceTicketBase(BaseModel):
     machine_id: str
     fourjaw_downtime_id: Optional[str] = None
 
-class MaintenanceTicketCreate(MaintenanceTicketBase):
-    pass
-
-class MaintenanceTicket(MaintenanceTicketBase):
-    id: int
-    logged_time: datetime.datetime
-    resolved_time: Optional[datetime.datetime] = None
-    status: str
-    work_notes: List[TicketWorkNote] = []
-    images: List[TicketImage] = []
-
-    class Config:
-        from_attributes = True
-
-# --- Schemas for Inventory ---
 class RepairComponentBase(BaseModel):
     component_name: str
     stock_code: Optional[str] = None
     current_stock: int
-
-class RepairComponentCreate(RepairComponentBase):
-    pass
 
 class RepairComponent(RepairComponentBase):
     id: int
     class Config:
         from_attributes = True
 
-
 # NEW: Schema for components used in a ticket response
 class TicketComponentUsed(BaseModel):
     quantity_used: int
-    component: "RepairComponent" # Use string forward reference for nested model
+    component: RepairComponent # Use direct reference after RepairComponent is defined
 
     class Config:
         from_attributes = True
@@ -150,4 +143,4 @@ class MaintenanceTicket(MaintenanceTicketBase):
     class Config:
         from_attributes = True
 
-TicketComponentUsed.update_forward_refs()
+# No need for update_forward_refs() if all models are defined in order

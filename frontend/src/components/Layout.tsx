@@ -19,7 +19,7 @@ export default function Layout({ children }: LayoutProps) {
             <div className="flex items-center justify-between h-full px-6">
               <div className="flex items-center space-x-4">
                 <SidebarTrigger className="lg:hidden" />
-                <h1 className="text-lg font-semibold text-foreground">TimePay</h1>
+                <h1 className="text-lg font-semibold text-foreground">Mill Dash</h1>
               </div>
               
               <div className="flex items-center space-x-4">

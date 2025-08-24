@@ -17,10 +17,12 @@ from database import Base
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
-    full_name = Column(String)
     email = Column(String, unique=True, index=True)
+    first_name = Column(String)
+    last_name = Column(String)
     hashed_password = Column(String)
+    role = Column(String, default="EMPLOYEE") # ADMIN or EMPLOYEE
+    onboarded = Column(Boolean, default=False)
     disabled = Column(Boolean, default=False)
 
 class HistoricalMachineData(Base):
