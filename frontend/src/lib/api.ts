@@ -1,76 +1,38 @@
-const API_BASE_URL = 'http://localhost:8000'; // Your FastAPI backend URL
+import axios from 'axios';
 
-// Function to handle login
-export const loginUser = async (username: string, password: string) => {
-  const response = await fetch(`${API_BASE_URL}/token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ username, password }),
-  });
+const API_URL = 'http://localhost:8000'
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.detail || 'Failed to login');
+const apiClient = axios.create({
+  baseURL: API_URL, // Update with Django production url
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+const shouldAttachAuth = (url) => {
+  const excludedPaths = [
+    '/auth/users/',
+    '/auth/users/activation/', // Exclude the activation endpoint
+    '/auth/users/reset_password_confirm/'
+  ];
+  
+  // Return false if it's explicitly excluded
+  if (excludedPaths.includes(url)) {
+    return false;
   }
-  return response.json();
+  
+  return true;
 };
 
-// Function to fetch protected data
-export const getMachineData = async (token: string, params: Record<string, string>) => {
-  const query = new URLSearchParams(params).toString();
-  const response = await fetch(`${API_BASE_URL}/api/v1/machine-data?${query}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (response.status === 401) {
-    throw new Error('Unauthorized');
-  }
-  if (!response.ok) {
-    throw new Error('Failed to fetch machine data');
-  }
-  return response.json();
-};
-
-// Function to fetch OEE data
-export const getOeeData = async (token: string, params: Record<string, any>) => {
-  const query = new URLSearchParams(params).toString();
-  const response = await fetch(`${API_BASE_URL}/api/v1/oee?${query}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (response.status === 401) {
-    throw new Error('Unauthorized');
-  }
-  if (!response.ok) {
-    throw new Error('Failed to fetch OEE data');
-  }
-  return response.json();
-};
-
-// Function to fetch Utilization data
-export const getUtilizationData = async (token: string, params: Record<string, any>) => {
-  const query = new URLSearchParams(params).toString();
-  const response = await fetch(`${API_BASE_URL}/api/v1/utilization?${query}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (response.status === 401) {
-    throw new Error('Unauthorized');
-  }
-  if (!response.ok) {
-    throw new Error('Failed to fetch utilization data');
-  }
-  return response.json();
-};
-
-// Function to fetch Downtime Analysis data
-export const getDowntimeAnalysisData = async (token: string, params: Record<string, any>) => {
-  const query = new URLSearchParams(params).toString();
-  const response = await fetch(`${API_BASE_URL}/api/v1/downtime-analysis?${query}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (response.status === 401) {
-    throw new Error('Unauthorized');
-  }
-  if (!response.ok) {
-    throw new Error('Failed to fetch downtime analysis data');
-  }
-  return response.json();
-};
+// Add a request interceptor to include the auth token
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('access_token');
+    if (token && shouldAttachAuth(config.url)) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+export default apiClient;

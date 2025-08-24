@@ -1,7 +1,0 @@
-export * from "./Button"
-export * from "./Input"
-export * from "./Label"
-export * from "./Toast"
-export * from "./Toaster"
-export * from "./use-toast"
-export * from "./select"

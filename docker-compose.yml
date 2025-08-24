@@ -1,7 +1,6 @@
 services:
   # Backend Django API Service
   backend:
-
     build: ./backend # Path to the backend Dockerfile
     container_name: mill_dash_backend
     command: >
@@ -37,15 +36,18 @@ services:
         condition: service_started
     restart: on-failure
 
-
-  # Streamlit Frontend Service
-  streamlit_frontend:
-    build: ./streamlit_frontend
-    container_name: mill_dash_streamlit_frontend
+  # React Frontend Service (New)
+  frontend:
+    build: ./frontend
+    container_name: mill_dash_frontend
     ports:
-      - "8501:8501"
+      - "3000:80" # Map host port 3000 to container's port 80 (Nginx)
+    volumes:
+      - ./frontend:/app
     depends_on:
       - backend
+    environment:
+      - VITE_BACKEND_URL=http://backend:8000 # Ensure this matches your backend service name and port
 
   # PostgreSQL Database Service
   db:

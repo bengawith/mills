@@ -17,7 +17,7 @@ class UserResponse(BaseModel):
     disabled: Optional[bool] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class Token(BaseModel):
     """Pydantic model for the authentication token response."""
@@ -36,7 +36,7 @@ class CutEvent(BaseModel):
     cut_count: Optional[int] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # --- Schemas for Operator Terminal (Products & Production Runs) ---
 class ProductBase(BaseModel):
@@ -49,7 +49,7 @@ class ProductCreate(ProductBase):
 class Product(ProductBase):
     id: int
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ProductionRunBase(BaseModel):
     machine_id: str
@@ -71,7 +71,7 @@ class ProductionRun(ProductionRunBase):
     product: Product # Nest the product details in the response
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # --- Schemas for Maintenance Hub ---
 class TicketWorkNoteBase(BaseModel):
@@ -85,14 +85,14 @@ class TicketWorkNote(TicketWorkNoteBase):
     id: int
     created_at: datetime.datetime
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class TicketImage(BaseModel):
     id: int
     image_url: str
     caption: Optional[str] = None
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class MaintenanceTicketBase(BaseModel):
     incident_category: str
@@ -113,7 +113,7 @@ class MaintenanceTicket(MaintenanceTicketBase):
     images: List[TicketImage] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # --- Schemas for Inventory ---
 class RepairComponentBase(BaseModel):
@@ -127,7 +127,7 @@ class RepairComponentCreate(RepairComponentBase):
 class RepairComponent(RepairComponentBase):
     id: int
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # NEW: Schema for components used in a ticket response
@@ -136,7 +136,7 @@ class TicketComponentUsed(BaseModel):
     component: "RepairComponent" # Use string forward reference for nested model
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class MaintenanceTicket(MaintenanceTicketBase):
     id: int
@@ -148,6 +148,6 @@ class MaintenanceTicket(MaintenanceTicketBase):
     components_used: List[TicketComponentUsed] = [] # <-- ADD THIS LINE
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 TicketComponentUsed.update_forward_refs()
