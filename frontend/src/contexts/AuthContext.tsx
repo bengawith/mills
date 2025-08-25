@@ -78,12 +78,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsAuthenticated(true);
 
     if (fetchedUser.role.toUpperCase() === 'ADMIN') {
-      navigate('/admin');
+      navigate('/dashboard');
     } else if (fetchedUser.role.toUpperCase() === 'EMPLOYEE') {
       if (!fetchedUser.onboarded) {
         navigate('/complete-profile');
       } else {
-        navigate('/employee');
+        navigate('/dashboard');
       }
     } else {
       navigate('/');

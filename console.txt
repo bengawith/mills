@@ -1,75 +1,11 @@
-index-W2NA2tcc.js:205  GET http://localhost:8000/auth/users/me/ 401 (Unauthorized)
-(anonymous) @ index-W2NA2tcc.js:205
-xhr @ index-W2NA2tcc.js:205
-Xm @ index-W2NA2tcc.js:207
-Promise.then
-_request @ index-W2NA2tcc.js:208
-request @ index-W2NA2tcc.js:207
-ao.<computed> @ index-W2NA2tcc.js:208
-(anonymous) @ index-W2NA2tcc.js:203
-(anonymous) @ index-W2NA2tcc.js:208
-(anonymous) @ index-W2NA2tcc.js:208
-nu @ index-W2NA2tcc.js:40
-Zo @ index-W2NA2tcc.js:40
-(anonymous) @ index-W2NA2tcc.js:40
-C @ index-W2NA2tcc.js:25
-I @ index-W2NA2tcc.js:25
-index-W2NA2tcc.js:208 Failed to fetch user data: Invalid token signature or expired token
-(anonymous) @ index-W2NA2tcc.js:208
-await in (anonymous)
-(anonymous) @ index-W2NA2tcc.js:208
-nu @ index-W2NA2tcc.js:40
-Zo @ index-W2NA2tcc.js:40
-(anonymous) @ index-W2NA2tcc.js:40
-C @ index-W2NA2tcc.js:25
-I @ index-W2NA2tcc.js:25
-index-W2NA2tcc.js:205  POST http://localhost:8000/auth/token 401 (Unauthorized)
-(anonymous) @ index-W2NA2tcc.js:205
-xhr @ index-W2NA2tcc.js:205
-Xm @ index-W2NA2tcc.js:207
-Promise.then
-_request @ index-W2NA2tcc.js:208
-request @ index-W2NA2tcc.js:207
-(anonymous) @ index-W2NA2tcc.js:208
-(anonymous) @ index-W2NA2tcc.js:203
-l @ index-W2NA2tcc.js:208
-d @ index-W2NA2tcc.js:208
-L1 @ index-W2NA2tcc.js:37
-z1 @ index-W2NA2tcc.js:37
-$1 @ index-W2NA2tcc.js:37
-xh @ index-W2NA2tcc.js:37
-Dv @ index-W2NA2tcc.js:37
-(anonymous) @ index-W2NA2tcc.js:37
-np @ index-W2NA2tcc.js:40
-sv @ index-W2NA2tcc.js:37
-oc @ index-W2NA2tcc.js:37
-jf @ index-W2NA2tcc.js:37
-nS @ index-W2NA2tcc.js:37
-index-W2NA2tcc.js:208 Login failed: J {message: 'Request failed with status code 401', name: 'AxiosError', code: 'ERR_BAD_REQUEST', config: {…}, request: XMLHttpRequest, …}
-d @ index-W2NA2tcc.js:208
-await in d
-L1 @ index-W2NA2tcc.js:37
-z1 @ index-W2NA2tcc.js:37
-$1 @ index-W2NA2tcc.js:37
-xh @ index-W2NA2tcc.js:37
-Dv @ index-W2NA2tcc.js:37
-(anonymous) @ index-W2NA2tcc.js:37
-np @ index-W2NA2tcc.js:40
-sv @ index-W2NA2tcc.js:37
-oc @ index-W2NA2tcc.js:37
-jf @ index-W2NA2tcc.js:37
-nS @ index-W2NA2tcc.js:37
-index-W2NA2tcc.js:208 Backend Error Response: {data: {…}, status: 401, statusText: 'Unauthorized', headers: bt, config: {…}, …}
-d @ index-W2NA2tcc.js:208
-await in d
-L1 @ index-W2NA2tcc.js:37
-z1 @ index-W2NA2tcc.js:37
-$1 @ index-W2NA2tcc.js:37
-xh @ index-W2NA2tcc.js:37
-Dv @ index-W2NA2tcc.js:37
-(anonymous) @ index-W2NA2tcc.js:37
-np @ index-W2NA2tcc.js:40
-sv @ index-W2NA2tcc.js:37
-oc @ index-W2NA2tcc.js:37
-jf @ index-W2NA2tcc.js:37
-nS @ index-W2NA2tcc.js:37
+:8000/auth/users/me/:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+index-CUrBi4W9.js:208 Failed to fetch user data: User not found in database
+(anonymous) @ index-CUrBi4W9.js:208
+:8000/auth/token:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+index-CUrBi4W9.js:208 Login failed: J
+d @ index-CUrBi4W9.js:208
+index-CUrBi4W9.js:208 Backend Error Response: Object
+d @ index-CUrBi4W9.js:208
+:8000/api/v1/dashboard/analytical-data?start_time=2023-01-01T00:00:00&end_time=2023-01-31T23:59:59&machine_ids[]=mill_1&machine_ids[]=mill_2:1  Failed to load resource: the server responded with a status of 422 (Unprocessable Entity)
+:8000/api/v1/dashboard/analytical-data?start_time=2023-01-01T00:00:00&end_time=2023-01-31T23:59:59&machine_ids[]=mill_1&machine_ids[]=mill_2:1  Failed to load resource: the server responded with a status of 422 (Unprocessable Entity)
+:8000/api/v1/dashboard/analytical-data?start_time=2023-01-01T00:00:00&end_time=2023-01-31T23:59:59&machine_ids[]=mill_1&machine_ids[]=mill_2:1  Failed to load resource: the server responded with a status of 422 (Unprocessable Entity)

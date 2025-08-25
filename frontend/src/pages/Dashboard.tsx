@@ -18,7 +18,7 @@ const Dashboard = () => {
         params: {
           start_time: startTime,
           end_time: endTime,
-          machine_ids: machineIds.split(','),
+          machine_ids: machineIds,
         },
       });
       return response.data;
