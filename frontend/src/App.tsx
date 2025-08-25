@@ -11,7 +11,7 @@ import NotFound from "./pages/NotFound";
 import ResetPasswordConfirmPage from "./pages/ResetPasswordConfirmPage";
 import CompleteProfilePage from "./pages/CompleteProfilePage";
 import Layout from "./components/Layout";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/Dashboard/index";
 import MaintenanceHub from "./pages/MaintenanceHub";
 import LogNewTicket from "./pages/LogNewTicket";
 import ManageTickets from "./pages/ManageTickets";
