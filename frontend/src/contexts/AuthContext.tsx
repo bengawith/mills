@@ -49,8 +49,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           if (fetchedUser.role.toUpperCase() === 'EMPLOYEE' && !fetchedUser.onboarded) {
             navigate('/complete-profile');
           }
-        } catch (error) {
-          console.error("Failed to fetch user data:", error);
+        } catch (error: any) {
+          console.error("Failed to fetch user data:", error.response?.data?.detail || error.message);
           logout();
         }
       }
@@ -60,13 +60,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [navigate]);
 
   const login = async (data: LoginData) => {
-    const response = await apiClient.post('/auth/jwt/create/', data);
-    const { access, refresh } = response.data;
+    const response = await apiClient.post('/auth/token', data);
+    const { access_token, refresh_token } = response.data;
 
-    localStorage.setItem('access_token', access);
-    localStorage.setItem('refresh_token', refresh);
+    localStorage.setItem('access_token', access_token);
+    localStorage.setItem('refresh_token', refresh_token);
 
-    const userResponse = await apiClient.get('/auth/users/me/');
+    // Directly use the received access token for the immediate user data fetch
+    const userResponse = await apiClient.get('/auth/users/me/', {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
     const fetchedUser: User = userResponse.data;
 
     setUser(fetchedUser);

@@ -32,7 +32,7 @@ app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 
 # --- Include Routers ---
 # This adds all the endpoints from your auth.py and data.py files to the main app
-app.include_router(auth.router)
+app.include_router(auth.router, prefix="/auth")
 app.include_router(data.router)
 app.include_router(production.router)
 app.include_router(maintenance.router)
@@ -51,4 +51,5 @@ def startup_event():
 @app.get("/", tags=["Status"])
 async def read_root():
     """A simple health check endpoint to confirm the API is running."""
+    print("[DEBUG] Root endpoint hit!")
     return {"status": "Mill Dash API is running"}

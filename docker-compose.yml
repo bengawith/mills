@@ -12,6 +12,8 @@ services:
       - "8000:8000" # Exposes port 8000 to host machine
     env_file:
       - ./.env # Loads environment variables from the .env file
+    environment:
+      - UVICORN_LOG_LEVEL=debug
     depends_on:
       db: # Ensures the database is started and healthy before the backend
         condition: service_healthy

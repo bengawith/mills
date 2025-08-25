@@ -4,6 +4,10 @@ from pydantic import BaseModel, EmailStr, Field
 
 # --- Pydantic Models (API Schemas) ---
 
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
 class UserCreate(BaseModel):
     email: EmailStr
     first_name: str
@@ -34,6 +38,7 @@ class UserUpdate(BaseModel):
 class Token(BaseModel):
     """Pydantic model for the authentication token response."""
     access_token: str
+    refresh_token: str # Added refresh_token
     token_type: str
 
 class TokenData(BaseModel):
@@ -71,7 +76,7 @@ class ProductionRunCreate(ProductionRunBase):
     pass
 
 class ProductionRunUpdate(BaseModel):
-    status: str
+    status: Optional[str] = None
     scrap_length: float
 
 class ProductionRun(ProductionRunBase):
@@ -86,6 +91,13 @@ class ProductionRun(ProductionRunBase):
         from_attributes = True
 
 # --- Schemas for Maintenance Hub ---
+class TicketWorkNoteBase(BaseModel):
+    note: str
+    author: str
+
+class TicketWorkNoteCreate(TicketWorkNoteBase):
+    pass
+
 class TicketWorkNoteBase(BaseModel):
     note: str
     author: str
@@ -109,9 +121,12 @@ class TicketImage(BaseModel):
 class MaintenanceTicketBase(BaseModel):
     incident_category: str
     description: str
-    priority: str
+    priority: Optional[str] = "Medium"
     machine_id: str
     fourjaw_downtime_id: Optional[str] = None
+
+class MaintenanceTicketCreate(MaintenanceTicketBase):
+    pass
 
 class RepairComponentBase(BaseModel):
     component_name: str

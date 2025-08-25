@@ -6,6 +6,7 @@ from pathlib import Path
 import datetime
 
 # Import your schemas, database models, and database session logic
+import schemas
 import database_models
 from database import get_db # Assuming get_db is your dependency for DB sessions
 from security import get_current_active_user
@@ -18,7 +19,7 @@ router = APIRouter(
 
 
 
-@router.post("/{ticket_id}/upload-image", response_model="schemas.TicketImage")
+@router.post("/{ticket_id}/upload-image", response_model=schemas.TicketImage)
 def upload_image_for_ticket(ticket_id: int, db: Session = Depends(get_db), file: UploadFile = File(...)):
     """
     Uploads an image and associates it with a maintenance ticket.
@@ -44,8 +45,8 @@ def upload_image_for_ticket(ticket_id: int, db: Session = Depends(get_db), file:
     return db_image
 
 
-@router.post("/", response_model="schemas.MaintenanceTicket", status_code=status.HTTP_201_CREATED)
-def create_maintenance_ticket(ticket: "schemas.MaintenanceTicket", db: Session = Depends(get_db)):
+@router.post("/", response_model=schemas.MaintenanceTicket, status_code=status.HTTP_201_CREATED)
+def create_maintenance_ticket(ticket: schemas.MaintenanceTicketCreate, db: Session = Depends(get_db)):
     """Creates a new maintenance ticket."""
     db_ticket = database_models.MaintenanceTicket(**ticket.dict())
     db.add(db_ticket)
@@ -53,13 +54,13 @@ def create_maintenance_ticket(ticket: "schemas.MaintenanceTicket", db: Session =
     db.refresh(db_ticket)
     return db_ticket
 
-@router.get("/", response_model=List["schemas.MaintenanceTicket"])
+@router.get("/", response_model=List[schemas.MaintenanceTicket])
 def read_maintenance_tickets(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """Retrieves a list of all maintenance tickets."""
     tickets = db.query(database_models.MaintenanceTicket).order_by(database_models.MaintenanceTicket.logged_time.desc()).offset(skip).limit(limit).all()
     return tickets
 
-@router.get("/{ticket_id}", response_model="schemas.MaintenanceTicket")
+@router.get("/{ticket_id}", response_model=schemas.MaintenanceTicket)
 def read_maintenance_ticket(ticket_id: int, db: Session = Depends(get_db)):
     """
     Retrieves detailed information for a single ticket, including related data.
@@ -74,7 +75,7 @@ def read_maintenance_ticket(ticket_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Ticket not found")
     return db_ticket
 
-@router.put("/{ticket_id}", response_model="schemas.MaintenanceTicket")
+@router.put("/{ticket_id}", response_model=schemas.MaintenanceTicket)
 def update_maintenance_ticket(ticket_id: int, status: str, db: Session = Depends(get_db)):
     """
     Updates a ticket's status. If status is 'Resolved', sets the resolved_time.
@@ -91,8 +92,8 @@ def update_maintenance_ticket(ticket_id: int, status: str, db: Session = Depends
     db.refresh(db_ticket)
     return db_ticket
 
-@router.post("/{ticket_id}/notes", response_model="schemas.TicketWorkNote")
-def create_work_note_for_ticket(ticket_id: int, note: "schemas.TicketWorkNote", db: Session = Depends(get_db)):
+@router.post("/{ticket_id}/notes", response_model=schemas.TicketWorkNote)
+def create_work_note_for_ticket(ticket_id: int, note: schemas.TicketWorkNoteCreate, db: Session = Depends(get_db)):
     """Adds a new work note to a specific ticket."""
     db_ticket = db.query(database_models.MaintenanceTicket).filter(database_models.MaintenanceTicket.id == ticket_id).first()
     if db_ticket is None:
@@ -104,7 +105,7 @@ def create_work_note_for_ticket(ticket_id: int, note: "schemas.TicketWorkNote", 
     db.refresh(db_note)
     return db_note
 
-@router.post("/{ticket_id}/components", response_model="schemas.MaintenanceTicket")
+@router.post("/{ticket_id}/components", response_model=schemas.MaintenanceTicket)
 def add_component_to_ticket(ticket_id: int, component_id: int, quantity_used: int, db: Session = Depends(get_db)):
     """Associates a repair component with a maintenance ticket."""
     db_ticket = db.query(database_models.MaintenanceTicket).filter(database_models.MaintenanceTicket.id == ticket_id).first()

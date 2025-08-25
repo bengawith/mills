@@ -1,3 +1,75 @@
-index-Dco2JGID.js:208 Login failed: Jcode: "ERR_NETWORK"config: {transitional: {…}, adapter: Array(3), transformRequest: Array(1), transformResponse: Array(1), timeout: 0, …}message: "Network Error"name: "AxiosError"request: XMLHttpRequest {onreadystatechange: null, readyState: 4, timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}stack: "AxiosError: Network Error\n    at x.onerror (http://localhost:3000/assets/index-Dco2JGID.js:205:6022)\n    at ao.request (http://localhost:3000/assets/index-Dco2JGID.js:207:2060)\n    at async l (http://localhost:3000/assets/index-Dco2JGID.js:208:6010)\n    at async d (http://localhost:3000/assets/index-Dco2JGID.js:208:6875)"[[Prototype]]: Error
-d @ index-Dco2JGID.js:208
-:8000/auth/jwt/create/:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+index-W2NA2tcc.js:205  GET http://localhost:8000/auth/users/me/ 401 (Unauthorized)
+(anonymous) @ index-W2NA2tcc.js:205
+xhr @ index-W2NA2tcc.js:205
+Xm @ index-W2NA2tcc.js:207
+Promise.then
+_request @ index-W2NA2tcc.js:208
+request @ index-W2NA2tcc.js:207
+ao.<computed> @ index-W2NA2tcc.js:208
+(anonymous) @ index-W2NA2tcc.js:203
+(anonymous) @ index-W2NA2tcc.js:208
+(anonymous) @ index-W2NA2tcc.js:208
+nu @ index-W2NA2tcc.js:40
+Zo @ index-W2NA2tcc.js:40
+(anonymous) @ index-W2NA2tcc.js:40
+C @ index-W2NA2tcc.js:25
+I @ index-W2NA2tcc.js:25
+index-W2NA2tcc.js:208 Failed to fetch user data: Invalid token signature or expired token
+(anonymous) @ index-W2NA2tcc.js:208
+await in (anonymous)
+(anonymous) @ index-W2NA2tcc.js:208
+nu @ index-W2NA2tcc.js:40
+Zo @ index-W2NA2tcc.js:40
+(anonymous) @ index-W2NA2tcc.js:40
+C @ index-W2NA2tcc.js:25
+I @ index-W2NA2tcc.js:25
+index-W2NA2tcc.js:205  POST http://localhost:8000/auth/token 401 (Unauthorized)
+(anonymous) @ index-W2NA2tcc.js:205
+xhr @ index-W2NA2tcc.js:205
+Xm @ index-W2NA2tcc.js:207
+Promise.then
+_request @ index-W2NA2tcc.js:208
+request @ index-W2NA2tcc.js:207
+(anonymous) @ index-W2NA2tcc.js:208
+(anonymous) @ index-W2NA2tcc.js:203
+l @ index-W2NA2tcc.js:208
+d @ index-W2NA2tcc.js:208
+L1 @ index-W2NA2tcc.js:37
+z1 @ index-W2NA2tcc.js:37
+$1 @ index-W2NA2tcc.js:37
+xh @ index-W2NA2tcc.js:37
+Dv @ index-W2NA2tcc.js:37
+(anonymous) @ index-W2NA2tcc.js:37
+np @ index-W2NA2tcc.js:40
+sv @ index-W2NA2tcc.js:37
+oc @ index-W2NA2tcc.js:37
+jf @ index-W2NA2tcc.js:37
+nS @ index-W2NA2tcc.js:37
+index-W2NA2tcc.js:208 Login failed: J {message: 'Request failed with status code 401', name: 'AxiosError', code: 'ERR_BAD_REQUEST', config: {…}, request: XMLHttpRequest, …}
+d @ index-W2NA2tcc.js:208
+await in d
+L1 @ index-W2NA2tcc.js:37
+z1 @ index-W2NA2tcc.js:37
+$1 @ index-W2NA2tcc.js:37
+xh @ index-W2NA2tcc.js:37
+Dv @ index-W2NA2tcc.js:37
+(anonymous) @ index-W2NA2tcc.js:37
+np @ index-W2NA2tcc.js:40
+sv @ index-W2NA2tcc.js:37
+oc @ index-W2NA2tcc.js:37
+jf @ index-W2NA2tcc.js:37
+nS @ index-W2NA2tcc.js:37
+index-W2NA2tcc.js:208 Backend Error Response: {data: {…}, status: 401, statusText: 'Unauthorized', headers: bt, config: {…}, …}
+d @ index-W2NA2tcc.js:208
+await in d
+L1 @ index-W2NA2tcc.js:37
+z1 @ index-W2NA2tcc.js:37
+$1 @ index-W2NA2tcc.js:37
+xh @ index-W2NA2tcc.js:37
+Dv @ index-W2NA2tcc.js:37
+(anonymous) @ index-W2NA2tcc.js:37
+np @ index-W2NA2tcc.js:40
+sv @ index-W2NA2tcc.js:37
+oc @ index-W2NA2tcc.js:37
+jf @ index-W2NA2tcc.js:37
+nS @ index-W2NA2tcc.js:37

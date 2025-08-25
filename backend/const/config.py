@@ -67,8 +67,10 @@ class Config:
     # --- SECURITY CONFIGURATION ---
     # In production, generate a random key with: openssl rand -hex 32
     SECRET_KEY = os.getenv('SECRET_KEY', 'my-super-secret-key')
+    print(f"[DEBUG] Config SECRET_KEY: {SECRET_KEY[:5]}...") # Print first 5 chars for security
     ALGORITHM = os.getenv('ALGORITHM', 'HS256')
     ACCESS_TOKEN_EXPIRE_MINUTES = 60
+    REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 7 days
 
 
     # ===== MQTT CONFIGURATION =====
