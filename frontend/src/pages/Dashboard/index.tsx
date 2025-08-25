@@ -8,9 +8,9 @@ import DowntimeAnalysis from './DowntimeAnalysis';
 
 const Dashboard: React.FC = () => {
   const [filters, setFilters] = useState({
-    start_time: '2023-01-01T00:00:00',
-    end_time: '2023-01-31T23:59:59',
-    machine_ids: 'mill_1,mill_2',
+    start_time: '2025-05-05T00:00:00',
+    end_time: '2025-08-31T23:59:59',
+    machine_ids: 'All',
     shift: 'All',
     day_of_week: 'All',
   });
@@ -19,6 +19,9 @@ const Dashboard: React.FC = () => {
     queryKey: ['analyticalData', filters],
     queryFn: () => getAnalyticalData(filters),
   });
+  
+  console.log('data', data)
+  console.log('error', error)
 
   return (
     <div className="p-4">

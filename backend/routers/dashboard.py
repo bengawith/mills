@@ -19,7 +19,7 @@ router = APIRouter(
 def get_analytical_data(
     start_time: dt.datetime,
     end_time: dt.datetime,
-    machine_ids: List[str] = Query(...),
+    machine_ids: Optional[List[str]] = Query(None),
     db: Session = Depends(get_db)
 ):
     """
@@ -27,12 +27,15 @@ def get_analytical_data(
     to provide a single, enriched dataset for dashboard visualizations.
     """
     # 1. Fetch FourJaw Data (HistoricalMachineData)
+    print(f"start_time: {start_time}, end_time: {end_time}, machine_ids: {machine_ids}")
     fourjaw_query = db.query(database_models.HistoricalMachineData).filter(
         database_models.HistoricalMachineData.machine_id.in_(machine_ids),
         database_models.HistoricalMachineData.start_timestamp <= end_time,
         database_models.HistoricalMachineData.end_timestamp >= start_time
     )
     fourjaw_df = pd.read_sql(fourjaw_query.statement, db.bind)
+    print(f"fourjaw_df.empty: {fourjaw_df.empty}")
+    print(f"fourjaw_df.head():\n{fourjaw_df.head()}")
 
     if fourjaw_df.empty:
         return []

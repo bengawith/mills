@@ -35,7 +35,14 @@ apiClient.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
-export const getAnalyticalData = async (params: any) => {
+export const getAnalyticalData = async (rawParams: any) => {
+  const params = {
+    start_time: rawParams.start_time,
+    end_time: rawParams.end_time,
+    machine_ids: rawParams.machine_ids === "All" ? undefined : rawParams.machine_ids,
+    shift: rawParams.shift === "All" ? undefined : rawParams.shift,
+    day_of_week: rawParams.day_of_week === "All" ? undefined : rawParams.day_of_week,
+  };
   const response = await apiClient.get("/api/v1/dashboard/analytical-data", { params });
   return response.data;
 };
