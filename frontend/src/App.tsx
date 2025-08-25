@@ -14,7 +14,7 @@ import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard/index";
 import MaintenanceHub from "./pages/MaintenanceHub";
 import LogNewTicket from "./pages/LogNewTicket";
-import ManageTickets from "./pages/ManageTickets";
+import ManageTickets from "./pages/ManageTickets/index";
 import OperatorTerminal from "./pages/OperatorTerminal";
 
 
