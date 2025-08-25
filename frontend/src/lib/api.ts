@@ -47,6 +47,42 @@ export const getAnalyticalData = async (rawParams: any) => {
   return response.data;
 };
 
+export const getOeeData = async (rawParams: any) => {
+  const params = {
+    start_time: rawParams.start_time,
+    end_time: rawParams.end_time,
+    machine_ids: rawParams.machine_ids === "All" ? undefined : rawParams.machine_ids,
+    shift: rawParams.shift === "All" ? undefined : rawParams.shift,
+    day_of_week: rawParams.day_of_week === "All" ? undefined : rawParams.day_of_week,
+  };
+  const response = await apiClient.get("/api/v1/oee", { params });
+  return response.data;
+};
+
+export const getUtilizationData = async (rawParams: any) => {
+  const params = {
+    start_time: rawParams.start_time,
+    end_time: rawParams.end_time,
+    machine_ids: rawParams.machine_ids === "All" ? undefined : rawParams.machine_ids,
+    shift: rawParams.shift === "All" ? undefined : rawParams.shift,
+    day_of_week: rawParams.day_of_week === "All" ? undefined : rawParams.day_of_week,
+  };
+  const response = await apiClient.get("/api/v1/utilization", { params });
+  return response.data;
+};
+
+export const getDowntimeAnalysisData = async (rawParams: any) => {
+  const params = {
+    start_time: rawParams.start_time,
+    end_time: rawParams.end_time,
+    machine_ids: rawParams.machine_ids === "All" ? undefined : rawParams.machine_ids,
+    shift: rawParams.shift === "All" ? undefined : rawParams.shift,
+    day_of_week: rawParams.day_of_week === "All" ? undefined : rawParams.day_of_week,
+  };
+  const response = await apiClient.get("/api/v1/downtime-analysis", { params });
+  return response.data;
+};
+
 export const getMachines = async () => {
   const response = await apiClient.get("/api/v1/machines");
   return response.data;
