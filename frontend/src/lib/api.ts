@@ -35,4 +35,14 @@ apiClient.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
+export const getAnalyticalData = async (params: any) => {
+  const response = await apiClient.get("/api/v1/dashboard/analytical-data", { params });
+  return response.data;
+};
+
+export const getMachines = async () => {
+  const response = await apiClient.get("/api/v1/machines");
+  return response.data;
+};
+
 export default apiClient;

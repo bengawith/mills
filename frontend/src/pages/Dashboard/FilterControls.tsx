@@ -1,0 +1,97 @@
+import React from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useQuery } from '@tanstack/react-query';
+import { getMachines } from '@/lib/api';
+
+interface FilterControlsProps {
+  filters: any;
+  setFilters: (filters: any) => void;
+}
+
+const FilterControls: React.FC<FilterControlsProps> = ({ filters, setFilters }) => {
+  const handleInputChange = (field: string, value: string) => {
+    setFilters({ ...filters, [field]: value });
+  };
+
+  const { data: machines, isLoading: isLoadingMachines, error: machinesError } = useQuery({
+    queryKey: ['machines'],
+    queryFn: getMachines,
+  });
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div>
+        <Label htmlFor="startTime">Start Time</Label>
+        <Input
+          id="startTime"
+          type="datetime-local"
+          value={filters.start_time}
+          onChange={(e) => handleInputChange('start_time', e.target.value)}
+        />
+      </div>
+      <div>
+        <Label htmlFor="endTime">End Time</Label>
+        <Input
+          id="endTime"
+          type="datetime-local"
+          value={filters.end_time}
+          onChange={(e) => handleInputChange('end_time', e.target.value)}
+        />
+      </div>
+      <div>
+        <Label htmlFor="machineIds">Machine ID</Label>
+        <Select onValueChange={(value) => handleInputChange('machine_ids', value)} value={filters.machine_ids}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select a machine" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="All">All</SelectItem>
+            {isLoadingMachines && <SelectItem value="loading" disabled>Loading machines...</SelectItem>}
+            {machinesError && <SelectItem value="error" disabled>Error loading machines</SelectItem>}
+            {machines?.map((machine: string) => (
+              <SelectItem key={machine} value={machine}>
+                {machine}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label htmlFor="shift">Shift</Label>
+        <Select onValueChange={(value) => handleInputChange('shift', value)} value={filters.shift}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select a shift" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="All">All</SelectItem>
+            <SelectItem value="DAY">Day</SelectItem>
+            <SelectItem value="NIGHT">Night</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label htmlFor="day_of_week">Day of Week</Label>
+        <Select onValueChange={(value) => handleInputChange('day_of_week', value)} value={filters.day_of_week}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select a day" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="All">All</SelectItem>
+            <SelectItem value="MONDAY">Monday</SelectItem>
+            <SelectItem value="TUESDAY">Tuesday</SelectItem>
+            <SelectItem value="WEDNESDAY">Wednesday</SelectItem>
+            <SelectItem value="THURSDAY">Thursday</SelectItem>
+            <SelectItem value="FRIDAY">Friday</SelectItem>
+            <SelectItem value="SATURDAY">Saturday</SelectItem>
+            <SelectItem value="SUNDAY">Sunday</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+};
+
+export default FilterControls;
