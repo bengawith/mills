@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from database_models import User
 from schemas import TokenData, UserCreate
-from const.config import Config
+from const.config import config
 
 # --- Password Hashing Setup ---
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -36,7 +36,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, Config.SECRET_KEY, algorithm=Config.ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, config.SECRET_KEY, algorithm=config.ALGORITHM)
     return encoded_jwt
 
 def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None):
@@ -49,7 +49,7 @@ def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None):
         expire = datetime.now(timezone.utc) + timedelta(days=7)
     
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, Config.SECRET_KEY, algorithm=Config.ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, config.SECRET_KEY, algorithm=config.ALGORITHM)
     return encoded_jwt
 
 def get_user(db: Session, email: str):
@@ -84,8 +84,8 @@ async def get_current_active_user(token: str = Depends(oauth2_scheme), db: Sessi
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, Config.SECRET_KEY, algorithms=[Config.ALGORITHM])
-        email: str = payload.get("sub")
+        payload = jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM])
+        email = payload.get("sub")
         if email is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

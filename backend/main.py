@@ -8,7 +8,7 @@ import traceback
 
 # Import the routers
 from routers import auth, data, maintenance, inventory, production, events, fourjaw_proxy, dashboard, database
-from const.config import Config
+from const.config import config
 from database import Base, engine
 
 # Configure logging
@@ -43,7 +43,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 # --- CORS Middleware ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=Config.ORIGINS,
+    allow_origins=config.ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

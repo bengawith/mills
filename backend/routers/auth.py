@@ -7,7 +7,7 @@ from database import get_db
 from database_models import User
 from schemas import Token, UserCreate, UserResponse, UserUpdate, LoginRequest # Added LoginRequest
 from security import create_access_token, create_refresh_token, verify_password, get_user, get_current_active_user, create_user
-from const.config import Config
+from const.config import config
 
 router = APIRouter()
 
@@ -39,11 +39,11 @@ async def login_for_access_token(login_data: LoginRequest, db: Session = Depends
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    access_token_expires = timedelta(minutes=Config.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
-    refresh_token_expires = timedelta(minutes=Config.REFRESH_TOKEN_EXPIRE_MINUTES) # Assuming a refresh token expiry
+    refresh_token_expires = timedelta(minutes=config.REFRESH_TOKEN_EXPIRE_MINUTES) # Assuming a refresh token expiry
     refresh_token = create_refresh_token(
         data={"sub": user.email}, expires_delta=refresh_token_expires
     )

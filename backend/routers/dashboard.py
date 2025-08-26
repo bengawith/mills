@@ -8,7 +8,7 @@ import schemas
 import database_models
 from database import get_db
 from security import get_current_active_user
-from const.config import Config
+from const.config import config
 
 
 router = APIRouter(
@@ -30,7 +30,7 @@ def get_analytical_data(
     """
     # 1. Fetch FourJaw Data (HistoricalMachineData)
     if machine_ids is None:
-        machine_ids = Config.MACHINE_IDS
+        machine_ids = config.MACHINE_IDS
     fourjaw_query = db.query(database_models.HistoricalMachineData).filter(
         database_models.HistoricalMachineData.machine_id.in_(machine_ids),
         database_models.HistoricalMachineData.start_timestamp <= end_time,

@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 from pydantic import BaseModel
 
-from const import Config
+from const.config import config
 from fourjaw import DataProcessor
 from security import get_current_active_user
 from database import get_db # Import the database session dependency
@@ -156,7 +156,7 @@ async def get_downtime_analysis(
 @router.get("/machines", response_model=List[schemas.Machine])
 async def get_machines():
     """Returns a list of all available machines with their IDs and names."""
-    return [{"id": id, "name": name} for id, name in Config.MACHINE_ID_MAP.items()]
+    return [{"id": id, "name": name} for id, name in config.MACHINE_ID_MAP.items()]
 
 @router.get("/shifts", response_model=List[str])
 async def get_shifts():

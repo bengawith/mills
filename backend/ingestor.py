@@ -13,7 +13,7 @@ from database import engine, Base
 import database_models
 from fourjaw.api import FourJaw
 from fourjaw.data_processor import DataProcessor
-from const.config import Config
+from const.config import config
 
 # --- Database Setup ---
 # Create all tables defined in database_models if they don't exist
@@ -26,8 +26,8 @@ def on_connect(client, userdata, flags, rc):
     """Callback for when the client connects to the MQTT broker."""
     if rc == 0:
         print(f"[{datetime.now()}] MQTT Ingestor: Connected to Broker!")
-        client.subscribe(Config.MQTT_TOPIC)
-        print(f"[{datetime.now()}] MQTT Ingestor: Subscribed to topic '{Config.MQTT_TOPIC}'")
+        client.subscribe(config.MQTT_TOPIC)
+        print(f"[{datetime.now()}] MQTT Ingestor: Subscribed to topic '{config.MQTT_TOPIC}'")
     else:
         print(f"[{datetime.now()}] MQTT Ingestor: Failed to connect, return code {rc}\n")
 
@@ -56,11 +56,11 @@ def on_message(client, userdata, msg):
 def setup_mqtt_client():
     """Sets up and connects the MQTT client."""
     client = mqtt.Client(client_id=f"mill-dash-ingestor-{int(time.time())}")
-    # client.username_pw_set(Config.MQTT_USER, Config.MQTT_PASSWORD) # Uncomment if auth is needed
+    # client.username_pw_set(config.MQTT_USER, config.MQTT_PASSWORD) # Uncomment if auth is needed
     client.on_connect = on_connect
     client.on_message = on_message
     try:
-        client.connect(Config.MQTT_BROKER_HOST, Config.MQTT_BROKER_PORT)
+        client.connect(config.MQTT_BROKER_HOST, config.MQTT_BROKER_PORT)
         return client
     except Exception as e:
         print(f"[{datetime.now()}] MQTT Ingestor: Error connecting to MQTT broker: {e}")
@@ -188,8 +188,8 @@ def fetch_and_process_fourjaw_data():
     db = SessionLocal()
 
     try:
-        for machine_id in Config.MACHINE_IDS:
-            machine_name = Config.MACHINE_ID_MAP.get(machine_id, machine_id)
+        for machine_id in config.MACHINE_IDS:
+            machine_name = config.MACHINE_ID_MAP.get(machine_id, machine_id)
             print(f"\n--- Checking for new data for machine: {machine_name} ---")
             
             latest_db_timestamp = get_latest_timestamp_from_db(db, machine_id)
@@ -202,7 +202,7 @@ def fetch_and_process_fourjaw_data():
                     start_time = start_time.replace(tzinfo=timezone.utc)
             else:
                 # Fallback: If no data exists, fetch the last N days
-                start_time = datetime.now(timezone.utc) - timedelta(days=Config.FOURJAW_HISTORICAL_FETCH_DAYS)
+                start_time = datetime.now(timezone.utc) - timedelta(days=config.FOURJAW_HISTORICAL_FETCH_DAYS)
             
             end_time = datetime.now(timezone.utc)
             
@@ -251,6 +251,6 @@ if __name__ == "__main__":
     # Run the FourJaw polling loop indefinitely
     while True:
         fetch_and_process_fourjaw_data()
-        print(f"\n[{datetime.now()}] FourJaw Polling complete. Waiting {Config.FOURJAW_POLLING_INTERVAL_SECONDS} seconds for next run...")
-        time.sleep(Config.FOURJAW_POLLING_INTERVAL_SECONDS)
+        print(f"\n[{datetime.now()}] FourJaw Polling complete. Waiting {config.FOURJAW_POLLING_INTERVAL_SECONDS} seconds for next run...")
+        time.sleep(config.FOURJAW_POLLING_INTERVAL_SECONDS)
         sort_and_save_csv()
