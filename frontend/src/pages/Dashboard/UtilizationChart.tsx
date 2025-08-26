@@ -8,6 +8,35 @@ interface UtilizationChartProps {
 
 const COLORS = ['#00C49F', '#0088FE', '#FF8042']; // Green, Blue, Orange
 
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="p-2 bg-white border border-gray-300 rounded shadow-lg">
+        <p style={{ color: payload[0].color, fontWeight: 'bold' }}>{`${data.name}: ${data.value.toFixed(2)} hours`}</p>
+      </div>
+    );
+  }
+  return null;
+};
+
+const renderLegend = (props: any) => {
+  const { payload } = props;
+  return (
+    <ul style={{ listStyle: 'none', padding: 0 }}>
+      {
+        payload.map((entry: any, index: number) => (
+          <li key={`item-${index}`} style={{ color: entry.color, marginBottom: '4px' }}>
+            <span style={{ display: 'inline-block', marginRight: '10px', width: '10px', height: '10px', backgroundColor: entry.color }}></span>
+            {entry.value} ({((entry.payload.value / (props.data.utilization.total_time_seconds / 3600)) * 100).toFixed(2)}%)
+          </li>
+        ))
+      }
+    </ul>
+  );
+};
+
+
 const UtilizationChart: React.FC<UtilizationChartProps> = ({ data }) => {
   const utilizationData = data.utilization;
 
@@ -25,9 +54,9 @@ const UtilizationChart: React.FC<UtilizationChartProps> = ({ data }) => {
   }
 
   const chartData = [
-    { name: 'Productive Uptime', value: Math.round(utilizationData.productive_uptime_seconds / 36 ) / 100 },
-    { name: 'Productive Downtime', value: Math.round(utilizationData.productive_downtime_seconds / 36 ) / 100 },
-    { name: 'Unproductive Downtime', value: Math.round(utilizationData.unproductive_downtime_seconds / 36 ) / 100 },
+    { name: 'Productive Uptime', value: utilizationData.productive_uptime_seconds / 3600 },
+    { name: 'Productive Downtime', value: utilizationData.productive_downtime_seconds / 3600 },
+    { name: 'Unproductive Downtime', value: utilizationData.unproductive_downtime_seconds / 3600 },
   ];
 
   return (
@@ -45,13 +74,14 @@ const UtilizationChart: React.FC<UtilizationChartProps> = ({ data }) => {
               outerRadius={100}
               fill="#8884d8"
               dataKey="value"
+              nameKey="name"
             >
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
-            <Tooltip />
-            <Legend />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend content={(props) => renderLegend({ ...props, data })} />
           </PieChart>
         </ResponsiveContainer>
         <div className="mt-4 text-sm">

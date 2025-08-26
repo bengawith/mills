@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Label } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface OeeChartProps {
@@ -16,12 +16,25 @@ const COLOR_SCALE = [
   '#4575b4', // Blue for high values
 ];
 
-const get_color = (value: number): string => {
+const getColor = (value: number): string => {
   // Assuming a target of 70% for OEE, Availability, Performance, Quality
   // Normalize value to a 0-1 scale based on a max of 100 (percentage)
   const normalised_percentage = Math.min(1, Math.max(0, value / 100));
-  const color_index = Math.floor(normalised_percentage * (COLOR_SCALE.length - 1));
-  return COLOR_SCALE[color_index];
+  const colorIndex = Math.floor(normalised_percentage * (COLOR_SCALE.length - 1));
+  return COLOR_SCALE[colorIndex];
+};
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    const value = payload[0].value;
+    const color = getColor(value);
+    return (
+      <div className="p-2 bg-white border border-gray-300 rounded shadow-lg">
+        <p style={{ color: color, fontWeight: 'bold' }}>{`${label}: ${value.toFixed(2)}%`}</p>
+      </div>
+    );
+  }
+  return null;
 };
 
 const OeeChart: React.FC<OeeChartProps> = ({ data }) => {
@@ -42,12 +55,13 @@ const OeeChart: React.FC<OeeChartProps> = ({ data }) => {
           <BarChart data={oeeData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
-            <YAxis domain={[0, 100]} /> {/* Assuming values are percentages */}
-            <Tooltip />
-            <Legend />
+            <YAxis domain={[0, 100]}>
+              <Label value="Percentage (%)" angle={-90} position="insideLeft" style={{ textAnchor: 'middle' }} />
+            </YAxis>
+            <Tooltip content={<CustomTooltip />} />
             <Bar dataKey="value">
               {oeeData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={get_color(entry.value)} />
+                <Cell key={`cell-${index}`} fill={getColor(entry.value)} />
               ))}
             </Bar>
           </BarChart>
