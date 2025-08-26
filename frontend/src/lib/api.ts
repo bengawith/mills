@@ -101,7 +101,7 @@ export const getOeeData = async (rawParams: any) => {
     shift: rawParams.shift === "All" ? undefined : rawParams.shift,
     day_of_week: rawParams.day_of_week === "All" ? undefined : rawParams.day_of_week,
   };
-  const response = await apiClient.get("/api/v1/oee", { params });
+  const response = await apiClient.get("/api/v1/analytics/oee-optimized", { params });
   return response.data;
 };
 
@@ -113,7 +113,7 @@ export const getUtilizationData = async (rawParams: any) => {
     shift: rawParams.shift === "All" ? undefined : rawParams.shift,
     day_of_week: rawParams.day_of_week === "All" ? undefined : rawParams.day_of_week,
   };
-  const response = await apiClient.get("/api/v1/utilization", { params });
+  const response = await apiClient.get("/api/v1/analytics/utilization-optimized", { params });
   return response.data;
 };
 
@@ -125,7 +125,7 @@ export const getDowntimeAnalysisData = async (rawParams: any) => {
     shift: rawParams.shift === "All" ? undefined : rawParams.shift,
     day_of_week: rawParams.day_of_week === "All" ? undefined : rawParams.day_of_week,
   };
-  const response = await apiClient.get("/api/v1/downtime-analysis", { params });
+  const response = await apiClient.get("/api/v1/analytics/downtime-analysis-optimized", { params });
   return response.data;
 };
 
@@ -204,6 +204,47 @@ export const startProductionRun = async (payload: { machine_id: string; product_
 
 export const completeProductionRun = async (payload: { run_id: number; scrap_length: number }) => {
   const response = await apiClient.put(`/api/v1/runs/${payload.run_id}/complete`, { scrap_length: payload.scrap_length });
+  return response.data;
+};
+
+// NEW: Advanced Analytics Optimized Endpoints
+export const getRealTimeMetrics = async () => {
+  const response = await apiClient.get("/api/v1/analytics/real-time-metrics");
+  return response.data;
+};
+
+export const getPerformanceSummary = async (machineIds?: string[], hoursBack: number = 24) => {
+  const params: any = { hours_back: hoursBack };
+  if (machineIds && machineIds.length > 0 && !machineIds.includes("All")) {
+    params.machine_ids = machineIds;
+  }
+  const response = await apiClient.get("/api/v1/analytics/performance-summary", { params });
+  return response.data;
+};
+
+export const getTrendsData = async (machineIds?: string[], daysBack: number = 7, interval: string = "daily") => {
+  const params: any = { days_back: daysBack, interval };
+  if (machineIds && machineIds.length > 0 && !machineIds.includes("All")) {
+    params.machine_ids = machineIds;
+  }
+  const response = await apiClient.get("/api/v1/analytics/trends", { params });
+  return response.data;
+};
+
+export const getMachineComparison = async (metric: string = "utilization", startTime?: string, endTime?: string) => {
+  const params: any = { metric };
+  if (startTime) params.start_time = startTime;
+  if (endTime) params.end_time = endTime;
+  const response = await apiClient.get("/api/v1/analytics/machine-comparison", { params });
+  return response.data;
+};
+
+export const getEfficiencyInsights = async (machineIds?: string[], hoursBack: number = 168) => {
+  const params: any = { hours_back: hoursBack };
+  if (machineIds && machineIds.length > 0 && !machineIds.includes("All")) {
+    params.machine_ids = machineIds;
+  }
+  const response = await apiClient.get("/api/v1/analytics/efficiency-insights", { params });
   return response.data;
 };
 
