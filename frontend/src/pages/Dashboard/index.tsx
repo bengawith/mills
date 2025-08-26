@@ -7,13 +7,17 @@ import UtilizationChart from './UtilizationChart';
 import DowntimeAnalysis from './DowntimeAnalysis';
 
 const Dashboard: React.FC = () => {
+  const today: string = new Date().toISOString().replace('Z', '')
+
   const [filters, setFilters] = useState({
     start_time: '2025-05-05T00:00:00',
-    end_time: '2025-08-31T23:59:59',
+    end_time: today,
     machine_ids: 'All',
     shift: 'All',
     day_of_week: 'All',
   });
+
+
 
   // Use useQueries to fetch data from multiple endpoints
   const results = useQueries({

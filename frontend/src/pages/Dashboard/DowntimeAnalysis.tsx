@@ -13,7 +13,7 @@ const DowntimeAnalysis: React.FC<DowntimeAnalysisProps> = ({ data }) => {
 
   const recurringData = Object.keys(recurringDowntimeReasons).map(key => ({
     name: key,
-    value: recurringDowntimeReasons[key] / 3600, // Convert seconds to hours
+    value: Math.round(recurringDowntimeReasons[key] / 36) / 100, // Convert seconds to hours with 2 d.p.
   }));
 
   return (
@@ -27,6 +27,7 @@ const DowntimeAnalysis: React.FC<DowntimeAnalysisProps> = ({ data }) => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Machine Name</TableHead>
                 <TableHead>Machine ID</TableHead>
                 <TableHead>Reason</TableHead>
                 <TableHead>Duration (hours)</TableHead>
@@ -38,6 +39,7 @@ const DowntimeAnalysis: React.FC<DowntimeAnalysisProps> = ({ data }) => {
               {excessiveDowntimes.length > 0 ? (
                 excessiveDowntimes.map((downtime: any, index: number) => (
                   <TableRow key={index}>
+                    <TableCell>{downtime.name}</TableCell>
                     <TableCell>{downtime.machine_id}</TableCell>
                     <TableCell>{downtime.downtime_reason_name}</TableCell>
                     <TableCell>{(downtime.duration_seconds / 3600).toFixed(2)}</TableCell>

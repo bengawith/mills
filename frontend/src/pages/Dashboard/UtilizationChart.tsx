@@ -25,9 +25,9 @@ const UtilizationChart: React.FC<UtilizationChartProps> = ({ data }) => {
   }
 
   const chartData = [
-    { name: 'Productive Uptime', value: utilizationData.productive_uptime_seconds / 3600 },
-    { name: 'Productive Downtime', value: utilizationData.productive_downtime_seconds / 3600 },
-    { name: 'Unproductive Downtime', value: utilizationData.unproductive_downtime_seconds / 3600 },
+    { name: 'Productive Uptime', value: Math.round(utilizationData.productive_uptime_seconds / 36 ) / 100 },
+    { name: 'Productive Downtime', value: Math.round(utilizationData.productive_downtime_seconds / 36 ) / 100 },
+    { name: 'Unproductive Downtime', value: Math.round(utilizationData.unproductive_downtime_seconds / 36 ) / 100 },
   ];
 
   return (
