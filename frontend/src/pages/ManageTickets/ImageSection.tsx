@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 
+const backendUrl = 'http://localhost:8000';
+
 interface TicketImage {
   id: number;
   image_url: string;
@@ -75,7 +77,7 @@ const ImageSection: React.FC<ImageSectionProps> = ({ ticketId, images, onImageUp
             images.map((img) => (
               <div key={img.id} className="relative group">
                 <img 
-                  src={`http://localhost:8000/${img.image_url}`} // Adjust URL as needed
+                  src={`${backendUrl}/${img.image_url}`} // Adjust URL as needed
                   alt={img.caption || `Image ${img.id}`}
                   className="w-full h-32 object-cover rounded-md"
                 />
