@@ -2,6 +2,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Bell, Search } from "lucide-react";
+import ConnectionStatus from "@/components/ConnectionStatus";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -23,6 +24,9 @@ export default function Layout({ children }: LayoutProps) {
               </div>
               
               <div className="flex items-center space-x-4">
+                {/* WebSocket Connection Status */}
+                <ConnectionStatus compact={true} />
+                
                 <Button variant="outline" size="sm">
                   <Search className="w-4 h-4 mr-2" />
                   Search

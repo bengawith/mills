@@ -6,9 +6,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime, timezone
 import logging
+import asyncio
 
 from services.base_service import BaseService
 from database_models import MaintenanceTicket, TicketWorkNote, TicketImage, RepairComponent, TicketComponentUsed
+from event_dispatcher import event_dispatcher
 import schemas
 
 logger = logging.getLogger(__name__)
@@ -31,7 +33,20 @@ class MaintenanceService(BaseService):
                 "status": "Open"
             }
             
-            return self.create(db, ticket_dict)
+            ticket = self.create(db, ticket_dict)
+            
+            # Dispatch WebSocket notification for new ticket
+            event_dispatcher.dispatch_maintenance_alert(
+                ticket_id=ticket.id,
+                machine_id=ticket.machine_id,
+                priority=ticket.priority,
+                description=ticket.description
+            )
+            
+            # Trigger dashboard refresh
+            event_dispatcher.dispatch_dashboard_refresh()
+            
+            return ticket
         except SQLAlchemyError as e:
             logger.error(f"Error creating maintenance ticket: {str(e)}")
             raise
@@ -58,11 +73,33 @@ class MaintenanceService(BaseService):
     def update_ticket_status(self, db: Session, ticket_id: int, status: str) -> Optional[MaintenanceTicket]:
         """Update ticket status."""
         try:
+            # Get the ticket to find the old status and machine ID
+            ticket = self.get_by_id(db, ticket_id)
+            if not ticket:
+                logger.warning(f"Ticket {ticket_id} not found for status update")
+                return None
+                
+            old_status = ticket.status
+            
             update_data = {"status": status}
             if status.lower() in ["resolved", "closed"]:
                 update_data["resolved_time"] = datetime.now(timezone.utc).isoformat()
             
-            return self.update(db, ticket_id, update_data)
+            updated_ticket = self.update(db, ticket_id, update_data)
+            
+            if updated_ticket and old_status != status:
+                # Dispatch WebSocket notification for status change
+                event_dispatcher.dispatch_ticket_status_change(
+                    ticket_id=ticket_id,
+                    old_status=old_status,
+                    new_status=status,
+                    machine_id=ticket.machine_id
+                )
+                
+                # Trigger dashboard refresh
+                event_dispatcher.dispatch_dashboard_refresh()
+            
+            return updated_ticket
         except SQLAlchemyError as e:
             logger.error(f"Error updating ticket {ticket_id} status: {str(e)}")
             raise

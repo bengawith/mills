@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getMaintenanceTickets, getMachines } from '@/lib/api';
+import { getMaintenanceTickets, getMachines, getMaintenanceOverview } from '@/lib/api';
+import { useMaintenanceEvents } from '@/contexts/WebSocketContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -12,6 +13,8 @@ import {
 } from '@/components/ui/table';
 import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Import Select components
+import { AlertTriangle, Clock, CheckCircle, Wrench, Bell } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface MaintenanceTicket {
     id: number;
@@ -27,9 +30,19 @@ const MaintenanceHub = () => {
   const [selectedStatus, setSelectedStatus] = useState('All');
   const [selectedMachine, setSelectedMachine] = useState('All');
 
+  // Use WebSocket events for real-time maintenance updates
+  const { alerts, ticketUpdates } = useMaintenanceEvents();
+
+  // Fetch maintenance overview using optimized endpoint
+  const { data: maintenanceOverview, isLoading: overviewLoading } = useQuery({
+    queryKey: ['maintenanceOverview'],
+    queryFn: () => getMaintenanceOverview(),
+    refetchInterval: 30 * 1000, // Refresh every 30 seconds
+  });
+
   const { data: tickets, isLoading, error } = useQuery<MaintenanceTicket[]>({ 
     queryKey: ['maintenanceTickets'],
-    queryFn: getMaintenanceTickets,
+    queryFn: () => getMaintenanceTickets(),
   });
 
   const { data: machines, isLoading: isLoadingMachines, error: machinesError } = useQuery<{id: string, name: string}[]>({
@@ -59,8 +72,95 @@ const MaintenanceHub = () => {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 space-y-6">
       <h1 className="text-2xl font-bold mb-4">Maintenance Hub</h1>
+
+      {/* Maintenance Overview Cards using optimized endpoint */}
+      {!overviewLoading && maintenanceOverview && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Open Tickets</CardTitle>
+              <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-orange-600">
+                {maintenanceOverview.open_tickets || 0}
+              </div>
+              <p className="text-xs text-muted-foreground">Require attention</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Critical Tickets</CardTitle>
+              <AlertTriangle className="h-4 w-4 text-red-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">
+                {maintenanceOverview.critical_tickets || 0}
+              </div>
+              <p className="text-xs text-muted-foreground">High priority</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Avg Resolution</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {maintenanceOverview.avg_resolution_time || 'N/A'}
+              </div>
+              <p className="text-xs text-muted-foreground">Hours to resolve</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Completed Today</CardTitle>
+              <CheckCircle className="h-4 w-4 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">
+                {maintenanceOverview.completed_today || 0}
+              </div>
+              <p className="text-xs text-muted-foreground">Resolved today</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Real-time Alerts Section */}
+      {alerts.length > 0 && (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-orange-800">
+              <Bell className="h-5 w-5" />
+              Recent Alerts
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {alerts.slice(0, 3).map((alert, index) => (
+                <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
+                  <div>
+                    <p className="font-medium">Ticket #{alert.ticket_id}</p>
+                    <p className="text-sm text-muted-foreground">{alert.description}</p>
+                  </div>
+                  <div className="text-right">
+                    <Badge variant={alert.priority === 'Critical' ? 'destructive' : 'secondary'}>
+                      {alert.priority}
+                    </Badge>
+                    <p className="text-xs text-muted-foreground">{alert.machine_id}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div>

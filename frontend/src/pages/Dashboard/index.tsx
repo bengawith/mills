@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useQueries } from '@tanstack/react-query'; // Use useQueries for multiple queries
-import { getOeeData, getUtilizationData, getDowntimeAnalysisData } from '@/lib/api'; // Import new functions
+import { getOeeData, getUtilizationData, getDowntimeAnalysisData, getProductionMetrics } from '@/lib/api'; // Import new functions
+import { useDashboardEvents } from '@/contexts/WebSocketContext';
 import FilterControls from './FilterControls';
 import OeeChart from './OeeChart';
 import UtilizationChart from './UtilizationChart';
 import DowntimeAnalysis from './DowntimeAnalysis';
+import DashboardOverview from './DashboardOverview';
+import PerformanceMonitor from './PerformanceMonitor';
 
 const Dashboard: React.FC = () => {
 
@@ -30,30 +33,39 @@ const Dashboard: React.FC = () => {
     day_of_week: 'All',
   });
 
+  // Extract machine IDs for the overview component
+  const selectedMachineIds = filters.machine_ids === 'All' ? undefined : filters.machine_ids.split(',');
 
+  // Use WebSocket events for real-time updates
+  const { lastUpdate } = useDashboardEvents();
 
   // Use useQueries to fetch data from multiple endpoints
   const results = useQueries({
     queries: [
       {
-        queryKey: ['oeeData', filters],
+        queryKey: ['oeeData', filters, lastUpdate],
         queryFn: () => getOeeData(filters),
         refetchInterval: 5 * 60 * 1000,
       },
       {
-        queryKey: ['utilizationData', filters],
+        queryKey: ['utilizationData', filters, lastUpdate],
         queryFn: () => getUtilizationData(filters),
         refetchInterval: 5 * 60 * 1000,
       },
       {
-        queryKey: ['downtimeAnalysisData', filters],
+        queryKey: ['downtimeAnalysisData', filters, lastUpdate],
         queryFn: () => getDowntimeAnalysisData(filters),
+        refetchInterval: 5 * 60 * 1000,
+      },
+      {
+        queryKey: ['productionMetrics', filters, lastUpdate],
+        queryFn: () => getProductionMetrics(filters),
         refetchInterval: 5 * 60 * 1000,
       },
     ],
   });
 
-  const [oeeResult, utilizationResult, downtimeAnalysisResult] = results;
+  const [oeeResult, utilizationResult, downtimeAnalysisResult, productionMetricsResult] = results;
 
   const isLoading = results.some(result => result.isLoading);
   const isError = results.some(result => result.isError);
@@ -63,12 +75,21 @@ const Dashboard: React.FC = () => {
     oee: oeeResult.data,
     utilization: utilizationResult.data,
     downtimeAnalysis: downtimeAnalysisResult.data,
+    productionMetrics: productionMetricsResult.data,
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 space-y-6">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+      
+      {/* Dashboard Overview with optimized endpoints */}
+      <DashboardOverview machineIds={selectedMachineIds} />
+      
       <FilterControls filters={filters} setFilters={setFilters} />
+      
+      {/* Performance Monitor using optimized analytical data */}
+      <PerformanceMonitor filters={filters} />
+      
       {isLoading && <p>Loading...</p>}
       {isError && <p>Error loading data</p>}
       {!isLoading && !isError && (
