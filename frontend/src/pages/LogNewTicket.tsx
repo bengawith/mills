@@ -142,7 +142,7 @@ const LogNewTicket = () => {
                   <SelectValue placeholder="Select a machine" />
                 </SelectTrigger>
                 <SelectContent>
-                  {isLoadingMachines && <SelectItem value="" disabled>Loading machines...</SelectItem>}
+                  {isLoadingMachines && <SelectItem value="loading" disabled>Loading machines...</SelectItem>}
                   {machines?.map((m: string) => (
                     <SelectItem key={m} value={m}>
                       {MACHINE_ID_MAP[m] || m}
