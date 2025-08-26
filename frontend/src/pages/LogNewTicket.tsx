@@ -76,7 +76,7 @@ const LogNewTicket = () => {
       // Clear form
       setMachineId('');
       setIncidentCategory('');
-      setPriority('Medium');
+      setPriority('');
       setDescription('');
       setSelectedDowntimeId(null);
       setUploadedImage(null);
@@ -109,6 +109,8 @@ const LogNewTicket = () => {
       description: description,
       fourjaw_downtime_id: selectedDowntimeId,
     };
+    console.log('Payload:', payload);
+
     createTicketMutation.mutate(payload);
   };
 
@@ -194,12 +196,12 @@ const LogNewTicket = () => {
             {machineId && (
               <div>
                 <Label htmlFor="downtimeLink">Link to FourJaw Downtime Event (Optional)</Label>
-                <Select onValueChange={setSelectedDowntimeId} value={selectedDowntimeId || ''}>
+                <Select onValueChange={(value) => setSelectedDowntimeId(value === 'none' ? null : value)} value={selectedDowntimeId || ''}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select a downtime event" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
                     {isLoadingDowntimes && <SelectItem value="loading" disabled>Loading downtimes...</SelectItem>}
                     {downtimeOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
