@@ -10,10 +10,10 @@ class FourJaw:
     A client for interacting with the FourJaw API.
     """
     def __init__(self):
-        self._api_key: str = Config.API_KEY
-        self.base_url: str = Config.BASE_URL
+        self._api_key: str = config.API_KEY
+        self.base_url: str = config.BASE_URL
         self.client: httpx.Client = httpx.Client(
-            headers=Config.SECURE_HEADER,
+            headers=config.SECURE_HEADER,
             base_url=self.base_url
         )
 

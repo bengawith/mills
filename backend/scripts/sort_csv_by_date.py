@@ -20,9 +20,9 @@ if __name__ == "__main__":
 
     
     csv_files = [
-        os.path.join('data', f'mill_{Config.MACHINE_IDS[0]}.csv'),
-        os.path.join('data', f'mill_{Config.MACHINE_IDS[1]}.csv'),
-        os.path.join('data', f'mill_{Config.MACHINE_IDS[2]}.csv')
+        os.path.join('data', f'mill_{config.MACHINE_IDS[0]}.csv'),
+        os.path.join('data', f'mill_{config.MACHINE_IDS[1]}.csv'),
+        os.path.join('data', f'mill_{config.MACHINE_IDS[2]}.csv')
     ]
 
     for csv_file in csv_files:

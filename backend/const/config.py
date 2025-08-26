@@ -6,6 +6,7 @@ from pathlib import Path
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+
 class ConfigurationError(Exception):
     """Raised when there's an error in configuration."""
     pass

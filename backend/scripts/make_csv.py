@@ -13,7 +13,7 @@ def get_shift_info(timestamp: pd.Timestamp) -> tuple:
     """Determines the shift and day of the week for a given timestamp."""
     day_name = timestamp.strftime('%A')
     current_time = timestamp.time()
-    if Config.DAY_SHIFT_START <= current_time < Config.DAY_SHIFT_END:
+    if config.DAY_SHIFT_START <= current_time < config.DAY_SHIFT_END:
         shift_name = "DAY"
     else:
         shift_name = "NIGHT"
@@ -25,7 +25,7 @@ def process_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         return df
         
     # Add name of machine from the ID map
-    df.insert(0, 'name', df['machine_id'].copy().apply(lambda x: Config.MACHINE_ID_MAP.get(x, 'Unknown')))
+    df.insert(0, 'name', df['machine_id'].copy().apply(lambda x: config.MACHINE_ID_MAP.get(x, 'Unknown')))
     
     # Convert timestamps
     df['start_timestamp'] = pd.to_datetime(df['start_timestamp'], format='ISO8601')
@@ -49,8 +49,8 @@ def main():
     days_to_fetch = 3
     
     # --- Loop through each machine ---
-    for machine_id in Config.MACHINE_IDS:
-        machine_name = Config.MACHINE_ID_MAP.get(machine_id, machine_id)
+    for machine_id in config.MACHINE_IDS:
+        machine_name = config.MACHINE_ID_MAP.get(machine_id, machine_id)
         print(f"\n--- Starting data fetch for machine: {machine_name} ---")
         
         all_entries_for_machine = []

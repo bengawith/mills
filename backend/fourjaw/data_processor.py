@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
 import pandas as pd
-from const import Config
+from const.config import config
 import datetime as dt
 from sqlalchemy.orm import Session
 from database import SessionLocal
@@ -20,7 +20,7 @@ class DataProcessorConfig:
     """
     start_time: Optional[str] = None
     end_time: Optional[str] = None
-    machine_ids: List[str] = field(default_factory=lambda: Config.MACHINE_IDS)
+    machine_ids: List[str] = field(default_factory=lambda: config.MACHINE_IDS)
 
 
 class DataProcessor:
@@ -34,7 +34,7 @@ class DataProcessor:
         day_name = timestamp.strftime('%A')
         current_time = timestamp.time()
 
-        if Config.DAY_SHIFT_START <= current_time < Config.DAY_SHIFT_END:
+        if config.DAY_SHIFT_START <= current_time < config.DAY_SHIFT_END:
             shift_name = "DAY"
         else:
             shift_name = "NIGHT"
@@ -79,7 +79,7 @@ class DataProcessor:
             return pd.DataFrame()
         
         if not 'name' in df.columns:
-            df.insert(0, 'name', df['machine_id'].copy().apply(lambda x: Config.MACHINE_ID_MAP.get(x, 'Unknown')))
+            df.insert(0, 'name', df['machine_id'].copy().apply(lambda x: config.MACHINE_ID_MAP.get(x, 'Unknown')))
 
         df['start_timestamp'] = pd.to_datetime(df['start_timestamp'], format='mixed', utc=True)
         df['end_timestamp'] = pd.to_datetime(df['end_timestamp'], format='mixed', utc=True)
@@ -217,12 +217,12 @@ if __name__ == "__main__":
         end_iso = end_time.isoformat().replace('+00:00', 'Z')
         
         print(f"Fetching data from {start_iso} to {end_iso}...")
-        print(f"For machines: {Config.MACHINE_IDS[0]}")
+        print(f"For machines: {config.MACHINE_IDS[0]}")
         
         try:
             # Use get_data_from_db and process_data
             with SessionLocal() as db:
-                df = processor.get_data_from_db(db, start_iso, end_iso, Config.MACHINE_IDS)
+                df = processor.get_data_from_db(db, start_iso, end_iso, config.MACHINE_IDS)
                 processed_data_df = processor.process_data(df)
 
             if not processed_data_df.empty:
