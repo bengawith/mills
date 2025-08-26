@@ -49,6 +49,50 @@ export const getAnalyticalData = async (rawParams: any) => {
   return response.data;
 };
 
+// NEW: Optimized analytical data endpoint
+export const getAnalyticalDataOptimized = async (rawParams: any) => {
+  const params = {
+    start_time: rawParams.start_time,
+    end_time: rawParams.end_time,
+    machine_ids: rawParams.machine_ids === "All" ? undefined : rawParams.machine_ids,
+    shift: rawParams.shift === "All" ? undefined : rawParams.shift,
+    day_of_week: rawParams.day_of_week === "All" ? undefined : rawParams.day_of_week,
+  };
+  const response = await apiClient.get("/api/v1/dashboard/analytical-data-optimized", { params });
+  return response.data;
+};
+
+// NEW: Machine summary endpoint
+export const getMachineSummary = async (machineIds?: string[]) => {
+  const params = machineIds && machineIds.length > 0 && !machineIds.includes("All") ? { machine_ids: machineIds } : {};
+  const response = await apiClient.get("/api/v1/dashboard/machine-summary", { params });
+  return response.data;
+};
+
+// NEW: Production metrics endpoint
+export const getProductionMetrics = async (rawParams: any) => {
+  const params = {
+    start_time: rawParams.start_time,
+    end_time: rawParams.end_time,
+    machine_ids: rawParams.machine_ids === "All" ? undefined : rawParams.machine_ids,
+  };
+  const response = await apiClient.get("/api/v1/dashboard/production-metrics", { params });
+  return response.data;
+};
+
+// NEW: Maintenance overview endpoint
+export const getMaintenanceOverview = async (machineIds?: string[]) => {
+  const params = machineIds && machineIds.length > 0 && !machineIds.includes("All") ? { machine_ids: machineIds } : {};
+  const response = await apiClient.get("/api/v1/dashboard/maintenance-overview", { params });
+  return response.data;
+};
+
+// NEW: Quick stats endpoint
+export const getQuickStats = async () => {
+  const response = await apiClient.get("/api/v1/dashboard/quick-stats");
+  return response.data;
+};
+
 export const getOeeData = async (rawParams: any) => {
   const params = {
     start_time: rawParams.start_time,

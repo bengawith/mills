@@ -125,3 +125,64 @@ class TicketComponentUsed(Base):
     
     ticket = relationship("MaintenanceTicket", back_populates="components_used")
     component = relationship("RepairComponent", back_populates="tickets_used_on")
+
+# --- Summary Tables for Background Processing ---
+class AnalyticalDataSummary(Base):
+    __tablename__ = 'analytical_data_summary'
+    
+    id = Column(Integer, primary_key=True, index=True)
+    machine_id = Column(String, nullable=False, index=True)
+    date = Column(DateTime, nullable=False, index=True)
+    shift = Column(String, nullable=True, index=True)
+    day_of_week = Column(String, nullable=True)
+    
+    # Aggregated metrics
+    total_events = Column(Integer, default=0)
+    productive_time_seconds = Column(Float, default=0)
+    downtime_seconds = Column(Float, default=0)
+    setup_time_seconds = Column(Float, default=0)
+    total_cuts = Column(Integer, default=0)
+    
+    # Calculated metrics
+    utilization_percentage = Column(Float, default=0)
+    oee_percentage = Column(Float, default=0)
+    availability_percentage = Column(Float, default=0)
+    performance_percentage = Column(Float, default=0)
+    quality_percentage = Column(Float, default=0)
+    
+    # Maintenance data
+    maintenance_tickets_count = Column(Integer, default=0)
+    critical_tickets_count = Column(Integer, default=0)
+    
+    # Production data
+    production_runs_count = Column(Integer, default=0)
+    products_produced = Column(String, nullable=True)  # JSON list
+    
+    # Metadata
+    last_updated = Column(DateTime(timezone=True), nullable=False)
+    data_quality_score = Column(Float, default=1.0)
+
+class MachineStatusCache(Base):
+    __tablename__ = 'machine_status_cache'
+    
+    machine_id = Column(String, primary_key=True)
+    machine_name = Column(String, nullable=True)
+    is_active = Column(Boolean, default=False)
+    last_activity = Column(DateTime(timezone=True), nullable=True)
+    current_status = Column(String, default='unknown')  # active, idle, down, maintenance
+    last_cut_count = Column(Integer, default=0)
+    daily_cuts = Column(Integer, default=0)
+    daily_utilization = Column(Float, default=0)
+    last_updated = Column(DateTime(timezone=True), nullable=False)
+
+class DowntimeSummary(Base):
+    __tablename__ = 'downtime_summary'
+    
+    id = Column(Integer, primary_key=True, index=True)
+    machine_id = Column(String, nullable=False, index=True)
+    date = Column(DateTime, nullable=False, index=True)
+    downtime_category = Column(String, nullable=False, index=True)
+    total_downtime_seconds = Column(Float, default=0)
+    event_count = Column(Integer, default=0)
+    average_event_duration = Column(Float, default=0)
+    last_updated = Column(DateTime(timezone=True), nullable=False)

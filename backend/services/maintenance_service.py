@@ -60,7 +60,7 @@ class MaintenanceService(BaseService):
         try:
             update_data = {"status": status}
             if status.lower() in ["resolved", "closed"]:
-                update_data["resolved_time"] = datetime.now(timezone.utc)
+                update_data["resolved_time"] = datetime.now(timezone.utc).isoformat()
             
             return self.update(db, ticket_id, update_data)
         except SQLAlchemyError as e:
@@ -123,13 +123,13 @@ class InventoryService(BaseService):
     def __init__(self):
         super().__init__(RepairComponent)
     
-    def create_component(self, db: Session, component_data: schemas.RepairComponentCreate) -> RepairComponent:
+    def create_component(self, db: Session, component_data: Dict[str, Any]) -> RepairComponent:
         """Create a new repair component."""
         try:
             component_dict = {
-                "component_name": component_data.component_name,
-                "stock_code": component_data.stock_code,
-                "current_stock": component_data.current_stock or 0
+                "component_name": component_data.get("component_name"),
+                "stock_code": component_data.get("stock_code"),
+                "current_stock": component_data.get("current_stock", 0)
             }
             return self.create(db, component_dict)
         except SQLAlchemyError as e:

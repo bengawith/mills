@@ -7,7 +7,7 @@ import logging
 import traceback
 
 # Import the routers
-from routers import auth, data, maintenance, inventory, production, events, fourjaw_proxy, dashboard, database
+from routers import auth, data, maintenance, inventory, production, events, fourjaw_proxy, dashboard, database, dashboard_optimized
 from const.config import config
 from database import Base, engine
 
@@ -65,6 +65,7 @@ app.include_router(inventory.router)
 app.include_router(events.router)
 app.include_router(fourjaw_proxy.router)
 app.include_router(dashboard.router)
+app.include_router(dashboard_optimized.router)
 app.include_router(database.router)
 
 # --- Database Setup ---
