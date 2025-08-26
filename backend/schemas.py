@@ -161,3 +161,28 @@ class MaintenanceTicket(MaintenanceTicketBase):
 class Machine(BaseModel):
     id: str
     name: str
+
+class OeeResponse(BaseModel):
+    oee: float
+    availability: float
+    performance: float
+    quality: float
+
+class UtilizationResponse(BaseModel):
+    total_time_seconds: float
+    productive_uptime_seconds: float
+    unproductive_downtime_seconds: float
+    productive_downtime_seconds: float
+    utilization_percentage: float
+
+class DowntimeEntry(BaseModel):
+    name: str
+    machine_id: str
+    downtime_reason_name: str
+    duration_seconds: float
+    start_timestamp: datetime.datetime
+    end_timestamp: datetime.datetime
+
+class DowntimeAnalysisResponse(BaseModel):
+    excessive_downtimes: List[DowntimeEntry]
+    recurring_downtime_reasons: dict

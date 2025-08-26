@@ -1,8 +1,11 @@
 import pandas as pd
+import sys
 import os
 from datetime import datetime
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)))))
 
 from database import engine
 from database_models import HistoricalMachineData # Assuming HistoricalMachineData is defined in models.py
@@ -10,11 +13,7 @@ from database_models import HistoricalMachineData # Assuming HistoricalMachineDa
 # Define paths to your CSV files
 # Assuming the script is run from the project root or backend directory
 # Adjust paths as necessary
-CSV_FILES = [
-    "data/mill_1.csv",
-    "data/mill_2.csv",
-    "data/mill_3.csv",
-]
+CSV_FILES = [f"data/{file}" for file in os.listdir("data") if file.endswith(".csv") and file.startswith("mill_")]
 
 # Create a session to interact with the database
 Session = sessionmaker(bind=engine)

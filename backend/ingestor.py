@@ -148,7 +148,14 @@ def get_latest_timestamp_from_db(db_session, machine_id: str) -> datetime | None
                        .filter(database_models.HistoricalMachineData.machine_id == machine_id)\
                        .order_by(database_models.HistoricalMachineData.end_timestamp.desc())\
                        .first()
-    return latest[0] if latest else None
+    
+    if latest and latest[0]:
+        timestamp = latest[0]
+        # Ensure the timestamp is timezone-aware (assume UTC if naive)
+        if timestamp.tzinfo is None:
+            timestamp = timestamp.replace(tzinfo=timezone.utc)
+        return timestamp
+    return None
 
 
 def ingest_dataframe_to_db(df: pd.DataFrame, db):
@@ -188,7 +195,11 @@ def fetch_and_process_fourjaw_data():
             latest_db_timestamp = get_latest_timestamp_from_db(db, machine_id)
             
             if latest_db_timestamp:
+                # Ensure start_time is timezone-aware
                 start_time = latest_db_timestamp + timedelta(seconds=1)
+                # Ensure start_time has UTC timezone
+                if start_time.tzinfo is None:
+                    start_time = start_time.replace(tzinfo=timezone.utc)
             else:
                 # Fallback: If no data exists, fetch the last N days
                 start_time = datetime.now(timezone.utc) - timedelta(days=Config.FOURJAW_HISTORICAL_FETCH_DAYS)

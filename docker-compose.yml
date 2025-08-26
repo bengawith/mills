@@ -1,5 +1,5 @@
 services:
-  # Backend Django API Service
+  # Backend FastAPI Service
   backend:
     build: ./backend # Path to the backend Dockerfile
     container_name: mill_dash_backend
@@ -15,12 +15,10 @@ services:
     environment:
       - UVICORN_LOG_LEVEL=debug
     depends_on:
-      db: # Ensures the database is started and healthy before the backend
-        condition: service_healthy
       mosquitto:
         condition: service_started
 
-  # NEW: MQTT Data Ingestor Service
+  # MQTT Data Ingestor Service
   ingestor:
     build: ./backend
     container_name: mill_dash_ingestor
@@ -32,13 +30,11 @@ services:
     env_file:
       - ./.env
     depends_on:
-      db:
-        condition: service_healthy
-      mosquitto:
-        condition: service_started
+      - backend
+      - mosquitto
     restart: on-failure
 
-  # React Frontend Service (New)
+  # React Frontend Service
   frontend:
     build: ./frontend
     container_name: mill_dash_frontend
@@ -51,23 +47,7 @@ services:
     environment:
       - VITE_BACKEND_URL=http://backend:8000 # Ensure this matches your backend service name and port
 
-  # PostgreSQL Database Service
-  db:
-    image: postgres:15-alpine # Use the official PostgreSQL image
-    container_name: mill_dash_db
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/ # Persists database data
-    env_file:
-      - ./.env # Loads database credentials from the .env file
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  # NEW: Mosquitto MQTT Broker Service
+  # Mosquitto MQTT Broker Service
   mosquitto:
     image: eclipse-mosquitto:2
     container_name: mill_dash_mosquitto
@@ -81,6 +61,5 @@ services:
     # - ./mosquitto/config:/mosquitto/config
 
 volumes:
-  postgres_data:
   mosquitto_data:
   mosquitto_log:

@@ -90,15 +90,16 @@ class DataProcessor:
         if 'downtime_reason_name' in df.columns:
             df = df[df['downtime_reason_name'] != 'Not On Shift']
 
-        # Add shift and day information
+        # Add shift and day information (create a copy to avoid SettingWithCopyWarning)
+        df = df.copy()
         shift_info = df['start_timestamp'].apply(self.get_shift_info)
-        df.loc[:, 'shift'] = [info[0] for info in shift_info]
-        df.loc[:, 'day_of_week'] = [info[1] for info in shift_info]
+        df['shift'] = [info[0] for info in shift_info]
+        df['day_of_week'] = [info[1] for info in shift_info]
         
         # Map statuses to our utilisation categories
-        df.loc[:, 'productivity'] = df['productivity'].astype(str).fillna('')
-        df.loc[:, 'classification'] = df['classification'].astype(str).fillna('')
-        df.loc[:, 'utilisation_category'] = df['productivity'].apply(lambda x: x.upper()) + " " + df['classification']
+        df['productivity'] = df['productivity'].astype(str).fillna('')
+        df['classification'] = df['classification'].astype(str).fillna('')
+        df['utilisation_category'] = df['productivity'].apply(lambda x: x.upper()) + " " + df['classification']
         
         logger.info(f"DataFrame after process_data: {df.head()}")
         return df
