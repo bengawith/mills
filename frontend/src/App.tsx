@@ -26,15 +26,16 @@ const App = () => (
       <Sonner />
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<HomePage />} />
+          {/* <Route path="/" element={<HomePage />} /> */}
+          <Route path="/" element={<Login />} />
           <Route path="/activate/:uid/:token" element={<ActivateAccountPage />} />
 
           <Route path="/reset-password/:uid/:token" element={<ResetPasswordConfirmPage />} />
 
           {/* Auth Routes */}
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/complete-profile" element={<CompleteProfilePage />} />
+          {/* <Route path="/register" element={<Register />} />}
+          <Route path="/complete-profile" element={<CompleteProfilePage />} /> */}
           
           {/* Protected Routes with Layout */}
           <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />

@@ -7,11 +7,24 @@ import UtilizationChart from './UtilizationChart';
 import DowntimeAnalysis from './DowntimeAnalysis';
 
 const Dashboard: React.FC = () => {
-  const today: string = new Date().toISOString().replace('Z', '')
+
+  const roundToNearest30Minutes = (date: Date): string => {
+    const minutes = date.getMinutes();
+    const remainder = minutes % 30;
+    const roundedMinutes = remainder > 15 ? minutes + (30 - remainder) : minutes - remainder;
+    date.setMinutes(roundedMinutes);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    return date.toISOString().replace('Z', '');
+  };
+
+  const initialStartTime: string = roundToNearest30Minutes(new Date(new Date().getTime() - (7 * 24 * 60 * 60 * 1000)));
+  const initialEndTime: string = roundToNearest30Minutes(new Date(new Date().getTime() + (1 * 24 * 60 * 60 * 1000)));
+
 
   const [filters, setFilters] = useState({
-    start_time: '2025-05-05T00:00:00',
-    end_time: today,
+    start_time: initialStartTime,
+    end_time: initialEndTime,
     machine_ids: 'All',
     shift: 'All',
     day_of_week: 'All',
@@ -25,14 +38,17 @@ const Dashboard: React.FC = () => {
       {
         queryKey: ['oeeData', filters],
         queryFn: () => getOeeData(filters),
+        refetchInterval: 5 * 60 * 1000,
       },
       {
         queryKey: ['utilizationData', filters],
         queryFn: () => getUtilizationData(filters),
+        refetchInterval: 5 * 60 * 1000,
       },
       {
         queryKey: ['downtimeAnalysisData', filters],
         queryFn: () => getDowntimeAnalysisData(filters),
+        refetchInterval: 5 * 60 * 1000,
       },
     ],
   });
