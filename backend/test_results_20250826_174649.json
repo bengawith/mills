@@ -1,0 +1,45 @@
+{
+  "start_time": "2025-08-26T17:45:54.033055",
+  "end_time": "2025-08-26T17:46:49.891877",
+  "total_duration": 55.85881519317627,
+  "summary": {
+    "total_tests": 16,
+    "passed": 6,
+    "failed": 9,
+    "errors": 1,
+    "skipped": 0
+  },
+  "test_suites": {
+    "Analytics Optimized": {
+      "total": 10,
+      "passed": 0,
+      "failed": 9,
+      "errors": 1,
+      "skipped": 0,
+      "failures_details": [
+        "(<tests.test_analytics_optimized.TestAnalyticsOptimized testMethod=test_downtime_analysis_optimized_endpoint>, 'Traceback (most recent call last):\\n  File \"/app/tests/test_analytics_optimized.py\", line 134, in test_downtime_analysis_optimized_endpoint\\n    self.assertEqual(response.status_code, 200)\\nAssertionError: 401 != 200\\n')",
+        "(<tests.test_analytics_optimized.TestAnalyticsOptimized testMethod=test_efficiency_insights_endpoint>, 'Traceback (most recent call last):\\n  File \"/app/tests/test_analytics_optimized.py\", line 352, in test_efficiency_insights_endpoint\\n    self.assertEqual(response.status_code, 200)\\nAssertionError: 401 != 200\\n')",
+        "(<tests.test_analytics_optimized.TestAnalyticsOptimized testMethod=test_endpoint_with_filters>, 'Traceback (most recent call last):\\n  File \"/app/tests/test_analytics_optimized.py\", line 394, in test_endpoint_with_filters\\n    self.assertEqual(response.status_code, 200)\\nAssertionError: 401 != 200\\n')",
+        "(<tests.test_analytics_optimized.TestAnalyticsOptimized testMethod=test_error_handling>, 'Traceback (most recent call last):\\n  File \"/app/tests/test_analytics_optimized.py\", line 431, in test_error_handling\\n    self.assertEqual(response.status_code, 422)  # Validation error\\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\nAssertionError: 401 != 422\\n')",
+        "(<tests.test_analytics_optimized.TestAnalyticsOptimized testMethod=test_oee_optimized_endpoint>, 'Traceback (most recent call last):\\n  File \"/app/tests/test_analytics_optimized.py\", line 54, in test_oee_optimized_endpoint\\n    self.assertEqual(response.status_code, 200)\\nAssertionError: 401 != 200\\n')",
+        "(<tests.test_analytics_optimized.TestAnalyticsOptimized testMethod=test_performance_summary_endpoint>, 'Traceback (most recent call last):\\n  File \"/app/tests/test_analytics_optimized.py\", line 173, in test_performance_summary_endpoint\\n    self.assertEqual(response.status_code, 200)\\nAssertionError: 401 != 200\\n')",
+        "(<tests.test_analytics_optimized.TestAnalyticsOptimized testMethod=test_real_time_metrics_endpoint>, 'Traceback (most recent call last):\\n  File \"/app/tests/test_analytics_optimized.py\", line 211, in test_real_time_metrics_endpoint\\n    self.assertEqual(response.status_code, 200)\\nAssertionError: 401 != 200\\n')",
+        "(<tests.test_analytics_optimized.TestAnalyticsOptimized testMethod=test_trend_data_endpoint>, 'Traceback (most recent call last):\\n  File \"/app/tests/test_analytics_optimized.py\", line 259, in test_trend_data_endpoint\\n    self.assertEqual(response.status_code, 200)\\nAssertionError: 401 != 200\\n')",
+        "(<tests.test_analytics_optimized.TestAnalyticsOptimized testMethod=test_utilization_optimized_endpoint>, 'Traceback (most recent call last):\\n  File \"/app/tests/test_analytics_optimized.py\", line 87, in test_utilization_optimized_endpoint\\n    self.assertEqual(response.status_code, 200)\\nAssertionError: 401 != 200\\n')"
+      ],
+      "errors_details": [
+        "(<tests.test_analytics_optimized.TestAnalyticsOptimized testMethod=test_machine_comparison_endpoint>, 'Traceback (most recent call last):\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py\", line 1967, in _exec_single_context\\n    self.dialect.do_execute(\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py\", line 951, in do_execute\\n    cursor.execute(statement, parameters)\\nsqlite3.IntegrityError: UNIQUE constraint failed: products.product_code\\n\\nThe above exception was the direct cause of the following exception:\\n\\nTraceback (most recent call last):\\n  File \"/app/tests/test_analytics_optimized.py\", line 293, in test_machine_comparison_endpoint\\n    TestDataFactory.create_comprehensive_test_data(self.db, \"test_machine_2\")\\n  File \"/app/tests/conftest.py\", line 224, in create_comprehensive_test_data\\n    production_run = TestDataFactory.create_production_run(db, machine_id)\\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/app/tests/conftest.py\", line 182, in create_production_run\\n    db.commit()\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py\", line 2032, in commit\\n    trans.commit(_to_root=True)\\n  File \"<string>\", line 2, in commit\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py\", line 137, in _go\\n    ret_value = fn(self, *arg, **kw)\\n                ^^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py\", line 1313, in commit\\n    self._prepare_impl()\\n  File \"<string>\", line 2, in _prepare_impl\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py\", line 137, in _go\\n    ret_value = fn(self, *arg, **kw)\\n                ^^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py\", line 1288, in _prepare_impl\\n    self.session.flush()\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py\", line 4345, in flush\\n    self._flush(objects)\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py\", line 4480, in _flush\\n    with util.safe_reraise():\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py\", line 224, in __exit__\\n    raise exc_value.with_traceback(exc_tb)\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py\", line 4441, in _flush\\n    flush_context.execute()\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py\", line 466, in execute\\n    rec.execute(self)\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py\", line 642, in execute\\n    util.preloaded.orm_persistence.save_obj(\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py\", line 93, in save_obj\\n    _emit_insert_statements(\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py\", line 1233, in _emit_insert_statements\\n    result = connection.execute(\\n             ^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py\", line 1419, in execute\\n    return meth(\\n           ^^^^^\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py\", line 526, in _execute_on_connection\\n    return connection._execute_clauseelement(\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py\", line 1641, in _execute_clauseelement\\n    ret = self._execute_context(\\n          ^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py\", line 1846, in _execute_context\\n    return self._exec_single_context(\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py\", line 1986, in _exec_single_context\\n    self._handle_dbapi_exception(\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py\", line 2355, in _handle_dbapi_exception\\n    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py\", line 1967, in _exec_single_context\\n    self.dialect.do_execute(\\n  File \"/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py\", line 951, in do_execute\\n    cursor.execute(statement, parameters)\\nsqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: products.product_code\\n[SQL: INSERT INTO products (product_name, product_code) VALUES (?, ?)]\\n[parameters: (\\'Test Product\\', \\'TEST001\\')]\\n(Background on this error at: https://sqlalche.me/e/20/gkpj)\\n')"
+      ]
+    },
+    "Performance Benchmark": {
+      "total": 6,
+      "passed": 6,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "failures_details": [],
+      "errors_details": []
+    }
+  },
+  "performance_report": {}
+}

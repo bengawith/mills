@@ -3,7 +3,6 @@
  * Provides connection management and event handling for live dashboard updates.
  */
 
-import { EventTypes } from './websocket-types';
 
 export interface WebSocketMessage {
   type: string;
