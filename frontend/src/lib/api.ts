@@ -91,8 +91,8 @@ export const getMachines = async () => {
 };
 
 // Maintenance Endpoints
-export const getMaintenanceTickets = async () => {
-  const response = await apiClient.get("/api/v1/tickets");
+export const getMaintenanceTickets = async (status: string = 'Open') => {
+  const response = await apiClient.get("/api/v1/tickets", { params: { status } });
   return response.data;
 };
 

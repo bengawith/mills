@@ -79,6 +79,7 @@ def read_maintenance_ticket(ticket_id: int, db: Session = Depends(get_db)):
 def update_maintenance_ticket(ticket_id: int, status: str, db: Session = Depends(get_db)):
     """
     Updates a ticket's status. If status is 'Resolved', sets the resolved_time.
+    If status is not 'Resolved', resolved_time is set to None.
     """
     db_ticket = db.query(database_models.MaintenanceTicket).filter(database_models.MaintenanceTicket.id == ticket_id).first()
     if db_ticket is None:
@@ -87,6 +88,8 @@ def update_maintenance_ticket(ticket_id: int, status: str, db: Session = Depends
     db_ticket.status = status
     if status == "Resolved":
         db_ticket.resolved_time = datetime.datetime.now(datetime.timezone.utc)
+    else:
+        db_ticket.resolved_time = None
         
     db.commit()
     db.refresh(db_ticket)
