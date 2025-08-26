@@ -153,7 +153,11 @@ class MaintenanceTicket(MaintenanceTicketBase):
     status: str
     work_notes: List[TicketWorkNote] = []
     images: List[TicketImage] = []
-    components_used: List[TicketComponentUsed] = [] # <-- ADD THIS LINE
+    components_used: List[TicketComponentUsed] = []
 
     class Config:
         from_attributes = True
+
+class Machine(BaseModel):
+    id: str
+    name: str

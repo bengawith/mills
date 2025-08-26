@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getMaintenanceTickets, getMachines } from '@/lib/api';
-import { MACHINE_ID_MAP } from '@/lib/constants';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -14,7 +13,15 @@ import {
 import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Import Select components
 
-
+interface MaintenanceTicket {
+    id: number;
+    machine_id: string;
+    incident_category: string;
+    description: string;
+    status: string;
+    logged_time: string;
+    resolved_time: string | null;
+}
 
 const MaintenanceHub = () => {
   const [selectedStatus, setSelectedStatus] = useState('All');
@@ -25,7 +32,7 @@ const MaintenanceHub = () => {
     queryFn: getMaintenanceTickets,
   });
 
-  const { data: machines, isLoading: isLoadingMachines, error: machinesError } = useQuery({
+  const { data: machines, isLoading: isLoadingMachines, error: machinesError } = useQuery<{id: string, name: string}[]>({
     queryKey: ['machines'],
     queryFn: getMachines,
   });
@@ -35,7 +42,7 @@ const MaintenanceHub = () => {
   }
 
   if (error || machinesError) {
-    return <div className="p-4 text-red-500">Error loading tickets: {error?.message || machinesError?.message}</div>;
+    return <div className="p-4 text-red-500">Error loading tickets: {error?.message || (machinesError as any)?.message}</div>;
   }
 
   const filteredTickets = tickets?.filter(ticket => {
@@ -44,8 +51,12 @@ const MaintenanceHub = () => {
     return statusMatch && machineMatch;
   });
 
-  const allStatuses = ['All', ...new Set(tickets?.map(ticket => ticket.status))];
-  const allMachines = ['All', ...(machines || [])];
+  const allStatuses = ['All', ...new Set(tickets?.map(ticket => ticket.status) || [])];
+  
+  const getMachineName = (machineId: string) => {
+    const machine = machines?.find(m => m.id === machineId);
+    return machine ? machine.name : machineId;
+  };
 
   return (
     <div className="p-4">
@@ -70,9 +81,10 @@ const MaintenanceHub = () => {
               <SelectValue placeholder="Filter by Machine" />
             </SelectTrigger>
             <SelectContent>
-              {allMachines.map(machineId => (
-                <SelectItem key={machineId} value={machineId}>
-                  {MACHINE_ID_MAP[machineId] || machineId}
+              <SelectItem value="All">All</SelectItem>
+              {machines?.map(machine => (
+                <SelectItem key={machine.id} value={machine.id}>
+                  {machine.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -90,7 +102,7 @@ const MaintenanceHub = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>ID</TableHead>
-                  <TableHead>Machine</TableHead> {/* Changed to Machine */}
+                  <TableHead>Machine</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Status</TableHead>
@@ -102,7 +114,7 @@ const MaintenanceHub = () => {
                 {filteredTickets.map((ticket) => (
                   <TableRow key={ticket.id}>
                     <TableCell>{ticket.id}</TableCell>
-                    <TableCell>{MACHINE_ID_MAP[ticket.machine_id] || ticket.machine_id}</TableCell> {/* Display mapped name */}
+                    <TableCell>{getMachineName(ticket.machine_id)}</TableCell>
                     <TableCell>{ticket.incident_category}</TableCell>
                     <TableCell>{ticket.description}</TableCell>
                     <TableCell>{ticket.status}</TableCell>

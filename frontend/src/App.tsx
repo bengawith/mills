@@ -17,7 +17,6 @@ import LogNewTicket from "./pages/LogNewTicket";
 import ManageTickets from "./pages/ManageTickets/index";
 import OperatorTerminal from "./pages/OperatorTerminal";
 
-
 const queryClient = new QueryClient();
 
 const App = () => (

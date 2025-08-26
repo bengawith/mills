@@ -10,20 +10,12 @@ interface FilterControlsProps {
   setFilters: (filters: any) => void;
 }
 
-const MACHINE_ID_MAP: { [key: string]: string } = {
-  '6809f67ffc54c40ff1b489cf': 'Mill 1',
-  '6809f8df20e024b627b489eb': 'Mill 2',
-  '6809f8df20e024b627b489ed': 'Mill 3',
-  '6809f8df20e024b627b489f0': 'Spot 1 (TBC)',
-  '6809f8df20e024b627b489f2': 'Spot 2 (TBC)'
-};
-
 const FilterControls: React.FC<FilterControlsProps> = ({ filters, setFilters }) => {
   const handleInputChange = (field: string, value: string) => {
     setFilters({ ...filters, [field]: value });
   };
 
-  const { data: machines, isLoading: isLoadingMachines, error: machinesError } = useQuery({
+  const { data: machines, isLoading: isLoadingMachines, error: machinesError } = useQuery<{ id: string, name: string }[]>({
     queryKey: ['machines'],
     queryFn: getMachines,
   });
@@ -49,7 +41,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({ filters, setFilters }) 
         />
       </div>
       <div>
-        <Label htmlFor="machineIds">Machine</Label> {/* Changed label to "Machine" */}
+        <Label htmlFor="machineIds">Machine</Label>
         <Select onValueChange={(value) => handleInputChange('machine_ids', value)} value={filters.machine_ids}>
           <SelectTrigger>
             <SelectValue placeholder="Select a machine" />
@@ -58,9 +50,9 @@ const FilterControls: React.FC<FilterControlsProps> = ({ filters, setFilters }) 
             <SelectItem value="All">All</SelectItem>
             {isLoadingMachines && <SelectItem value="loading" disabled>Loading machines...</SelectItem>}
             {machinesError && <SelectItem value="error" disabled>Error loading machines</SelectItem>}
-            {machines?.map((machineId: string) => (
-              <SelectItem key={machineId} value={machineId}>
-                {MACHINE_ID_MAP[machineId] || machineId} {/* Use mapped name or ID */}
+            {machines?.map((machine) => (
+              <SelectItem key={machine.id} value={machine.id}>
+                {machine.name}
               </SelectItem>
             ))}
           </SelectContent>

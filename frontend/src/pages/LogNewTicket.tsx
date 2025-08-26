@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MACHINE_ID_MAP } from '@/lib/constants'; // Import MACHINE_ID_MAP
 import { formatISO, subDays } from 'date-fns'; // For date formatting
 
 const LogNewTicket = () => {
@@ -22,7 +21,7 @@ const LogNewTicket = () => {
   const [selectedDowntimeId, setSelectedDowntimeId] = useState<string | null>(null);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
 
-  const { data: machines, isLoading: isLoadingMachines } = useQuery({
+  const { data: machines, isLoading: isLoadingMachines } = useQuery<{ id: string, name: string }[]>({
     queryKey: ['machines'],
     queryFn: getMachines,
   });
@@ -145,9 +144,9 @@ const LogNewTicket = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {isLoadingMachines && <SelectItem value="loading" disabled>Loading machines...</SelectItem>}
-                  {machines?.map((m: string) => (
-                    <SelectItem key={m} value={m}>
-                      {MACHINE_ID_MAP[m] || m}
+                  {machines?.map((machine) => (
+                    <SelectItem key={machine.id} value={machine.id}>
+                      {machine.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

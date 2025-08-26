@@ -7,11 +7,11 @@ import logging
 logger = logging.getLogger(__name__)
 from pydantic import BaseModel
 
+from const import Config
 from fourjaw import DataProcessor
 from security import get_current_active_user
 from database import get_db # Import the database session dependency
-from database_models import HistoricalMachineData # Import the HistoricalMachineData model
-
+import schemas
 class OeeResponse(BaseModel):
     oee: float
     availability: float
@@ -175,13 +175,11 @@ async def get_downtime_analysis(
     downtime_data = processor.analyze_downtime(processed_df, excessive_downtime_threshold_seconds)
     return DowntimeAnalysisResponse(**downtime_data)
 
-@router.get("/machines", response_model=List[str])
-async def get_machines(db: Session = Depends(get_db)):
-    """
-    Returns a list of all available machines.
-    """
-    machines = db.query(HistoricalMachineData.machine_id).distinct().all()
-    return [m[0] for m in machines]
+
+@router.get("/machines", response_model=List[schemas.Machine])
+async def get_machines():
+    """Returns a list of all available machines with their IDs and names."""
+    return [{"id": id, "name": name} for id, name in Config.MACHINE_ID_MAP.items()]
 
 @router.get("/shifts", response_model=List[str])
 async def get_shifts():

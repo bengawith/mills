@@ -142,4 +142,25 @@ export const getRecentDowntimes = async (machineId: string, startTime: string, e
   return response.data;
 };
 
+// Production Run Endpoints
+export const getProducts = async () => {
+  const response = await apiClient.get("/api/v1/products");
+  return response.data;
+};
+
+export const getActiveRunForMachine = async (machineId: string) => {
+  const response = await apiClient.get(`/api/v1/runs/active/${machineId}`);
+  return response.data;
+};
+
+export const startProductionRun = async (payload: { machine_id: string; product_id: number }) => {
+  const response = await apiClient.post("/api/v1/runs", payload);
+  return response.data;
+};
+
+export const completeProductionRun = async (payload: { run_id: number; scrap_length: number }) => {
+  const response = await apiClient.put(`/api/v1/runs/${payload.run_id}/complete`, { scrap_length: payload.scrap_length });
+  return response.data;
+};
+
 export default apiClient;
