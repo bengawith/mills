@@ -19,7 +19,7 @@ export default function Layout({ children }: LayoutProps) {
           <header className="h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
             <div className="flex items-center justify-between h-full px-6">
               <div className="flex items-center space-x-4">
-                <SidebarTrigger className="lg:hidden" />
+                <SidebarTrigger />
                 <h1 className="text-lg font-semibold text-foreground">Mill Dash</h1>
               </div>
               

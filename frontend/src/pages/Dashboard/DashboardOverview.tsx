@@ -1,6 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getQuickStats, getMachineSummary, getMaintenanceOverview } from '@/lib/api';
+import { MACHINE_ID_MAP } from '@/lib/constants';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Activity, AlertTriangle, CheckCircle, Clock, Cog, TrendingUp } from 'lucide-react';
 
@@ -159,13 +160,13 @@ const DashboardOverview: React.FC<QuickStatsProps> = ({ machineIds }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {machineSummary.map((machine: any, index: number) => (
                 <div
-                  key={machine.machine_id || index}
+                  key={MACHINE_ID_MAP[machine.machine_id] || index}
                   className="flex items-center justify-between p-3 border rounded-lg"
                 >
                   <div className="flex items-center space-x-3">
                     {getStatusIcon(machine.status)}
                     <div>
-                      <p className="font-medium">{machine.machine_name || machine.machine_id}</p>
+                      <p className="font-medium">{machine.machine_name || MACHINE_ID_MAP[machine.machine_id]}</p>
                       <p className={`text-sm ${getStatusColor(machine.status)}`}>
                         {machine.status || 'Unknown'}
                       </p>

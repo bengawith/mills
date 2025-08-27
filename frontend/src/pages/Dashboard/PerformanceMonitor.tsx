@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getAnalyticalDataOptimized } from '@/lib/api';
+import { MACHINE_ID_MAP } from '@/lib/constants';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -171,7 +172,7 @@ const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ filters }) => {
                     <div>
                       <div className="font-medium">{item.reason || 'Unknown'}</div>
                       <div className="text-sm text-muted-foreground">
-                        Machine: {item.machine_id || 'N/A'}
+                        Machine: {[MACHINE_ID_MAP[item.machine_id] || item.machine_id]}
                       </div>
                     </div>
                     <div className="text-right">

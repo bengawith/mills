@@ -6,7 +6,8 @@ import {
   ClipboardList, 
   Terminal, 
   LogOut,
-  Factory
+  Factory,
+  PanelLeftClose
 } from "lucide-react";
 import {
   Sidebar,
@@ -17,6 +18,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -53,7 +55,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarContent className="bg-gradient-to-b from-background to-muted/20">
         {/* Header */}
-        <div className="p-4 border-b">
+        <div className="p-4 border-b flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-glow rounded-lg flex items-center justify-center">
               <Factory className="w-4 h-4 text-primary-foreground" />
@@ -63,6 +65,9 @@ export function AppSidebar() {
               <p className="text-xs text-muted-foreground capitalize">{userRole.toLowerCase()}</p>
             </div>
           </div>
+          <SidebarTrigger className="group-data-[collapsible=icon]:hidden">
+            <PanelLeftClose className="w-4 h-4" />
+          </SidebarTrigger>
         </div>
 
         <SidebarGroup>
