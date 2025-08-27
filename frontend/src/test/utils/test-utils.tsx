@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { createContext, useContext } from 'react'
 import { render, type RenderOptions } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router-dom'
@@ -21,9 +21,36 @@ const mockAuthContext = {
   loading: false
 }
 
+// Mock WebSocket context
+const mockWebSocketContext = {
+  connected: true,
+  connecting: false,
+  connect: vi.fn().mockResolvedValue(undefined),
+  disconnect: vi.fn(),
+  subscribe: vi.fn(),
+  unsubscribe: vi.fn(),
+  subscriptions: [],
+  on: vi.fn(),
+  off: vi.fn(),
+  ping: vi.fn(),
+  getStatus: vi.fn()
+}
+
+// Create the WebSocket context for tests
+const WebSocketContext = createContext(mockWebSocketContext)
+
 // Create mock auth provider
 const MockAuthProvider = ({ children }: { children: React.ReactNode }) => {
   return <div data-testid="auth-provider">{children}</div>
+}
+
+// Create mock WebSocket provider
+const MockWebSocketProvider = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <WebSocketContext.Provider value={mockWebSocketContext}>
+      {children}
+    </WebSocketContext.Provider>
+  )
 }
 
 // Create a test wrapper component
@@ -44,7 +71,9 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <MockAuthProvider>
-          {children}
+          <MockWebSocketProvider>
+            {children}
+          </MockWebSocketProvider>
         </MockAuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
@@ -59,4 +88,4 @@ const customRender = (
 
 // Export everything
 export * from '@testing-library/react'
-export { customRender as render, TestWrapper, mockAuthContext }
+export { customRender as render, TestWrapper, mockAuthContext, mockWebSocketContext }

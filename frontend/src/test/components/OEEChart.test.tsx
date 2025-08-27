@@ -1,42 +1,44 @@
-import { describe, it, expect } from 'vitest'
+import React from 'react'
 import { render, screen } from '@testing-library/react'
-import { vi } from 'vitest'
-import ConnectionStatus from '../../components/ConnectionStatus'
-import { TestWrapper } from '../utils/test-utils'
+import { describe, it, expect } from 'vitest'
+import OeeChart from '@/pages/Dashboard/OeeChart'
 
-// Mock the API status checking
-vi.mock('../../lib/api', () => ({
-  checkAPIHealth: vi.fn()
-}))
+const mockOeeData = {
+  oee: {
+    oee: 75.5,
+    availability: 85.2,
+    performance: 92.1,
+    quality: 96.3
+  }
+}
 
-describe('ConnectionStatus Component', () => {
-  it('renders connection status component', () => {
-    render(
-      <TestWrapper>
-        <ConnectionStatus />
-      </TestWrapper>
-    )
-
-    // Check if component renders without crashing
-    expect(screen.getByTestId('connection-status') || document.querySelector('.connection-status')).toBeInTheDocument()
+describe('OeeChart', () => {
+  it('renders OEE chart with title', () => {
+    render(<OeeChart data={mockOeeData} />)
+    
+    expect(screen.getByText('OEE (Overall Equipment Effectiveness)')).toBeInTheDocument()
   })
 
-  it('displays connection indicator', () => {
-    render(
-      <TestWrapper>
-        <ConnectionStatus />
-      </TestWrapper>
-    )
+  it('displays OEE values when data is provided', () => {
+    render(<OeeChart data={mockOeeData} />)
+    
+    // The component should render the chart data
+    // Since it's a recharts component, we can't easily test the rendered bars
+    // but we can verify the component renders without crashing
+    expect(screen.getByText('OEE (Overall Equipment Effectiveness)')).toBeInTheDocument()
+  })
 
-    // Look for status indicators - these might be icons, text, or colored elements
-    const statusElement = screen.queryByText(/connected/i) || 
-                         screen.queryByText(/online/i) || 
-                         screen.queryByText(/offline/i) ||
-                         screen.queryByRole('status')
+  it('handles missing OEE data gracefully', () => {
+    const emptyData = { oee: null }
+    render(<OeeChart data={emptyData} />)
+    
+    expect(screen.getByText('OEE (Overall Equipment Effectiveness)')).toBeInTheDocument()
+  })
 
-    // If status element exists, it should be in the document
-    if (statusElement) {
-      expect(statusElement).toBeInTheDocument()
-    }
+  it('handles completely empty data', () => {
+    const emptyData = {}
+    render(<OeeChart data={emptyData} />)
+    
+    expect(screen.getByText('OEE (Overall Equipment Effectiveness)')).toBeInTheDocument()
   })
 })

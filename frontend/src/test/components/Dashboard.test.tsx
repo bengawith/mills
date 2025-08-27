@@ -1,22 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
-import HomePage from '../../pages/HomePage'
+import { render, screen, waitFor } from '@testing-library/react'
+import Dashboard from '../../pages/Dashboard'
 import { TestWrapper } from '../utils/test-utils'
 import * as api from '../../lib/api'
 
-// Mock the API functions
-vi.mock('../../lib/api', () => ({
-  getOeeData: vi.fn(),
-  getUtilizationData: vi.fn(),
-  getDowntimeAnalysisData: vi.fn(),
-  getRealTimeMetrics: vi.fn(),
-  getPerformanceSummary: vi.fn(),
-  getTrendsData: vi.fn(),
-  getMachineComparison: vi.fn(),
-  getEfficiencyInsights: vi.fn()
-}))
-
-describe('HomePage Component', () => {
+describe('Dashboard Component', () => {
   beforeEach(() => {
     // Setup API mocks with realistic data
     vi.mocked(api.getOeeData).mockResolvedValue({
@@ -62,7 +50,7 @@ describe('HomePage Component', () => {
   it('renders without crashing', () => {
     render(
       <TestWrapper>
-        <HomePage />
+        <Dashboard />
       </TestWrapper>
     )
     
@@ -70,26 +58,33 @@ describe('HomePage Component', () => {
     expect(document.body).toBeInTheDocument()
   })
 
-  it('calls optimized API endpoints on mount', () => {
+  it('calls optimized API endpoints on mount', async () => {
     render(
       <TestWrapper>
-        <HomePage />
+        <Dashboard />
       </TestWrapper>
     )
 
-    // Verify that optimized endpoints are being called
-    expect(api.getOeeData).toHaveBeenCalled()
-    expect(api.getUtilizationData).toHaveBeenCalled()
-    expect(api.getDowntimeAnalysisData).toHaveBeenCalled()
-    expect(api.getRealTimeMetrics).toHaveBeenCalled()
+    // Wait for the queries to be called
+    await waitFor(() => {
+      expect(api.getOeeData).toHaveBeenCalled()
+      expect(api.getUtilizationData).toHaveBeenCalled()
+      expect(api.getDowntimeAnalysisData).toHaveBeenCalled()
+      expect(api.getRealTimeMetrics).toHaveBeenCalled()
+    })
   })
 
-  it('handles API call parameters correctly', () => {
+  it('handles API call parameters correctly', async () => {
     render(
       <TestWrapper>
-        <HomePage />
+        <Dashboard />
       </TestWrapper>
     )
+
+    // Wait for API calls to complete
+    await waitFor(() => {
+      expect(api.getOeeData).toHaveBeenCalled()
+    })
 
     // Check that API functions are called with appropriate parameters
     const oeeCall = vi.mocked(api.getOeeData).mock.calls[0]
@@ -108,7 +103,7 @@ describe('HomePage Component', () => {
     
     render(
       <TestWrapper>
-        <HomePage />
+        <Dashboard />
       </TestWrapper>
     )
 
@@ -116,12 +111,17 @@ describe('HomePage Component', () => {
     expect(document.body).toBeInTheDocument()
   })
 
-  it('validates optimized endpoint usage', () => {
+  it('validates optimized endpoint usage', async () => {
     render(
       <TestWrapper>
-        <HomePage />
+        <Dashboard />
       </TestWrapper>
     )
+
+    // Wait for all API calls
+    await waitFor(() => {
+      expect(api.getOeeData).toHaveBeenCalled()
+    })
 
     // Verify we're using the new optimized functions, not legacy ones
     expect(api.getOeeData).toHaveBeenCalled()

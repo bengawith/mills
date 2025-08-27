@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
 
-const API_BASE = '/api/v1'
+const API_BASE = 'http://localhost:8000/api/v1'
 
 // Mock data
 const mockOeeData = {
@@ -70,54 +70,118 @@ export const handlers = [
     })
   }),
 
-  // Optimized Analytics endpoints
-  http.get(`${API_BASE}/analytics/oee-optimized`, () => {
-    return HttpResponse.json(mockOeeData)
+  // Handle OPTIONS requests for CORS preflight
+  http.options('*', () => {
+    return new HttpResponse(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      }
+    })
   }),
 
-  http.get(`${API_BASE}/analytics/utilization-optimized`, () => {
-    return HttpResponse.json(mockUtilizationData)
+  // Optimized Analytics endpoints with proper parameter handling
+  http.get(`${API_BASE}/analytics/oee-optimized`, ({ request }) => {
+    const url = new URL(request.url)
+    const startTime = url.searchParams.get('start_time')
+    const endTime = url.searchParams.get('end_time')
+    
+    // Mock response with request parameters included for verification
+    return HttpResponse.json({
+      ...mockOeeData,
+      request_params: {
+        start_time: startTime,
+        end_time: endTime,
+        machine_ids: url.searchParams.getAll('machine_ids[]'),
+        shift: url.searchParams.get('shift'),
+        day_of_week: url.searchParams.get('day_of_week')
+      }
+    })
   }),
 
-  http.get(`${API_BASE}/analytics/downtime-analysis-optimized`, () => {
-    return HttpResponse.json(mockDowntimeData)
+  http.get(`${API_BASE}/analytics/utilization-optimized`, ({ request }) => {
+    const url = new URL(request.url)
+    return HttpResponse.json({
+      ...mockUtilizationData,
+      request_params: {
+        start_time: url.searchParams.get('start_time'),
+        end_time: url.searchParams.get('end_time'),
+        machine_ids: url.searchParams.getAll('machine_ids[]'),
+        shift: url.searchParams.get('shift'),
+        day_of_week: url.searchParams.get('day_of_week')
+      }
+    })
+  }),
+
+  http.get(`${API_BASE}/analytics/downtime-analysis-optimized`, ({ request }) => {
+    const url = new URL(request.url)
+    return HttpResponse.json({
+      ...mockDowntimeData,
+      request_params: {
+        start_time: url.searchParams.get('start_time'),
+        end_time: url.searchParams.get('end_time'),
+        machine_ids: url.searchParams.getAll('machine_ids[]'),
+        shift: url.searchParams.get('shift'),
+        day_of_week: url.searchParams.get('day_of_week')
+      }
+    })
   }),
 
   http.get(`${API_BASE}/analytics/real-time-metrics`, () => {
     return HttpResponse.json(mockRealTimeMetrics)
   }),
 
-  http.get(`${API_BASE}/analytics/performance-summary`, () => {
+  http.get(`${API_BASE}/analytics/performance-summary`, ({ request }) => {
+    const url = new URL(request.url)
     return HttpResponse.json(mockPerformanceSummary)
   }),
 
-  http.get(`${API_BASE}/analytics/trends`, () => {
+  http.get(`${API_BASE}/analytics/trends`, ({ request }) => {
+    const url = new URL(request.url)
     return HttpResponse.json({
       trends: [
         { date: '2025-08-20', utilization: 75.2, oee: 72.1 },
         { date: '2025-08-21', utilization: 78.5, oee: 75.8 },
         { date: '2025-08-22', utilization: 82.1, oee: 78.9 }
-      ]
+      ],
+      request_params: {
+        days_back: url.searchParams.get('days_back'),
+        interval: url.searchParams.get('interval'),
+        machine_ids: url.searchParams.getAll('machine_ids[]')
+      }
     })
   }),
 
-  http.get(`${API_BASE}/analytics/machine-comparison`, () => {
+  http.get(`${API_BASE}/analytics/machine-comparison`, ({ request }) => {
+    const url = new URL(request.url)
     return HttpResponse.json({
       machines: [
         { machine_id: 'machine_1', metric_value: 78.5 },
         { machine_id: 'machine_2', metric_value: 82.1 }
-      ]
+      ],
+      request_params: {
+        metric: url.searchParams.get('metric'),
+        start_time: url.searchParams.get('start_time'),
+        end_time: url.searchParams.get('end_time')
+      }
     })
   }),
 
-  http.get(`${API_BASE}/analytics/efficiency-insights`, () => {
+  http.get(`${API_BASE}/analytics/efficiency-insights`, ({ request }) => {
+    const url = new URL(request.url)
     return HttpResponse.json({
       machine_insights: [],
       fleet_insights: [],
       summary: {
-        period_hours: 168,
+        period_hours: parseInt(url.searchParams.get('hours_back') || '168'),
         machines_analyzed: 2,
         avg_performance_score: 80.3
+      },
+      request_params: {
+        hours_back: url.searchParams.get('hours_back'),
+        machine_ids: url.searchParams.getAll('machine_ids[]')
       }
     })
   }),
