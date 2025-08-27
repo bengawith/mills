@@ -5,7 +5,7 @@ import { useWebSocketEvent } from '@/contexts/WebSocketContext';
 import { EventTypes } from '@/lib/websocket-types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { differenceInHours, parseISO } from 'date-fns';
-import { AlertTriangle, Clock, CheckCircle, Wrench } from 'lucide-react';
+import { AlertTriangle, Clock, CheckCircle } from 'lucide-react';
 
 interface MaintenanceTicket {
   id: number;
@@ -21,7 +21,7 @@ interface MaintenanceTicket {
 const TicketInsights = () => {
   const queryClient = useQueryClient();
 
-  const { data: tickets, isLoading, error } = useQuery<MaintenanceTicket[]>({
+  const { data: tickets, isLoading, error } = useQuery<MaintenanceTicket[]>({ 
     queryKey: ['maintenanceTickets', 'all'], // Fetch all tickets
     queryFn: () => getMaintenanceTickets('all'),
   });
@@ -71,7 +71,7 @@ const TicketInsights = () => {
   }, [tickets]);
 
   if (isLoading) {
-    return <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">Loading insights...</div>;
+    return <div>Loading insights...</div>;
   }
 
   if (error) {

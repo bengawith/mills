@@ -1,6 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getQuickStats, getMachineSummary, getMaintenanceOverview } from '@/lib/api';
+import { getQuickStats, getMachineSummary } from '@/lib/api';
+import { useTicketInsights } from '@/hooks/useTicketInsights';
 import { MACHINE_ID_MAP } from '@/lib/constants';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Activity, AlertTriangle, CheckCircle, Clock, Cog, TrendingUp } from 'lucide-react';
@@ -23,11 +24,7 @@ const DashboardOverview: React.FC<QuickStatsProps> = ({ machineIds }) => {
     refetchInterval: 30 * 1000,
   });
 
-  const { data: maintenanceOverview, isLoading: maintenanceLoading } = useQuery({
-    queryKey: ['maintenanceOverview', machineIds],
-    queryFn: () => getMaintenanceOverview(machineIds),
-    refetchInterval: 60 * 1000, // Refresh every minute
-  });
+  const { insights: maintenanceOverview, isLoading: maintenanceLoading } = useTicketInsights();
 
   const isLoading = statsLoading || machineLoading || maintenanceLoading;
 
@@ -123,7 +120,7 @@ const DashboardOverview: React.FC<QuickStatsProps> = ({ machineIds }) => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">
-              {maintenanceOverview?.open_tickets || 0}
+              {maintenanceOverview?.openTickets || 0}
             </div>
             <p className="text-xs text-muted-foreground">
               Maintenance required
@@ -194,7 +191,7 @@ const DashboardOverview: React.FC<QuickStatsProps> = ({ machineIds }) => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-red-600">
-                {maintenanceOverview.critical_tickets || 0}
+                {maintenanceOverview.criticalTickets || 0}
               </div>
               <p className="text-xs text-muted-foreground">
                 High priority maintenance
@@ -208,7 +205,7 @@ const DashboardOverview: React.FC<QuickStatsProps> = ({ machineIds }) => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {maintenanceOverview.avg_resolution_time || 'N/A'}
+                {maintenanceOverview.avgResolutionTime || 'N/A'}
               </div>
               <p className="text-xs text-muted-foreground">
                 Hours to resolve
@@ -222,7 +219,7 @@ const DashboardOverview: React.FC<QuickStatsProps> = ({ machineIds }) => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">
-                {maintenanceOverview.completed_today || 0}
+                {maintenanceOverview.resolvedToday || 0}
               </div>
               <p className="text-xs text-muted-foreground">
                 Tickets resolved
