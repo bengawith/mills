@@ -26,9 +26,7 @@ import { useAuth } from "@/contexts/AuthContext"; // Import useAuth
 
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Maintenance Hub", url: "/maintenance-hub", icon: Wrench },
-  { title: "Log New Ticket", url: "/log-ticket", icon: Ticket },
-  { title: "Manage Tickets", url: "/manage-tickets", icon: ClipboardList },
+  { title: "Maintenance", url: "/maintenance-hub", icon: Wrench },
   { title: "Operator Terminal", url: "/operator-terminal", icon: Terminal },
 ];
 
