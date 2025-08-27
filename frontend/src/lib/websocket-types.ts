@@ -9,6 +9,7 @@ export const EventTypes = {
   // Maintenance events  
   MAINTENANCE_ALERT: 'maintenance_alert',
   TICKET_STATUS_CHANGE: 'ticket_status_change',
+  TICKET_CREATED: 'ticket_created',
   
   // Production events
   PRODUCTION_METRIC_UPDATE: 'production_metric_update',

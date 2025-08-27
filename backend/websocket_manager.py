@@ -177,6 +177,7 @@ class EventTypes:
     PRODUCTION_METRIC_UPDATE = "production_metric_update"
     DASHBOARD_REFRESH = "dashboard_refresh"
     TICKET_STATUS_CHANGE = "ticket_status_change"
+    TICKET_CREATED = "ticket_created"
     SYSTEM_ALERT = "system_alert"
     HEARTBEAT = "heartbeat"
 

@@ -42,6 +42,19 @@ class MaintenanceService(BaseService):
                 priority=ticket.priority,
                 description=ticket.description
             )
+
+            # Dispatch WebSocket notification for created ticket
+            ticket_for_dispatch = {
+                "id": ticket.id,
+                "incident_category": ticket.incident_category,
+                "description": ticket.description,
+                "priority": ticket.priority,
+                "machine_id": ticket.machine_id,
+                "logged_time": ticket.logged_time.isoformat(),
+                "status": ticket.status,
+                "resolved_time": None
+            }
+            event_dispatcher.dispatch_ticket_created(ticket_for_dispatch)
             
             # Trigger dashboard refresh
             event_dispatcher.dispatch_dashboard_refresh()

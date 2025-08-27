@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getMaintenanceTickets } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { MACHINE_ID_MAP } from '@/lib/constants';
 import TicketDetailView from './TicketDetailView';
+import TicketInsights from './TicketInsights';
 
 interface MaintenanceTicket {
   id: number;
@@ -22,9 +23,14 @@ const ManageTickets = () => {
   const [statusFilter, setStatusFilter] = useState('Open');
 
   const { data: tickets, isLoading, error } = useQuery<MaintenanceTicket[]>({ 
-    queryKey: ['maintenanceTickets', statusFilter],
-    queryFn: () => getMaintenanceTickets(statusFilter),
+    queryKey: ['maintenanceTickets', 'all'],
+    queryFn: () => getMaintenanceTickets('all'),
   });
+
+  const filteredTickets = useMemo(() => {
+    if (!tickets) return [];
+    return tickets.filter(ticket => ticket.status === statusFilter);
+  }, [tickets, statusFilter]);
 
   if (isLoading) {
     return <div className="p-4">Loading tickets...</div>;
@@ -38,6 +44,8 @@ const ManageTickets = () => {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Manage Maintenance Tickets</h1>
 
+      <TicketInsights />
+
       <div className="flex justify-between items-center mb-4">
         <ToggleGroup type="single" value={statusFilter} onValueChange={(value) => setStatusFilter(value || 'Open')} defaultValue="Open">
           <ToggleGroupItem value="Open">Open</ToggleGroupItem>
@@ -50,13 +58,13 @@ const ManageTickets = () => {
           <CardTitle>Select a Ticket to Manage</CardTitle>
         </CardHeader>
         <CardContent>
-          {tickets && tickets.length > 0 ? (
+          {filteredTickets.length > 0 ? (
             <Select onValueChange={setSelectedTicketId} value={selectedTicketId}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder={`Choose a ${statusFilter.toLowerCase()} ticket`} />
               </SelectTrigger>
               <SelectContent>
-                {tickets.map(ticket => (
+                {filteredTickets.map(ticket => (
                   <SelectItem key={ticket.id} value={String(ticket.id)}>
                     #{ticket.id} - {MACHINE_ID_MAP[ticket.machine_id] || ticket.machine_id} - {ticket.description.substring(0, 50)}...
                   </SelectItem>

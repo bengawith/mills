@@ -190,3 +190,7 @@ async def notify_ticket_status_change(ticket_id: int, old_status: str, new_statu
         "machine_id": machine_id
     }
     await broadcast_event(EventTypes.TICKET_STATUS_CHANGE, data, "maintenance")
+
+async def notify_ticket_created(ticket: dict):
+    """Notify clients of a new ticket."""
+    await broadcast_event(EventTypes.TICKET_CREATED, ticket, "maintenance")

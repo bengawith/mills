@@ -78,6 +78,22 @@ class EventDispatcher:
                 
         except Exception as e:
             logger.error(f"Failed to dispatch machine status change: {e}")
+
+    def dispatch_ticket_created(self, ticket: dict):
+        """Dispatch ticket created event."""
+        try:
+            from routers.websocket import notify_ticket_created
+            
+            try:
+                loop = asyncio.get_running_loop()
+                task = loop.create_task(notify_ticket_created(ticket))
+                logger.debug(f"Scheduled ticket created for ticket {ticket.get('id')}")
+            except RuntimeError:
+                asyncio.run(notify_ticket_created(ticket))
+                logger.debug(f"Dispatched ticket created for ticket {ticket.get('id')}")
+                
+        except Exception as e:
+            logger.error(f"Failed to dispatch ticket created event: {e}")
     
     def dispatch_dashboard_refresh(self):
         """Trigger dashboard refresh for all clients."""
