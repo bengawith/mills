@@ -37,20 +37,18 @@ apiClient.interceptors.request.use(
 );
 
 // Dashboard Endpoints
-export const getAnalyticalData = async (rawParams: any) => {
-  const params = {
-    start_time: rawParams.start_time,
-    end_time: rawParams.end_time,
-    machine_ids: rawParams.machine_ids === "All" ? undefined : rawParams.machine_ids,
-    shift: rawParams.shift === "All" ? undefined : rawParams.shift,
-    day_of_week: rawParams.day_of_week === "All" ? undefined : rawParams.day_of_week,
-  };
-  const response = await apiClient.get("/api/v1/dashboard/analytical-data", { params });
-  return response.data;
-};
+// Deprecated: getAnalyticalData. Use getAnalyticalDataOptimized instead.
 
 // NEW: Optimized analytical data endpoint
-export const getAnalyticalDataOptimized = async (rawParams: any) => {
+export interface AnalyticalDataParams {
+  start_time?: string;
+  end_time?: string;
+  machine_ids?: string;
+  shift?: string;
+  day_of_week?: string;
+}
+
+export const getAnalyticalDataOptimized = async (rawParams: AnalyticalDataParams) => {
   const params = {
     start_time: rawParams.start_time,
     end_time: rawParams.end_time,
@@ -70,7 +68,13 @@ export const getMachineSummary = async (machineIds?: string[]) => {
 };
 
 // NEW: Production metrics endpoint
-export const getProductionMetrics = async (rawParams: any) => {
+export interface ProductionMetricsParams {
+  start_time?: string;
+  end_time?: string;
+  machine_ids?: string;
+}
+
+export const getProductionMetrics = async (rawParams: ProductionMetricsParams) => {
   const params = {
     start_time: rawParams.start_time,
     end_time: rawParams.end_time,
@@ -93,7 +97,16 @@ export const getQuickStats = async () => {
   return response.data;
 };
 
-export const getOeeData = async (rawParams: any) => {
+
+export interface OEEDataParams {
+  start_time?: string;
+  end_time?: string;
+  machine_ids?: string;
+  shift?: string;
+  day_of_week?: string;
+}
+
+export const getOeeData = async (rawParams: OEEDataParams) => {
   const params = {
     start_time: rawParams.start_time,
     end_time: rawParams.end_time,
@@ -105,7 +118,15 @@ export const getOeeData = async (rawParams: any) => {
   return response.data;
 };
 
-export const getUtilizationData = async (rawParams: any) => {
+export interface UtilizationDataParams {
+  start_time?: string;
+  end_time?: string;
+  machine_ids?: string;
+  shift?: string;
+  day_of_week?: string;
+}
+
+export const getUtilizationData = async (rawParams: UtilizationDataParams) => {
   const params = {
     start_time: rawParams.start_time,
     end_time: rawParams.end_time,
@@ -117,7 +138,15 @@ export const getUtilizationData = async (rawParams: any) => {
   return response.data;
 };
 
-export const getDowntimeAnalysisData = async (rawParams: any) => {
+export interface DowntimeAnalysisParams {
+  start_time?: string;
+  end_time?: string;
+  machine_ids?: string;
+  shift?: string;
+  day_of_week?: string;
+}
+
+export const getDowntimeAnalysisData = async (rawParams: DowntimeAnalysisParams) => {
   const params = {
     start_time: rawParams.start_time,
     end_time: rawParams.end_time,
