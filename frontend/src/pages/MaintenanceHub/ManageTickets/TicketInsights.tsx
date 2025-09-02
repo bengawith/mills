@@ -1,3 +1,20 @@
+/*
+  TicketInsights.tsx - MillDash Frontend Maintenance Ticket Insights Component
+
+  This file implements the ticket insights section for the MillDash maintenance hub using React and TypeScript. It provides a summary of key maintenance metrics, including open tickets, critical tickets, average resolution time, and tickets resolved today. The component fetches ticket data from the backend, listens for WebSocket events to update in real time, and uses custom UI components for a consistent and accessible layout.
+
+  Key Features:
+  - Uses React functional component with memoized insights calculation.
+  - Fetches all maintenance tickets using React Query.
+  - Listens for ticket creation and status change events via WebSocket for live updates.
+  - Calculates open, critical, and resolved tickets, and average resolution time.
+  - Displays insights in a responsive grid of cards with Lucide icons.
+  - Utilizes custom UI components (Card, CardHeader, CardContent, CardTitle).
+  - Responsive and visually appealing layout using Tailwind CSS grid utilities.
+
+  This component is essential for maintenance management, providing users with actionable insights into ticket status and resolution performance.
+*/
+
 import React, { useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getMaintenanceTickets } from '@/lib/api';
@@ -19,21 +36,37 @@ interface MaintenanceTicket {
 }
 
 const TicketInsights = () => {
+  // React Query client for cache management and invalidation
   const queryClient = useQueryClient();
 
+  /**
+   * Fetches all maintenance tickets from the backend API.
+   * Uses React Query for caching and loading/error state management.
+   */
   const { data: tickets, isLoading, error } = useQuery<MaintenanceTicket[]>({ 
     queryKey: ['maintenanceTickets', 'all'], // Fetch all tickets
     queryFn: () => getMaintenanceTickets('all'),
   });
 
+  /**
+   * WebSocket event handler for ticket creation.
+   * Invalidates ticket queries to refetch updated data.
+   */
   useWebSocketEvent(EventTypes.TICKET_CREATED, () => {
     queryClient.invalidateQueries({ queryKey: ['maintenanceTickets'] });
   });
 
+  /**
+   * WebSocket event handler for ticket status change.
+   * Invalidates ticket queries to refetch updated data.
+   */
   useWebSocketEvent(EventTypes.TICKET_STATUS_CHANGE, () => {
     queryClient.invalidateQueries({ queryKey: ['maintenanceTickets'] });
   });
 
+  /**
+   * Memoized calculation of ticket insights (open, critical, resolved, avg resolution time).
+   */
   const insights = useMemo(() => {
     if (!tickets) {
       return {
@@ -44,21 +77,21 @@ const TicketInsights = () => {
       };
     }
 
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const now: Date = new Date();
+    const todayStart: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    const openTickets = tickets.filter(t => t.status === 'Open');
-    const criticalTickets = openTickets.filter(t => t.priority === 'High').length;
+    const openTickets: MaintenanceTicket[] = tickets.filter(t => t.status === 'Open');
+    const criticalTickets: number = openTickets.filter(t => t.priority === 'High').length;
 
-    const resolvedTickets = tickets.filter(t => t.status === 'Resolved' && t.resolved_time);
+    const resolvedTickets: MaintenanceTicket[] = tickets.filter(t => t.status === 'Resolved' && t.resolved_time);
     
-    const resolvedToday = resolvedTickets.filter(t => parseISO(t.resolved_time!) >= todayStart).length;
+    const resolvedToday: number = resolvedTickets.filter(t => parseISO(t.resolved_time!) >= todayStart).length;
 
-    const resolutionTimes = resolvedTickets
+    const resolutionTimes: number[] = resolvedTickets
       .map(t => differenceInHours(parseISO(t.resolved_time!), parseISO(t.logged_time)))
       .filter(hours => hours >= 0);
 
-    const avgResolutionTime = resolutionTimes.length > 0
+    const avgResolutionTime: string = resolutionTimes.length > 0
       ? (resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length).toFixed(1) + 'h'
       : 'N/A';
 

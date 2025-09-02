@@ -1,3 +1,19 @@
+/*
+  FilterControls.tsx - MillDash Frontend Dashboard Filter Controls Component
+
+  This file implements the filter controls for the MillDash dashboard using React and TypeScript. It provides a user interface for selecting time range, machine, shift, and day of week, enabling users to customize the analytics displayed on the dashboard. The component fetches available machines from the backend and uses custom UI components for a consistent and accessible layout.
+
+  Key Features:
+  - Uses React functional component with props for filter state and update handler.
+  - Fetches machine list from backend using React Query.
+  - Provides input fields for start/end time, machine selection, shift, and day of week.
+  - Handles loading and error states for machine list.
+  - Utilizes custom UI components (Input, Label, Select, SelectItem, SelectTrigger, SelectValue).
+  - Responsive layout using Tailwind CSS grid utilities.
+
+  This component is essential for interactive analytics, allowing users to filter dashboard data by relevant criteria.
+*/
+
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,15 +22,39 @@ import { useQuery } from '@tanstack/react-query';
 import { getMachines } from '@/lib/api';
 
 interface FilterControlsProps {
-  filters: any;
-  setFilters: (filters: any) => void;
+  // Filters object containing dashboard filter values
+  filters: {
+    start_time: string;
+    end_time: string;
+    machine_ids: string;
+    shift: string;
+    day_of_week: string;
+  };
+  // Function to update filters state
+  setFilters: (filters: {
+    start_time: string;
+    end_time: string;
+    machine_ids: string;
+    shift: string;
+    day_of_week: string;
+  }) => void;
 }
 
 const FilterControls: React.FC<FilterControlsProps> = ({ filters, setFilters }) => {
-  const handleInputChange = (field: string, value: string) => {
+  /**
+   * Handles input changes for filter controls.
+   * Updates the corresponding field in the filters state.
+   * @param field - The filter field name to update
+   * @param value - The new value for the filter field
+   */
+  const handleInputChange = (field: string, value: string): void => {
     setFilters({ ...filters, [field]: value });
   };
 
+  /**
+   * Fetches the list of available machines from the backend for machine selection.
+   * Uses React Query for caching and loading/error state management.
+   */
   const { data: machines, isLoading: isLoadingMachines, error: machinesError } = useQuery<{ id: string, name: string }[]>({
     queryKey: ['machines'],
     queryFn: getMachines,

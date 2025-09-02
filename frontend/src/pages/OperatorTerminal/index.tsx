@@ -1,3 +1,19 @@
+/*
+  index.tsx - MillDash Frontend Operator Terminal Page
+
+  This file implements the operator terminal for the MillDash application using React and TypeScript. It provides a user interface for machine operators to start and complete production runs, view active runs, and monitor recent downtime events. The component integrates with backend APIs for machine, product, and run management, and uses custom UI components for a consistent and accessible layout.
+
+  Key Features:
+  - Uses React functional component with hooks for state management (selected machine, scrap modal, scrap length).
+  - Fetches machine list, product list, active run, and recent downtime events using React Query.
+  - Allows operators to start new production runs and complete active runs with scrap length input.
+  - Displays recent downtime events for the selected machine.
+  - Utilizes custom UI components (Card, Button, Dialog, Input) and Tailwind CSS for layout.
+  - Responsive and visually appealing interface for operator workflow.
+
+  This component is essential for efficient shop floor operations, enabling operators to manage production and downtime in real time.
+*/
+
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMachines, getProducts, getActiveRunForMachine, startProductionRun, completeProductionRun, getRecentDowntimes } from '@/lib/api';
@@ -9,27 +25,52 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
 const OperatorTerminal = () => {
+  // React Query client for cache management and invalidation
   const queryClient = useQueryClient();
+  // Toast notification handler for user feedback
   const { toast } = useToast();
+  // State for selected machine ID
   const [selectedMachineId, setSelectedMachineId] = useState<string | null>(null);
-  const [isScrapModalOpen, setIsScrapModalOpen] = useState(false);
-  const [scrapLength, setScrapLength] = useState('');
+  // State for controlling scrap modal visibility
+  const [isScrapModalOpen, setIsScrapModalOpen] = useState<boolean>(false);
+  // State for scrap length input
+  const [scrapLength, setScrapLength] = useState<string>('');
 
-  const { data: machines = [] } = useQuery({ queryKey: ['machines'], queryFn: getMachines });
-  const { data: products = [] } = useQuery({ queryKey: ['products'], queryFn: getProducts });
+  /**
+   * Fetches the list of available machines from the backend for selection.
+   * Uses React Query for caching and loading/error state management.
+   */
+  const { data: machines = [] } = useQuery<any[]>({ queryKey: ['machines'], queryFn: getMachines });
+  /**
+   * Fetches the list of available products from the backend for selection.
+   * Uses React Query for caching and loading/error state management.
+   */
+  const { data: products = [] } = useQuery<any[]>({ queryKey: ['products'], queryFn: getProducts });
 
-  const { data: activeRun, isLoading: isLoadingActiveRun } = useQuery({
+  /**
+   * Fetches the active production run for the selected machine.
+   * Uses React Query for caching and loading/error state management.
+   */
+  const { data: activeRun, isLoading: isLoadingActiveRun } = useQuery<any>({
     queryKey: ['activeRun', selectedMachineId],
     queryFn: () => getActiveRunForMachine(selectedMachineId!),
     enabled: !!selectedMachineId,
   });
 
-  const { data: recentDowntimes, isLoading: isLoadingDowntimes } = useQuery({
+  /**
+   * Fetches recent downtime events for the selected machine (last 24 hours).
+   * Uses React Query for caching and loading/error state management.
+   */
+  const { data: recentDowntimes, isLoading: isLoadingDowntimes } = useQuery<any[]>({
     queryKey: ['recentDowntimes', selectedMachineId],
     queryFn: () => getRecentDowntimes(selectedMachineId!, new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), new Date().toISOString()),
     enabled: !!selectedMachineId,
   });
 
+  /**
+   * Mutation for starting a new production run on the selected machine.
+   * On success, invalidates active run query and shows success toast.
+   */
   const startRunMutation = useMutation({
     mutationFn: ({ machine_id, product_id }: { machine_id: string; product_id: number }) => startProductionRun({ machine_id, product_id }),
     onSuccess: () => {
@@ -38,6 +79,10 @@ const OperatorTerminal = () => {
     },
   });
 
+  /**
+   * Mutation for completing the active production run with scrap length input.
+   * On success, invalidates active run query, closes modal, and shows success toast.
+   */
   const completeRunMutation = useMutation({
     mutationFn: ({ run_id, scrap_length }: { run_id: number; scrap_length: number }) => completeProductionRun({ run_id, scrap_length }),
     onSuccess: () => {
@@ -48,7 +93,11 @@ const OperatorTerminal = () => {
     },
   });
 
-  const handleCompleteRun = () => {
+  /**
+   * Handles completion of the active production run.
+   * Triggers mutation with run ID and scrap length.
+   */
+  const handleCompleteRun = (): void => {
     if (activeRun) {
       completeRunMutation.mutate({ run_id: activeRun.id, scrap_length: parseFloat(scrapLength) });
     }

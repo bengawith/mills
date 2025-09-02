@@ -1,3 +1,20 @@
+/*
+  index.tsx - MillDash Frontend Dashboard Page
+
+  This file implements the main dashboard page for the MillDash application using React and TypeScript. It provides a comprehensive analytics interface for monitoring machine performance, utilization, OEE, downtime, and real-time metrics. The component leverages optimized backend endpoints and React Query for efficient data fetching, and integrates with WebSocket events for real-time updates.
+
+  Key Features:
+  - Uses React functional component with hooks for state management (filters, analytics data).
+  - Fetches multiple analytics datasets in parallel using useQueries for performance.
+  - Integrates with WebSocket events for real-time dashboard updates.
+  - Displays charts and analytics using custom components (OeeChart, UtilizationChart, DowntimeAnalysis, PerformanceMonitor, DashboardOverview).
+  - Provides filter controls for time range, machine selection, shift, and day of week.
+  - Handles loading and error states gracefully.
+  - Responsive and visually appealing layout using Tailwind CSS utility classes.
+
+  This component is the core analytics hub for MillDash, enabling users to monitor and optimize manufacturing operations in real time.
+*/
+
 import React, { useState } from 'react';
 import { useQueries } from '@tanstack/react-query'; // Use useQueries for multiple queries
 import { getOeeData, getUtilizationData, getDowntimeAnalysisData, getRealTimeMetrics, getPerformanceSummary } from '@/lib/api'; // Import optimized functions
@@ -11,6 +28,11 @@ import PerformanceMonitor from './PerformanceMonitor';
 
 const Dashboard: React.FC = () => {
 
+  /**
+   * Rounds a date to the nearest 30 minutes for dashboard time filters.
+   * @param date - Date object to round
+   * @returns ISO string without 'Z'
+   */
   const roundToNearest30Minutes = (date: Date): string => {
     const minutes = date.getMinutes();
     const remainder = minutes % 30;
@@ -21,11 +43,18 @@ const Dashboard: React.FC = () => {
     return date.toISOString().replace('Z', '');
   };
 
+  // Initial time range for dashboard analytics (last 7 days to tomorrow)
   const initialStartTime: string = roundToNearest30Minutes(new Date(new Date().getTime() - (7 * 24 * 60 * 60 * 1000)));
   const initialEndTime: string = roundToNearest30Minutes(new Date(new Date().getTime() + (1 * 24 * 60 * 60 * 1000)));
 
-
-  const [filters, setFilters] = useState({
+  // State for dashboard filter controls
+  const [filters, setFilters] = useState<{
+    start_time: string;
+    end_time: string;
+    machine_ids: string;
+    shift: string;
+    day_of_week: string;
+  }>({
     start_time: initialStartTime,
     end_time: initialEndTime,
     machine_ids: 'All',
@@ -34,12 +63,15 @@ const Dashboard: React.FC = () => {
   });
 
   // Extract machine IDs for the overview component
-  const selectedMachineIds = filters.machine_ids === 'All' ? undefined : filters.machine_ids.split(',');
+  const selectedMachineIds: string[] | undefined = filters.machine_ids === 'All' ? undefined : filters.machine_ids.split(',');
 
   // Use WebSocket events for real-time updates
   const { lastUpdate } = useDashboardEvents();
 
-  // Use useQueries to fetch data from multiple OPTIMIZED endpoints (10-25x faster performance)
+  /**
+   * Fetches multiple analytics datasets in parallel using useQueries for performance.
+   * Each query uses optimized backend endpoints and refetch intervals.
+   */
   const results = useQueries({
     queries: [
       {
@@ -70,10 +102,12 @@ const Dashboard: React.FC = () => {
     ],
   });
 
+  // Destructure results for each analytics query
   const [oeeResult, utilizationResult, downtimeAnalysisResult, realTimeMetricsResult, performanceSummaryResult] = results;
 
-  const isLoading = results.some(result => result.isLoading);
-  const isError = results.some(result => result.isError);
+  // Determine loading and error states for dashboard
+  const isLoading: boolean = results.some(result => result.isLoading);
+  const isError: boolean = results.some(result => result.isError);
 
   // Combine optimized analytics data into a single object to pass to chart components
   const dashboardData = {

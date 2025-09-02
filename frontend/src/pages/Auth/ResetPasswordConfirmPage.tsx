@@ -1,3 +1,22 @@
+/*
+  ResetPasswordConfirmPage.tsx - MillDash Frontend Password Reset Confirmation Page
+
+  This file implements the password reset confirmation page for the MillDash application using React and TypeScript. It provides a user interface for users to set a new password after receiving a reset link, handling form validation, password confirmation, and backend integration via the API client. The component is designed for accessibility and user experience, featuring password visibility toggling, error handling, and navigation to the login page.
+
+  Key Features:
+  - Uses React functional component with hooks for state management (new password, confirm password, loading, password visibility).
+  - Validates password confirmation before submitting the reset request.
+  - Integrates with backend API to reset the user's password using UID and token from the URL.
+  - Displays toast notifications for success and error feedback.
+  - Utilizes custom UI components for consistent styling (Button, Input, Label, Card, etc.).
+  - Provides navigation to login after successful reset.
+  - Implements password visibility toggle for improved UX.
+  - Handles backend error responses and displays user-friendly messages.
+  - Responsive and visually appealing layout using Tailwind CSS utility classes.
+
+  This component is a core part of the password recovery flow, ensuring secure and user-friendly password reset for the MillDash platform.
+*/
+
 // frontend/src/pages/ResetPasswordConfirmPage.tsx
 import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
@@ -10,18 +29,31 @@ import { useToast } from "@/hooks/use-toast";
 import apiClient from "@/lib/api";
 
 export default function ResetPasswordConfirmPage() {
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  // State for storing the new password input
+  const [newPassword, setNewPassword] = useState<string>("");
+  // State for storing the confirm password input
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  // State to toggle new password visibility
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  // State to toggle confirm password visibility
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  // State to indicate loading status during password reset
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  // Toast notification handler for user feedback
   const { toast } = useToast();
+  // React Router hook for navigation after password reset
   const navigate = useNavigate();
-  const { uid, token } = useParams(); // Get UID and Token from the URL
+  // Get UID and Token from the URL params
+  const { uid, token } = useParams<{ uid?: string; token?: string }>();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  /**
+   * Handles the password reset form submission.
+   * Validates password confirmation, prepares payload, and sends reset request to backend.
+   * Displays toast notifications for success or error feedback.
+   * @param e - React form event
+   */
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-
     if (newPassword !== confirmPassword) {
       toast({
         title: "Password mismatch",
@@ -30,25 +62,21 @@ export default function ResetPasswordConfirmPage() {
       });
       return;
     }
-
     if (!uid || !token) {
-        toast({
-            title: "Invalid Link",
-            description: "The password reset link is incomplete.",
-            variant: "destructive",
-        });
-        return;
+      toast({
+        title: "Invalid Link",
+        description: "The password reset link is incomplete.",
+        variant: "destructive",
+      });
+      return;
     }
-
     setIsLoading(true);
-
     const payload = {
       uid,
       token,
       new_password: newPassword,
       re_new_password: confirmPassword,
     };
-
     try {
       await apiClient.post("/auth/users/reset_password_confirm/", payload);
       toast({

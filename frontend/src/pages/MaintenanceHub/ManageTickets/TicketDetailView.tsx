@@ -1,3 +1,19 @@
+/*
+  TicketDetailView.tsx - MillDash Frontend Maintenance Ticket Detail View Component
+
+  This file implements the detailed view for a maintenance ticket in the MillDash maintenance hub using React and TypeScript. It provides a user interface for viewing ticket information, updating status, adding work notes, uploading images, and logging components used. The component fetches ticket details from the backend, allows status updates with confirmation, and uses custom UI components for a consistent and accessible layout.
+
+  Key Features:
+  - Uses React functional component with props for ticket ID and close handler.
+  - Fetches ticket details using React Query and updates on mutation or note/image/component changes.
+  - Allows status updates with confirmation dialog for resolving tickets.
+  - Displays ticket information, work notes, images, and components used.
+  - Utilizes custom UI components (Card, Select, AlertDialog, Button) and Lucide icons.
+  - Responsive and visually appealing layout using Tailwind CSS grid utilities.
+
+  This component is essential for maintenance management, enabling users to track, update, and resolve machine issues efficiently.
+*/
+
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTicketDetails, updateTicketStatus } from '@/lib/api';
@@ -21,32 +37,54 @@ import WorkNotesSection from './WorkNotesSection';
 import ImageSection from './ImageSection';
 import ComponentLogSection from './ComponentLogSection';
 
-interface TicketDetailViewProps {
+
+/**
+ * Props for the TicketDetailView component.
+ */
+export interface TicketDetailViewProps {
   ticketId: number;
   onClose?: () => void;
 }
 
-const TicketDetailView: React.FC<TicketDetailViewProps> = ({ ticketId, onClose }) => {
+
+/**
+ * TicketDetailView component displays detailed information for a maintenance ticket,
+ * including status, work notes, images, and components used. Allows status updates and logging.
+ */
+const TicketDetailView: React.FC<TicketDetailViewProps> = ({ ticketId, onClose }: TicketDetailViewProps) => {
+  // React Query client for cache management
   const queryClient = useQueryClient();
-  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  // State for alert dialog visibility
+  const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
+  // State for new status to be confirmed
   const [newStatus, setNewStatus] = useState<string | null>(null);
 
-  const { data: ticket, isLoading, error } = useQuery({
+  /**
+   * Query for fetching ticket details.
+   */
+  const { data: ticket, isLoading, error } = useQuery<any>({
     queryKey: ['ticketDetails', ticketId],
     queryFn: () => getTicketDetails(ticketId),
   });
 
-  const mutation = useMutation({
-    mutationFn: (status: string) => updateTicketStatus(ticketId, status),
-    onSuccess: () => {
+  /**
+   * Mutation for updating ticket status.
+   */
+  const mutation = useMutation<string, unknown, string>({
+    mutationFn: (status: string): Promise<any> => updateTicketStatus(ticketId, status),
+    onSuccess: (): void => {
       queryClient.invalidateQueries({ queryKey: ['ticketDetails', ticketId] });
     },
-    onError: (err) => {
+    onError: (err: any): void => {
       console.error("Failed to update status", err);
     },
   });
 
-  const handleStatusChange = (status: string) => {
+  /**
+   * Handles status change selection.
+   * @param status - New status value
+   */
+  const handleStatusChange = (status: string): void => {
     if (status === 'Resolved') {
       setNewStatus(status);
       setIsAlertOpen(true);
@@ -55,7 +93,10 @@ const TicketDetailView: React.FC<TicketDetailViewProps> = ({ ticketId, onClose }
     }
   };
 
-  const confirmStatusChange = () => {
+  /**
+   * Confirms status change to 'Resolved'.
+   */
+  const confirmStatusChange = (): void => {
     if (newStatus) {
       mutation.mutate(newStatus);
     }
@@ -63,18 +104,25 @@ const TicketDetailView: React.FC<TicketDetailViewProps> = ({ ticketId, onClose }
     setNewStatus(null);
   };
 
+
+  // Loading state
   if (isLoading) {
     return <div className="p-4">Loading ticket details...</div>;
   }
 
+  // Error state
   if (error) {
-    return <div className="p-4 text-red-500">Error loading ticket details: {error.message}</div>;
+    // Type assertion for error message
+    return <div className="p-4 text-red-500">Error loading ticket details: {(error as Error).message}</div>;
   }
 
+  // No ticket found state
   if (!ticket) {
     return <div className="p-4">No ticket found.</div>;
   }
 
+
+  // Render the detailed ticket view
   return (
     <>
       <Card className="w-full">
@@ -133,6 +181,7 @@ const TicketDetailView: React.FC<TicketDetailViewProps> = ({ ticketId, onClose }
         </CardContent>
       </Card>
 
+      {/* Confirmation dialog for resolving ticket */}
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

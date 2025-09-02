@@ -1,14 +1,44 @@
+/*
+  UtilizationChart.tsx - MillDash Frontend Utilization Chart Component
+
+  This file implements the utilization chart for the MillDash dashboard using React, TypeScript, and Recharts. It visualizes productive and unproductive machine time as a pie chart, providing insights into operational efficiency. The component receives analytics data as props and renders a responsive, interactive chart with tooltips, legends, and custom UI components.
+
+  Key Features:
+  - Uses React functional component with typed props for utilization analytics data.
+  - Visualizes productive uptime, productive downtime, and unproductive downtime as pie chart segments.
+  - Custom tooltip displays segment name, value, and color.
+  - Custom legend shows segment breakdown and percentage.
+  - Responsive layout using Recharts ResponsiveContainer.
+  - Utilizes custom UI components (Card, CardHeader, CardContent, CardTitle).
+  - Accessible and visually appealing chart for dashboard analytics.
+
+  This component is essential for monitoring machine utilization and identifying opportunities for operational improvement.
+*/
+
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface UtilizationChartProps {
-  data: any;
+  // Analytics data object containing utilization metrics
+  data: {
+    utilization?: {
+      productive_uptime_seconds: number;
+      productive_downtime_seconds: number;
+      unproductive_downtime_seconds: number;
+      total_time_seconds: number;
+      utilization_percentage: number;
+    };
+  };
 }
 
 const COLORS = ['#00C49F', '#0088FE', '#FF8042']; // Green, Blue, Orange
 
 const CustomTooltip = ({ active, payload }: any) => {
+  /**
+   * Custom tooltip for utilization chart segments.
+   * Displays segment name, value, and color.
+   */
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
@@ -21,6 +51,10 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 const renderLegend = (props: any) => {
+  /**
+   * Custom legend for utilization chart segments.
+   * Displays segment name, color, and percentage of total time.
+   */
   const { payload } = props;
   return (
     <ul style={{ listStyle: 'none', padding: 0 }}>
@@ -38,6 +72,7 @@ const renderLegend = (props: any) => {
 
 
 const UtilizationChart: React.FC<UtilizationChartProps> = ({ data }) => {
+  // Extract utilization metrics from analytics data
   const utilizationData = data.utilization;
 
   if (!utilizationData) {
@@ -53,7 +88,8 @@ const UtilizationChart: React.FC<UtilizationChartProps> = ({ data }) => {
     );
   }
 
-  const chartData = [
+  // Prepare chart data for pie chart rendering
+  const chartData: { name: string; value: number }[] = [
     { name: 'Productive Uptime', value: utilizationData.productive_uptime_seconds / 3600 },
     { name: 'Productive Downtime', value: utilizationData.productive_downtime_seconds / 3600 },
     { name: 'Unproductive Downtime', value: utilizationData.unproductive_downtime_seconds / 3600 },

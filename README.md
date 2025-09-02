@@ -110,3 +110,12 @@ The frontend application includes the following pages:
 *   **Log New Ticket:** Create a new maintenance ticket.
 *   **Manage Tickets:** A detailed view for managing individual tickets.
 *   **Operator Terminal:** A simplified interface for machine operators.
+
+## Documentation
+
+For thorough documentation of the project, including architecture, features, type safety, logging, and extension guidelines, see:
+
+- [Frontend Documentation](./frontend/DOCS.md)
+- [Backend Documentation](./backend/DOCS.md)
+
+These documents provide detailed guides to the codebase, including directory structure, main modules, API integration, logging practices, and contribution standards.

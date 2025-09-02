@@ -1,3 +1,20 @@
+/*
+  LogTicketForm.tsx - MillDash Frontend Maintenance Ticket Logging Form
+
+  This file implements the form for logging new maintenance tickets in the MillDash application using React and TypeScript. It provides a user interface for entering ticket details, selecting machine and incident category, setting priority, linking downtime events, and uploading images. The component integrates with backend APIs for ticket creation and image upload, and uses custom UI components for a consistent and accessible layout.
+
+  Key Features:
+  - Uses React functional component with props for ticket creation callback.
+  - Manages form state for machine, category, priority, description, downtime event, and image upload.
+  - Fetches machine list and recent downtime events using React Query.
+  - Submits ticket data to backend and uploads image if provided.
+  - Displays toast notifications for success, error, and validation feedback.
+  - Utilizes custom UI components (Card, Button, Input, Label, Select, Textarea).
+  - Responsive and visually appealing layout using Tailwind CSS utility classes.
+
+  This component is essential for efficient maintenance management, enabling users to quickly log and track machine issues.
+*/
+
 import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createMaintenanceTicket, getMachines, getRecentDowntimes, uploadTicketImage } from '@/lib/api';
@@ -15,20 +32,35 @@ interface LogTicketFormProps {
 }
 
 const LogTicketForm: React.FC<LogTicketFormProps> = ({ onTicketCreated }) => {
+  // Toast notification handler for user feedback
   const { toast } = useToast();
-  const [machineId, setMachineId] = useState('');
-  const [incidentCategory, setIncidentCategory] = useState('');
-  const [priority, setPriority] = useState('Medium');
-  const [description, setDescription] = useState('');
+  // State for selected machine ID
+  const [machineId, setMachineId] = useState<string>('');
+  // State for selected incident category
+  const [incidentCategory, setIncidentCategory] = useState<string>('');
+  // State for selected priority
+  const [priority, setPriority] = useState<string>('Medium');
+  // State for ticket description
+  const [description, setDescription] = useState<string>('');
+  // State for selected downtime event ID (optional)
   const [selectedDowntimeId, setSelectedDowntimeId] = useState<string | null>(null);
+  // State for uploaded image file (optional)
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
 
+  /**
+   * Fetches the list of available machines from the backend for machine selection.
+   * Uses React Query for caching and loading/error state management.
+   */
   const { data: machines, isLoading: isLoadingMachines } = useQuery<{id: string, name: string}[]>({
     queryKey: ['machines'],
     queryFn: getMachines,
   });
 
-  const { data: downtimeEvents, isLoading: isLoadingDowntimes } = useQuery({
+  /**
+   * Fetches recent downtime events for the selected machine (last 24 hours).
+   * Uses React Query for caching and loading/error state management.
+   */
+  const { data: downtimeEvents, isLoading: isLoadingDowntimes } = useQuery<any[]>({
     queryKey: ['recentDowntimes', machineId],
     queryFn: async () => {
       if (!machineId) return [];
@@ -39,9 +71,14 @@ const LogTicketForm: React.FC<LogTicketFormProps> = ({ onTicketCreated }) => {
     enabled: !!machineId,
   });
 
+  /**
+   * Mutation for creating a new maintenance ticket.
+   * On success, uploads image if provided and calls ticket created callback.
+   * On error, displays error toast.
+   */
   const createTicketMutation = useMutation({
     mutationFn: createMaintenanceTicket,
-    onSuccess: (newTicket) => {
+    onSuccess: (newTicket: any) => {
       toast({ title: 'Ticket Created', description: `Ticket #${newTicket.id} logged.` });
       if (uploadedImage && newTicket.id) {
         uploadTicketImage(newTicket.id, uploadedImage).then(() => {
@@ -55,7 +92,12 @@ const LogTicketForm: React.FC<LogTicketFormProps> = ({ onTicketCreated }) => {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  /**
+   * Handles form submission for logging a new maintenance ticket.
+   * Validates required fields and triggers ticket creation mutation.
+   * @param e - React form event
+   */
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     if (!machineId || !incidentCategory || !description) {
       toast({ title: 'Validation Error', description: 'Please fill out all required fields.', variant: 'destructive' });

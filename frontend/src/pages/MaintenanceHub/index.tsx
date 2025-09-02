@@ -1,3 +1,20 @@
+/*
+  index.tsx - MillDash Frontend Maintenance Hub Page
+
+  This file implements the main maintenance hub page for the MillDash application using React and TypeScript. It provides a comprehensive interface for viewing, filtering, logging, and managing maintenance tickets. The component integrates with backend APIs and WebSocket events for real-time updates, and uses custom UI components for a consistent and accessible layout.
+
+  Key Features:
+  - Uses React functional component with hooks for state management (active tab, selected ticket, filters).
+  - Fetches maintenance tickets and machine list using React Query.
+  - Integrates with WebSocket events for real-time ticket updates and status changes.
+  - Provides tabbed navigation for overview, logging new tickets, and managing selected tickets.
+  - Displays ticket insights, ticket list with filtering, and detailed ticket view.
+  - Utilizes custom UI components (Card, Table, Select, Tabs, etc.) and Lucide icons.
+  - Responsive and visually appealing layout using Tailwind CSS utility classes.
+
+  This component is the core maintenance management hub for MillDash, enabling users to efficiently track and resolve machine issues.
+*/
+
 import React, { useState, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getMaintenanceTickets, getMachines } from '@/lib/api';
@@ -25,28 +42,47 @@ interface MaintenanceTicket {
 }
 
 const MaintenanceHub = () => {
-  const [activeTab, setActiveTab] = useState("overview");
+  // State for managing the active tab in the maintenance hub
+  const [activeTab, setActiveTab] = useState<string>("overview");
+  // State for storing the selected ticket ID for management
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState('All');
-  const [selectedMachine, setSelectedMachine] = useState('All');
+  // State for filtering tickets by status
+  const [selectedStatus, setSelectedStatus] = useState<string>('All');
+  // State for filtering tickets by machine
+  const [selectedMachine, setSelectedMachine] = useState<string>('All');
+  // React Query client for cache management and invalidation
   const queryClient = useQueryClient();
 
-  // Data Fetching
+  /**
+   * Fetches all maintenance tickets from the backend API.
+   * Uses React Query for caching and loading/error state management.
+   */
   const { data: tickets, isLoading: isLoadingTickets } = useQuery<MaintenanceTicket[]>({ 
     queryKey: ['maintenanceTickets', 'all'],
     queryFn: () => getMaintenanceTickets('all'),
   });
 
+  /**
+   * Fetches the list of available machines from the backend for filtering and display.
+   * Uses React Query for caching and loading/error state management.
+   */
   const { data: machines, isLoading: isLoadingMachines } = useQuery<{id: string, name: string}[]>({
     queryKey: ['machines'],
     queryFn: getMachines,
   });
 
-  // WebSocket events
+  /**
+   * WebSocket event handler for ticket creation.
+   * Invalidates ticket queries to refetch updated data.
+   */
   useWebSocketEvent(EventTypes.TICKET_CREATED, () => {
     queryClient.invalidateQueries({ queryKey: ['maintenanceTickets'] });
   });
 
+  /**
+   * WebSocket event handler for ticket status change.
+   * Invalidates ticket queries and selected ticket details to refetch updated data.
+   */
   useWebSocketEvent(EventTypes.TICKET_STATUS_CHANGE, () => {
     queryClient.invalidateQueries({ queryKey: ['maintenanceTickets'] });
     if (selectedTicketId) {
@@ -54,7 +90,10 @@ const MaintenanceHub = () => {
     }
   });
 
-  const filteredTickets = useMemo(() => {
+  /**
+   * Memoized filter for maintenance tickets based on selected status and machine.
+   */
+  const filteredTickets: MaintenanceTicket[] = useMemo(() => {
     if (!tickets) return [];
     return tickets.filter(ticket => {
       const statusMatch = selectedStatus === 'All' || ticket.status === selectedStatus;
@@ -63,22 +102,36 @@ const MaintenanceHub = () => {
     });
   }, [tickets, selectedStatus, selectedMachine]);
 
-  const handleTicketSelect = (ticketId: number) => {
+  /**
+   * Handles selection of a ticket for management.
+   * Sets the selected ticket ID and switches to the manage tab.
+   * @param ticketId - The ID of the selected ticket
+   */
+  const handleTicketSelect = (ticketId: number): void => {
     setSelectedTicketId(ticketId);
     setActiveTab("manage");
   }
 
-  const handleCloseTicketView = () => {
+  /**
+   * Handles closing the ticket detail view.
+   * Clears the selected ticket ID and switches to the overview tab.
+   */
+  const handleCloseTicketView = (): void => {
     setSelectedTicketId(null);
     setActiveTab("overview");
   }
 
-  const getMachineName = (machineId: string) => {
+  /**
+   * Returns the machine name for a given machine ID.
+   * @param machineId - The machine ID
+   */
+  const getMachineName = (machineId: string): string => {
     const machine = machines?.find(m => m.id === machineId);
     return machine ? machine.name : machineId;
   };
 
-  const allStatuses = ['All', ...new Set(tickets?.map(ticket => ticket.status) || [])];
+  // List of all unique ticket statuses for filtering
+  const allStatuses: string[] = ['All', ...new Set(tickets?.map(ticket => ticket.status) || [])];
 
   return (
     <div className="p-4 space-y-6">

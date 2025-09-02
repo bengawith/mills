@@ -1,3 +1,20 @@
+/*
+  WorkNotesSection.tsx - MillDash Frontend Maintenance Ticket Work Notes Section
+
+  This file implements the work notes section for a maintenance ticket in the MillDash maintenance hub using React and TypeScript. It provides a user interface for viewing, adding, and logging work notes associated with a ticket. The component manages note state, interacts with backend APIs for note creation, and uses custom UI components for a consistent and accessible layout.
+
+  Key Features:
+  - Uses React functional component with props for ticket ID, notes list, and note added callback.
+  - Displays a scrollable log of work notes, sorted by creation time.
+  - Allows users to add new notes with author attribution.
+  - Submits new notes to backend and triggers parent refetch on success.
+  - Displays toast notifications for success, error, and validation feedback.
+  - Utilizes custom UI components (Card, Textarea, Input, Button, Label).
+  - Responsive and visually appealing layout using Tailwind CSS utility classes.
+
+  This component is essential for maintenance management, enabling collaborative tracking of work performed on machine issues.
+*/
+
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addWorkNote } from '@/lib/api';
@@ -23,11 +40,20 @@ interface WorkNotesSectionProps {
 }
 
 const WorkNotesSection: React.FC<WorkNotesSectionProps> = ({ ticketId, workNotes, onNoteAdded }) => {
+  // React Query client for cache management and invalidation
   const queryClient = useQueryClient();
+  // Toast notification handler for user feedback
   const { toast } = useToast();
-  const [newNote, setNewNote] = useState('');
-  const [noteAuthor, setNoteAuthor] = useState('');
+  // State for new note input
+  const [newNote, setNewNote] = useState<string>('');
+  // State for note author input
+  const [noteAuthor, setNoteAuthor] = useState<string>('');
 
+  /**
+   * Mutation for adding a new work note to the ticket.
+   * On success, clears input, triggers parent refetch, and shows success toast.
+   * On error, displays error toast.
+   */
   const addNoteMutation = useMutation({
     mutationFn: (noteData: { note: string; author: string }) => addWorkNote(ticketId, noteData),
     onSuccess: () => {
@@ -48,7 +74,12 @@ const WorkNotesSection: React.FC<WorkNotesSectionProps> = ({ ticketId, workNotes
     },
   });
 
-  const handleAddNote = (e: React.FormEvent) => {
+  /**
+   * Handles form submission for adding a new work note.
+   * Validates input and triggers mutation.
+   * @param e - React form event
+   */
+  const handleAddNote = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     if (newNote.trim() && noteAuthor.trim()) {
       addNoteMutation.mutate({ note: newNote, author: noteAuthor });

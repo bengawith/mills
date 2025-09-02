@@ -23,13 +23,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Factory, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import apiClient from "@/lib/api"; // Import our API client
 
 export default function Register() {
-  const [formData, setFormData] = useState({
+  // State for storing registration form data
+  const [formData, setFormData] = useState<{
+    fullName: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    role: string;
+    companyName: string;
+  }>({
     fullName: "",
     email: "",
     password: "",
@@ -37,19 +44,35 @@ export default function Register() {
     role: "admin",
     companyName: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  // State to toggle password visibility
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  // State to toggle confirm password visibility
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  // State to indicate loading status during registration
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  // Toast notification handler for user feedback
   const { toast } = useToast();
-  const navigate = useNavigate(); // Hook for redirection
+  // React Router hook for navigation after registration
+  const navigate = useNavigate();
 
-  const handleInputChange = (field: string, value: string) => {
+  /**
+   * Handles input changes for the registration form fields.
+   * Updates the corresponding field in the formData state.
+   * @param field - The field name to update
+   * @param value - The new value for the field
+   */
+  const handleInputChange = (field: string, value: string): void => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  /**
+   * Handles the registration form submission.
+   * Validates password confirmation, prepares payload, and sends registration request to backend.
+   * Displays toast notifications for success or error feedback.
+   * @param e - React form event
+   */
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Password mismatch",
@@ -58,14 +81,11 @@ export default function Register() {
       });
       return;
     }
-
     setIsLoading(true);
-    
     // Split full name into first and last name for the API
     const nameParts = formData.fullName.split(' ');
     const firstName = nameParts[0];
     const lastName = nameParts.slice(1).join(' ');
-
     const payload = {
       first_name: firstName,
       last_name: lastName || firstName, // Handle single-name entries
@@ -74,7 +94,6 @@ export default function Register() {
       re_password: formData.confirmPassword,
       role: formData.role.toUpperCase(), // API expects "ADMIN"
     };
-
     try {
       await apiClient.post("/auth/users/", payload);
       toast({
@@ -85,14 +104,12 @@ export default function Register() {
       navigate("/login");
     } catch (error: any) {
       const errorData = error.response?.data;
-      let errorMessage = "An unknown error occurred.";
-
+      let errorMessage: string = "An unknown error occurred.";
       // Extract more specific error messages from the backend if available
       if (errorData) {
         if (errorData.email) errorMessage = `Email: ${errorData.email[0]}`;
         else if (errorData.password) errorMessage = `Password: ${errorData.password[0]}`;
       }
-      
       toast({
         title: "Registration Failed",
         description: errorMessage,

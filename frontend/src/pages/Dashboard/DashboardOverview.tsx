@@ -1,3 +1,21 @@
+/*
+  DashboardOverview.tsx - MillDash Frontend Dashboard Overview Component
+
+  This file implements the dashboard overview section for the MillDash application using React and TypeScript. It provides a summary of key metrics and machine statuses, integrating with backend APIs and custom hooks for optimized data fetching. The component displays quick stats, machine status, and maintenance insights, using custom UI components for a consistent and visually appealing layout.
+
+  Key Features:
+  - Uses React functional component with props for machine filtering.
+  - Fetches quick stats, machine summaries, and maintenance insights using React Query and custom hooks.
+  - Displays loading skeletons while data is being fetched.
+  - Renders quick stats cards for total machines, active machines, open tickets, and average utilization.
+  - Shows machine status overview with icons and color coding for operational state and utilization.
+  - Presents maintenance insights including critical tickets, average resolution time, and tickets completed today.
+  - Utilizes custom UI components (Card, CardHeader, CardContent, CardTitle, CardDescription) and Lucide icons.
+  - Responsive layout using Tailwind CSS grid utilities.
+
+  This component is a key part of the dashboard, providing users with a high-level summary of manufacturing operations and maintenance health.
+*/
+
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getQuickStats, getMachineSummary } from '@/lib/api';
@@ -11,22 +29,34 @@ interface QuickStatsProps {
 }
 
 const DashboardOverview: React.FC<QuickStatsProps> = ({ machineIds }) => {
-  // Fetch optimized dashboard data
+  /**
+   * Fetches quick stats for the dashboard (total machines, active machines, avg utilization).
+   * Uses React Query for caching and refetching every 30 seconds.
+   */
   const { data: quickStats, isLoading: statsLoading } = useQuery({
     queryKey: ['quickStats'],
     queryFn: getQuickStats,
     refetchInterval: 30 * 1000, // Refresh every 30 seconds
   });
 
+  /**
+   * Fetches machine summary for the dashboard (status, utilization, etc.).
+   * Uses React Query for caching and refetching every 30 seconds.
+   */
   const { data: machineSummary, isLoading: machineLoading } = useQuery({
     queryKey: ['machineSummary', machineIds],
     queryFn: () => getMachineSummary(machineIds),
     refetchInterval: 30 * 1000,
   });
 
+  /**
+   * Fetches maintenance ticket insights using a custom hook.
+   * Returns open, critical, resolved tickets and average resolution time.
+   */
   const { insights: maintenanceOverview, isLoading: maintenanceLoading } = useTicketInsights();
 
-  const isLoading = statsLoading || machineLoading || maintenanceLoading;
+  // Combined loading state for all queries
+  const isLoading: boolean = statsLoading || machineLoading || maintenanceLoading;
 
   if (isLoading) {
     return (
@@ -46,8 +76,11 @@ const DashboardOverview: React.FC<QuickStatsProps> = ({ machineIds }) => {
     );
   }
 
-  // Calculate status colors
-  const getStatusColor = (status: string) => {
+  /**
+   * Returns a Tailwind color class for a given machine status string.
+   * @param status - Machine status string
+   */
+  const getStatusColor = (status: string): string => {
     switch (status?.toLowerCase()) {
       case 'running':
       case 'operational':
@@ -64,7 +97,11 @@ const DashboardOverview: React.FC<QuickStatsProps> = ({ machineIds }) => {
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  /**
+   * Returns a Lucide icon component for a given machine status string.
+   * @param status - Machine status string
+   */
+  const getStatusIcon = (status: string): JSX.Element => {
     switch (status?.toLowerCase()) {
       case 'running':
       case 'operational':
