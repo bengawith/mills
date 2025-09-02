@@ -8,8 +8,8 @@ import traceback
 
 # Import the routers
 from routers import (
-    auth, data, maintenance, inventory, production, events, 
-    fourjaw_proxy, dashboard, database, dashboard_optimized, 
+    auth, maintenance, inventory, events, 
+    fourjaw_proxy, dashboard_optimized, 
     websocket, analytics_optimized
 )
 from const.config import config
@@ -62,16 +62,12 @@ app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 # --- Include Routers ---
 # This adds all the endpoints from your router files to the main app
 app.include_router(auth.router, prefix="/auth")
-app.include_router(data.router)
-app.include_router(production.router)
 app.include_router(maintenance.router)
 app.include_router(inventory.router)
 app.include_router(events.router)
 app.include_router(fourjaw_proxy.router)
-app.include_router(dashboard.router)
 app.include_router(dashboard_optimized.router)
 app.include_router(analytics_optimized.router)  # Ultra-optimized analytics endpoints
-app.include_router(database.router)
 app.include_router(websocket.router, prefix="/api/v1")  # WebSocket endpoints for real-time updates
 
 # --- Database Setup ---

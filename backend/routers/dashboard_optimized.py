@@ -12,9 +12,10 @@ import logging
 
 from database import get_db
 from security import get_current_active_user
-from services.production_service import ProductionService, MachineService
+from services.production_service import MachineService, ProductionService
 from services.maintenance_service import MaintenanceService
 from const.config import config
+import schemas
 import database_models
 
 logger = logging.getLogger(__name__)
@@ -26,8 +27,9 @@ router = APIRouter(
 )
 
 # Initialize services
-production_service = ProductionService()
+
 machine_service = MachineService()
+production_service = ProductionService()
 maintenance_service = MaintenanceService()
 
 @router.get("/analytical-data-optimized")
@@ -164,49 +166,6 @@ def get_machine_summary(
         logger.error(f"Error in machine summary endpoint: {str(e)}")
         raise
 
-@router.get("/production-metrics")
-def get_production_metrics(
-    start_time: datetime,
-    end_time: datetime,
-    machine_ids: Optional[List[str]] = Query(None),
-    db: Session = Depends(get_db)
-):
-    """
-    Get aggregated production metrics using optimized queries.
-    """
-    try:
-        if machine_ids is None:
-            machine_ids = config.MACHINE_IDS
-        
-        metrics = {}
-        
-        for machine_id in machine_ids:
-            # Get production summary
-            summary = production_service.get_production_summary(
-                db, machine_id, start_time, end_time
-            )
-            
-            # Get utilization (simplified calculation)
-            total_period_hours = (end_time - start_time).total_seconds() / 3600
-            cut_frequency = summary.get("cut_frequency", 0)
-            
-            # Estimate utilization based on cut frequency
-            # Assume normal operation is about 60 cuts per hour
-            expected_cuts_per_hour = 60
-            utilization = min((cut_frequency / expected_cuts_per_hour) * 100, 100) if cut_frequency > 0 else 0
-            
-            metrics[machine_id] = {
-                **summary,
-                "utilization_percentage": utilization,
-                "period_hours": total_period_hours
-            }
-        
-        return metrics
-        
-    except Exception as e:
-        logger.error(f"Error in production metrics endpoint: {str(e)}")
-        raise
-
 @router.get("/maintenance-overview")
 def get_maintenance_overview(
     machine_ids: Optional[List[str]] = Query(None),
@@ -294,3 +253,22 @@ def get_quick_stats(db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Error in quick stats endpoint: {str(e)}")
         raise
+
+@router.get("/machines", response_model=List[schemas.Machine])
+async def get_machines():
+    """Returns a list of all available machines with their IDs and names."""
+    return [{"id": id, "name": name} for id, name in config.MACHINE_ID_MAP.items()]
+
+@router.get("/shifts", response_model=List[str])
+async def get_shifts():
+    """
+    Returns a list of all available shifts.
+    """
+    return ["DAY", "NIGHT"]
+
+@router.get("/days-of-week", response_model=List[str])
+async def get_days_of_week():
+    """
+    Returns a list of all available days of the week.
+    """
+    return ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]

@@ -159,7 +159,7 @@ export const getDowntimeAnalysisData = async (rawParams: DowntimeAnalysisParams)
 };
 
 export const getMachines = async () => {
-  const response = await apiClient.get("/api/v1/machines");
+  const response = await apiClient.get("/api/v1/dashboard/machines");
   return response.data;
 };
 
