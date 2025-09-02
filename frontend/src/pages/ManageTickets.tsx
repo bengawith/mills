@@ -1,3 +1,19 @@
+/*
+  ManageTickets.tsx - MillDash Frontend Maintenance Ticket Management Page
+
+  This file implements the maintenance ticket management interface for MillDash using React and TypeScript. It allows users to view details of a specific maintenance ticket and update its status. The component integrates with the backend API using React Query for efficient data fetching and mutation, and provides user feedback via toast notifications.
+
+  Key Features:
+  - Uses React functional component with hooks for state management (selected ticket ID, new status).
+  - Integrates React Query for fetching ticket details and updating ticket status.
+  - Displays ticket details including machine, category, description, status, and timestamps.
+  - Provides a dropdown for status updates and a button to submit changes.
+  - Handles loading and error states gracefully.
+  - Utilizes custom UI components for consistent styling (Card, Input, Button, Label, Select).
+  - Responsive and user-friendly layout using Tailwind CSS utility classes.
+  - All functions and state variables are explicitly typed for type safety.
+*/
+
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/lib/api';
@@ -25,6 +41,7 @@ const ManageTickets = () => {
   const [selectedTicketId, setSelectedTicketId] = useState<string>('');
   const [newStatus, setNewStatus] = useState<string>('');
 
+  // Query to fetch ticket details based on selectedTicketId
   const { data: ticket, isLoading, error } = useQuery<MaintenanceTicket>({
     queryKey: ['maintenanceTicket', selectedTicketId],
     queryFn: async () => {
@@ -35,12 +52,19 @@ const ManageTickets = () => {
     enabled: !!selectedTicketId, // Only run query if selectedTicketId is available
   });
 
+  // Mutation to update the status of a ticket
+  /**
+   * Mutation for updating the status of a maintenance ticket.
+   * On success, invalidates relevant queries and shows a success toast.
+   * On error, displays an error toast with details.
+   */
   const updateTicketStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+    mutationFn: async ({ id, status }: { id: number; status: string }): Promise<any> => {
       const response = await apiClient.put(`/api/v1/tickets/${id}`, null, { params: { status } });
       return response.data;
     },
     onSuccess: () => {
+      // Invalidate queries to refetch ticket and tickets list
       queryClient.invalidateQueries({ queryKey: ['maintenanceTicket', selectedTicketId] });
       queryClient.invalidateQueries({ queryKey: ['maintenanceTickets'] }); // Invalidate list as well
       toast({
@@ -57,7 +81,12 @@ const ManageTickets = () => {
     },
   });
 
-  const handleStatusUpdate = () => {
+  // Handler to update ticket status
+  /**
+   * Handles the status update action when the user clicks the update button.
+   * Triggers the mutation to update the ticket status in the backend.
+   */
+  const handleStatusUpdate = (): void => {
     if (ticket && newStatus) {
       updateTicketStatusMutation.mutate({ id: ticket.id, status: newStatus });
     }

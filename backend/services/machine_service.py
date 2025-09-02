@@ -16,9 +16,16 @@ from const.config import config
 logger = logging.getLogger(__name__)
 
 class MachineDataService(BaseService):
-    """Service class for machine data operations and analytics."""
+    """
+    Service class for machine data operations and analytics.
+    Provides methods for fetching, processing, and analyzing machine data using pandas and SQLAlchemy.
+    Inherits from BaseService for common CRUD operations.
+    """
     
-    def __init__(self):
+    def __init__(self) -> None:
+        """
+        Initialize MachineDataService with HistoricalMachineData as the model and a DataProcessor instance.
+        """
         super().__init__(HistoricalMachineData)
         self.data_processor = DataProcessor()
     
@@ -31,7 +38,20 @@ class MachineDataService(BaseService):
         shift: Optional[str] = None,
         day_of_week: Optional[str] = None
     ) -> pd.DataFrame:
-        """Get machine data with filtering options."""
+        """
+        Get machine data with filtering options.
+        
+        Args:
+            db (Session): SQLAlchemy database session.
+            start_time (Optional[datetime]): Start of time range (UTC).
+            end_time (Optional[datetime]): End of time range (UTC).
+            machine_ids (Optional[List[str]]): List of machine IDs to filter.
+            shift (Optional[str]): Shift name to filter.
+            day_of_week (Optional[str]): Day of week to filter.
+        
+        Returns:
+            pd.DataFrame: Processed machine data as a pandas DataFrame.
+        """
         try:
             # Fetch raw data from DB using data processor
             df = self.data_processor.get_data_from_db(db, start_time, end_time, machine_ids)
@@ -52,13 +72,24 @@ class MachineDataService(BaseService):
             raise
     
     def calculate_oee(
-        self, 
-        db: Session, 
+        self,
+        db: Session,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
         machine_ids: Optional[List[str]] = None
     ) -> Dict[str, Any]:
-        """Calculate Overall Equipment Effectiveness (OEE)."""
+        """
+        Calculate Overall Equipment Effectiveness (OEE).
+        
+        Args:
+            db (Session): SQLAlchemy database session.
+            start_time (Optional[datetime]): Start of time range (UTC).
+            end_time (Optional[datetime]): End of time range (UTC).
+            machine_ids (Optional[List[str]]): List of machine IDs to filter.
+        
+        Returns:
+            Dict[str, Any]: Dictionary with OEE metrics.
+        """
         try:
             df = self.get_machine_data(db, start_time, end_time, machine_ids)
             return self.data_processor.calculate_oee(df)
@@ -67,37 +98,65 @@ class MachineDataService(BaseService):
             raise
     
     def get_utilization_data(
-        self, 
-        db: Session, 
+        self,
+        db: Session,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
         machine_ids: Optional[List[str]] = None
     ) -> Dict[str, Any]:
-        """Get machine utilization breakdown."""
+        """
+        Get machine utilization breakdown.
+        
+        Args:
+            db (Session): SQLAlchemy database session.
+            start_time (Optional[datetime]): Start of time range (UTC).
+            end_time (Optional[datetime]): End of time range (UTC).
+            machine_ids (Optional[List[str]]): List of machine IDs to filter.
+        
+        Returns:
+            Dict[str, Any]: Dictionary with utilization breakdown.
+        """
         try:
             df = self.get_machine_data(db, start_time, end_time, machine_ids)
-            return self.data_processor.calculate_utilization_breakdown(df)
+            return self.data_processor.calculate_utilization(df)
         except Exception as e:
             logger.error(f"Error calculating utilization: {str(e)}")
             raise
     
     def get_downtime_analysis(
-        self, 
-        db: Session, 
+        self,
+        db: Session,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
         machine_ids: Optional[List[str]] = None
-    ) -> List[Dict[str, Any]]:
-        """Get downtime analysis data."""
+    ) -> Dict[str, Any]:
+        """
+        Get downtime analysis data.
+        
+        Args:
+            db (Session): SQLAlchemy database session.
+            start_time (Optional[datetime]): Start of time range (UTC).
+            end_time (Optional[datetime]): End of time range (UTC).
+            machine_ids (Optional[List[str]]): List of machine IDs to filter.
+        
+        Returns:
+            Dict[str, Any]: Dictionary with downtime analysis results.
+        """
         try:
             df = self.get_machine_data(db, start_time, end_time, machine_ids)
-            return self.data_processor.calculate_downtime_analysis(df)
+            # Note: calculate_downtime_analysis may not exist, use analyze_downtime from DataProcessor.
+            return self.data_processor.analyze_downtime(df)
         except Exception as e:
             logger.error(f"Error calculating downtime analysis: {str(e)}")
             raise
     
     def get_machines_list(self) -> List[Dict[str, str]]:
-        """Get list of available machines."""
+        """
+        Get list of available machines.
+        
+        Returns:
+            List[Dict[str, str]]: List of machine info dictionaries.
+        """
         try:
             return [
                 {"id": machine_id, "name": name} 

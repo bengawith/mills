@@ -40,10 +40,24 @@ def get_analytical_data_optimized(
     shift: Optional[str] = Query(None),
     day_of_week: Optional[str] = Query(None),
     db: Session = Depends(get_db)
-):
+) -> List[Dict[str, Any]]:
     """
     Optimized version of analytical data endpoint using direct SQL queries
     instead of heavy pandas processing.
+    
+    Args:
+        start_time (datetime): Start of time range (UTC).
+        end_time (datetime): End of time range (UTC).
+        machine_ids (Optional[List[str]]): List of machine IDs to filter.
+        shift (Optional[str]): Shift name to filter.
+        day_of_week (Optional[str]): Day of week to filter.
+        db (Session): SQLAlchemy database session (injected).
+    
+    Returns:
+        List[Dict[str, Any]]: List of analytical data records.
+    
+    Raises:
+        HTTPException: If query fails.
     """
     try:
         if machine_ids is None:
@@ -129,9 +143,19 @@ def get_analytical_data_optimized(
 def get_machine_summary(
     machine_ids: Optional[List[str]] = Query(None),
     db: Session = Depends(get_db)
-):
+) -> List[Dict[str, Any]]:
     """
     Get machine status summary using optimized service layer.
+    
+    Args:
+        machine_ids (Optional[List[str]]): List of machine IDs to summarize.
+        db (Session): SQLAlchemy database session (injected).
+    
+    Returns:
+        List[Dict[str, Any]]: List of machine summary records.
+    
+    Raises:
+        HTTPException: If query fails.
     """
     try:
         if machine_ids is None:
@@ -170,9 +194,19 @@ def get_machine_summary(
 def get_maintenance_overview(
     machine_ids: Optional[List[str]] = Query(None),
     db: Session = Depends(get_db)
-):
+) -> Dict[str, Any]:
     """
     Get maintenance overview using service layer.
+    
+    Args:
+        machine_ids (Optional[List[str]]): List of machine IDs to summarize.
+        db (Session): SQLAlchemy database session (injected).
+    
+    Returns:
+        Dict[str, Any]: Dictionary with overall stats and machine breakdown.
+    
+    Raises:
+        HTTPException: If query fails.
     """
     try:
         if machine_ids is None:
@@ -204,9 +238,18 @@ def get_maintenance_overview(
         raise
 
 @router.get("/quick-stats")
-def get_quick_stats(db: Session = Depends(get_db)):
+def get_quick_stats(db: Session = Depends(get_db)) -> Dict[str, Any]:
     """
     Get quick dashboard statistics using efficient queries.
+    
+    Args:
+        db (Session): SQLAlchemy database session (injected).
+    
+    Returns:
+        Dict[str, Any]: Dictionary with quick dashboard stats.
+    
+    Raises:
+        HTTPException: If query fails.
     """
     try:
         # Count queries are optimized by default

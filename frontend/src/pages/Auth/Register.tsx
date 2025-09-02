@@ -1,3 +1,22 @@
+/*
+  Register.tsx - MillDash Frontend User Registration Page
+
+  This file implements the registration page for the MillDash application using React and TypeScript. It provides a user interface for new users to create an account, handling form validation, password confirmation, and backend integration via the API client. The component is designed for accessibility and user experience, featuring password visibility toggling, error handling, and navigation to login and legal pages.
+
+  Key Features:
+  - Uses React functional component with hooks for state management (form data, loading, password visibility).
+  - Validates password confirmation before submitting registration.
+  - Integrates with backend API to create new user accounts.
+  - Displays toast notifications for success and error feedback.
+  - Utilizes custom UI components for consistent styling (Button, Input, Label, Card, etc.).
+  - Provides navigation to login, terms, and privacy routes using React Router.
+  - Implements password visibility toggle for improved UX.
+  - Handles backend error responses and displays user-friendly messages.
+  - Responsive and visually appealing layout using Tailwind CSS utility classes.
+
+  This component is a core part of the onboarding flow, ensuring secure and user-friendly account creation for the MillDash platform.
+*/
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 import { Button } from "@/components/ui/button";

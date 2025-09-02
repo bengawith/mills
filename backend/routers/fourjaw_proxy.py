@@ -17,10 +17,18 @@ def get_recent_downtimes_for_machine(
     machine_id: str,
     start_time: dt.datetime,
     end_time: dt.datetime
-):
+) -> List[dict]:
     """
     Fetches recent downtime events directly from the FourJaw API for a specific machine.
     This is used to populate the dropdown when logging a new maintenance ticket.
+
+    Args:
+        machine_id (str): Machine ID to query.
+        start_time (dt.datetime): Start of time window (UTC).
+        end_time (dt.datetime): End of time window (UTC).
+
+    Returns:
+        List[dict]: List of downtime event records.
     """
     api = FourJaw()
     try:

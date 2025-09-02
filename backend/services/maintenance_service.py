@@ -16,13 +16,30 @@ import schemas
 logger = logging.getLogger(__name__)
 
 class MaintenanceService(BaseService):
-    """Service class for maintenance ticket operations."""
-    
-    def __init__(self):
+    """
+    Service class for maintenance ticket operations.
+    Provides methods for creating tickets, dispatching events, and managing maintenance records.
+    Inherits from BaseService for common CRUD operations.
+    """
+    def __init__(self) -> None:
+        """
+        Initialize MaintenanceService with MaintenanceTicket as the model.
+        """
         super().__init__(MaintenanceTicket)
     
-    def create_ticket(self, db: Session, ticket_data: schemas.MaintenanceTicketCreate) -> MaintenanceTicket:
-        """Create a new maintenance ticket."""
+    def create_ticket(
+        self,
+        db: Session,
+        ticket_data: schemas.MaintenanceTicketCreate
+    ) -> MaintenanceTicket:
+        """
+        Create a new maintenance ticket and dispatch related events.
+        Args:
+            db (Session): SQLAlchemy database session.
+            ticket_data (schemas.MaintenanceTicketCreate): Data for the new ticket.
+        Returns:
+            MaintenanceTicket: The created maintenance ticket record.
+        """
         try:
             ticket_dict = {
                 "incident_category": ticket_data.incident_category,
@@ -64,16 +81,38 @@ class MaintenanceService(BaseService):
             logger.error(f"Error creating maintenance ticket: {str(e)}")
             raise
     
-    def get_tickets_by_status(self, db: Session, status: str) -> List[MaintenanceTicket]:
-        """Get tickets by status."""
+    def get_tickets_by_status(
+        self,
+        db: Session,
+        status: str
+    ) -> List[MaintenanceTicket]:
+        """
+        Get tickets by status.
+        Args:
+            db (Session): SQLAlchemy database session.
+            status (str): Status to filter tickets by.
+        Returns:
+            List[MaintenanceTicket]: List of tickets with the given status.
+        """
         try:
             return db.query(MaintenanceTicket).filter(MaintenanceTicket.status == status).all()
         except SQLAlchemyError as e:
             logger.error(f"Error fetching tickets by status {status}: {str(e)}")
             raise
     
-    def get_tickets_by_machine(self, db: Session, machine_id: str) -> List[MaintenanceTicket]:
-        """Get tickets for a specific machine."""
+    def get_tickets_by_machine(
+        self,
+        db: Session,
+        machine_id: str
+    ) -> List[MaintenanceTicket]:
+        """
+        Get tickets for a specific machine.
+        Args:
+            db (Session): SQLAlchemy database session.
+            machine_id (str): Machine ID to filter tickets by.
+        Returns:
+            List[MaintenanceTicket]: List of tickets for the given machine.
+        """
         try:
             return db.query(MaintenanceTicket)\
                      .filter(MaintenanceTicket.machine_id == machine_id)\
@@ -83,8 +122,21 @@ class MaintenanceService(BaseService):
             logger.error(f"Error fetching tickets for machine {machine_id}: {str(e)}")
             raise
     
-    def update_ticket_status(self, db: Session, ticket_id: int, status: str) -> Optional[MaintenanceTicket]:
-        """Update ticket status."""
+    def update_ticket_status(
+        self,
+        db: Session,
+        ticket_id: int,
+        status: str
+    ) -> Optional[MaintenanceTicket]:
+        """
+        Update ticket status and dispatch related events if status changes.
+        Args:
+            db (Session): SQLAlchemy database session.
+            ticket_id (int): ID of the ticket to update.
+            status (str): New status for the ticket.
+        Returns:
+            Optional[MaintenanceTicket]: The updated ticket, or None if not found.
+        """
         try:
             # Get the ticket to find the old status and machine ID
             ticket = self.get_by_id(db, ticket_id)
@@ -117,8 +169,23 @@ class MaintenanceService(BaseService):
             logger.error(f"Error updating ticket {ticket_id} status: {str(e)}")
             raise
     
-    def add_work_note(self, db: Session, ticket_id: int, note: str, author: str) -> TicketWorkNote:
-        """Add a work note to a ticket."""
+    def add_work_note(
+        self,
+        db: Session,
+        ticket_id: int,
+        note: str,
+        author: str
+    ) -> TicketWorkNote:
+        """
+        Add a work note to a ticket.
+        Args:
+            db (Session): SQLAlchemy database session.
+            ticket_id (int): ID of the ticket to add the note to.
+            note (str): The work note text.
+            author (str): Author of the note.
+        Returns:
+            TicketWorkNote: The created work note record.
+        """
         try:
             work_note = TicketWorkNote(
                 ticket_id=ticket_id,

@@ -24,12 +24,25 @@ class DataProcessorConfig:
 
 
 class DataProcessor:
-    def __init__(self, config: DataProcessorConfig = DataProcessorConfig()):
+    """
+    Handles data extraction, transformation, and analytics for FourJaw machine data.
+    Provides methods to fetch data from the database, process it for analytics, and calculate metrics like OEE and utilization.
+    """
+    def __init__(self, config: DataProcessorConfig = DataProcessorConfig()) -> None:
+        """
+        Initialize the DataProcessor with a configuration object.
+        Args:
+            config (DataProcessorConfig): Configuration for data processing (default: DataProcessorConfig()).
+        """
         self.config = config
 
-    def get_shift_info(self, timestamp: pd.Timestamp) -> tuple:
+    def get_shift_info(self, timestamp: pd.Timestamp) -> tuple[str, str]:
         """
         Determines the shift and day of the week for a given timestamp.
+        Args:
+            timestamp (pd.Timestamp): The timestamp to analyze.
+        Returns:
+            tuple[str, str]: (shift_name, day_of_week)
         """
         day_name = timestamp.strftime('%A')
         current_time = timestamp.time()
@@ -42,6 +55,16 @@ class DataProcessor:
         return shift_name, day_name.upper()
 
     def get_data_from_db(self, db: Session, start_time: Optional[dt.datetime] = None, end_time: Optional[dt.datetime] = None, machine_ids: Optional[List[str]] = None) -> pd.DataFrame:
+        """
+        Query the database for machine analytics data within a time range for specified machines.
+        Args:
+            db (Session): SQLAlchemy database session.
+            start_time (Optional[datetime]): Start of time range (UTC).
+            end_time (Optional[datetime]): End of time range (UTC).
+            machine_ids (Optional[List[str]]): List of machine IDs to filter.
+        Returns:
+            pd.DataFrame: DataFrame containing analytics data for the specified range and machines.
+        """
         logger.info(f"Fetching data from DB with start_time={start_time}, end_time={end_time}, machine_ids={machine_ids}")
         query = db.query(HistoricalMachineData)
 
@@ -73,6 +96,15 @@ class DataProcessor:
         return df
 
     def process_data(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Processes raw analytics data for further analysis.
+        Adds machine name, ensures timestamps are datetime, calculates durations, filters out non-shift entries,
+        and adds shift/day/utilisation category columns.
+        Args:
+            df (pd.DataFrame): Raw analytics data.
+        Returns:
+            pd.DataFrame: Processed analytics data ready for analysis.
+        """
         logger.info(f"Processing data. Input DataFrame shape: {df.shape}")
         if df.empty:
             logger.info("Input DataFrame is empty in process_data.")
@@ -104,7 +136,15 @@ class DataProcessor:
         logger.info(f"DataFrame after process_data: {df.head()}")
         return df
 
-    def calculate_oee(self, df: pd.DataFrame) -> dict:
+    def calculate_oee(self, df: pd.DataFrame) -> dict[str, float]:
+        """
+        Calculates Overall Equipment Effectiveness (OEE) metrics from processed analytics data.
+        OEE = Availability x Performance x Quality. Performance and Quality are placeholders.
+        Args:
+            df (pd.DataFrame): Processed analytics data.
+        Returns:
+            dict[str, float]: Dictionary with OEE, availability, performance, and quality percentages.
+        """
         logger.info(f"Calculating OEE. Input DataFrame shape: {df.shape}")
         try:
             if df.empty:
@@ -152,7 +192,14 @@ class DataProcessor:
             logger.exception(f"Error in calculate_oee: {e}")
             raise # Re-raise the exception after logging
 
-    def calculate_utilization(self, df: pd.DataFrame) -> dict:
+    def calculate_utilization(self, df: pd.DataFrame) -> dict[str, float]:
+        """
+        Calculates utilization metrics from processed analytics data.
+        Args:
+            df (pd.DataFrame): Processed analytics data.
+        Returns:
+            dict[str, float]: Dictionary with total time, productive/unproductive/uptime/downtime seconds, and utilization percentage.
+        """
         logger.info(f"Calculating utilization. Input DataFrame shape: {df.shape}")
         try:
             if df.empty:
@@ -179,7 +226,16 @@ class DataProcessor:
             logger.exception(f"Error in calculate_utilization: {e}")
             raise # Re-raise the exception after logging
 
-    def analyze_downtime(self, df: pd.DataFrame, excessive_downtime_threshold_seconds: int = 3600) -> dict:
+    def analyze_downtime(self, df: pd.DataFrame, excessive_downtime_threshold_seconds: int = 3600) -> dict[str, object]:
+        """
+        Analyzes downtime events in processed analytics data.
+        Identifies excessive downtimes and aggregates recurring downtime reasons.
+        Args:
+            df (pd.DataFrame): Processed analytics data.
+            excessive_downtime_threshold_seconds (int): Threshold for excessive downtime (default: 3600 seconds).
+        Returns:
+            dict[str, object]: Dictionary with excessive downtimes and recurring downtime reasons.
+        """
         logger.info(f"Analyzing downtime. Input DataFrame shape: {df.shape}")
         try:
             if df.empty:
@@ -222,7 +278,10 @@ if __name__ == "__main__":
         try:
             # Use get_data_from_db and process_data
             with SessionLocal() as db:
-                df = processor.get_data_from_db(db, start_iso, end_iso, config.MACHINE_IDS)
+                # Convert ISO strings to datetime if necessary
+                start_dt = dt.datetime.fromisoformat(start_iso.replace('Z', '+00:00')) if isinstance(start_iso, str) else start_iso
+                end_dt = dt.datetime.fromisoformat(end_iso.replace('Z', '+00:00')) if isinstance(end_iso, str) else end_iso
+                df = processor.get_data_from_db(db, start_dt, end_dt, config.MACHINE_IDS)
                 processed_data_df = processor.process_data(df)
 
             if not processed_data_df.empty:

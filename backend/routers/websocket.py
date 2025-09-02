@@ -14,12 +14,16 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 @router.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket, client_id: Optional[str] = Query(None)):
+async def websocket_endpoint(websocket: WebSocket, client_id: Optional[str] = Query(None)) -> None:
     """
     Main WebSocket endpoint for real-time communication.
     
-    Query Parameters:
-        client_id: Optional client identifier
+    Args:
+        websocket (WebSocket): The WebSocket connection.
+        client_id (Optional[str]): Optional client identifier from query.
+        
+    Returns:
+        None
     """
     await manager.connect(websocket, client_id)
     
@@ -51,13 +55,16 @@ async def websocket_endpoint(websocket: WebSocket, client_id: Optional[str] = Qu
         logger.error(f"WebSocket error: {e}")
         manager.disconnect(websocket)
 
-async def handle_client_message(websocket: WebSocket, message: dict):
+async def handle_client_message(websocket: WebSocket, message: dict) -> None:
     """
     Handle incoming messages from WebSocket clients.
     
     Args:
-        websocket: The WebSocket connection
-        message: Parsed JSON message from client
+        websocket (WebSocket): The WebSocket connection.
+        message (dict): Parsed JSON message from client.
+        
+    Returns:
+        None
     """
     message_type = message.get("type")
     

@@ -1,3 +1,9 @@
+/**
+ * HomePage component.
+ * Provides a landing page for Mill Dash with feature highlights and a call-to-action.
+ * Uses Card components to showcase platform features: monitoring, maintenance, security, and analytics.
+ */
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Gauge, Settings, Lock, Activity } from "lucide-react"; // Updated icons

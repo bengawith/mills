@@ -20,9 +20,18 @@ def get_cut_events(
     end_time: dt.datetime,
     machine_ids: List[str] = Query(...),
     db: Session = Depends(get_db)
-):
+) -> List[schemas.CutEvent]:
     """
     Retrieves a list of cut events for given machines within a time window.
+
+    Args:
+        start_time (dt.datetime): Start of time window (UTC).
+        end_time (dt.datetime): End of time window (UTC).
+        machine_ids (List[str]): List of machine IDs to filter.
+        db (Session): SQLAlchemy database session (injected).
+
+    Returns:
+        List[schemas.CutEvent]: List of cut event records.
     """
     events = db.query(database_models.CutEvent).filter(
         database_models.CutEvent.machine_id.in_(machine_ids),

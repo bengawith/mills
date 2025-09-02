@@ -1,3 +1,21 @@
+/*
+  Login.tsx - MillDash Frontend Authentication Page
+
+  This file implements the login page for the MillDash application using React and TypeScript. It provides a user interface for users to sign in to their accounts, handling authentication via the AuthContext and displaying feedback using a toast notification system. The component is designed with accessibility and user experience in mind, featuring password visibility toggling, error handling, and navigation to registration and password recovery pages.
+
+  Key Features:
+  - Uses React functional component with hooks for state management (email, password, loading, password visibility).
+  - Integrates with AuthContext to perform authentication and handle login logic.
+  - Displays toast notifications for success and error feedback.
+  - Utilizes custom UI components for consistent styling (Button, Input, Label, Card, etc.).
+  - Provides navigation to registration and password recovery routes using React Router.
+  - Implements password visibility toggle for improved UX.
+  - Handles backend error responses and displays user-friendly messages.
+  - Responsive and visually appealing layout using Tailwind CSS utility classes.
+
+  This component is a core part of the authentication flow, ensuring secure and user-friendly access to the MillDash platform.
+*/
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 import { Button } from "@/components/ui/button";
@@ -10,32 +28,42 @@ import { useAuth } from "@/contexts/AuthContext"; // Import the useAuth hook
 
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  // State for storing the user's email input
+  const [email, setEmail] = useState<string>("");
+  // State for storing the user's password input
+  const [password, setPassword] = useState<string>("");
+  // State to toggle password visibility
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  // State to indicate loading status during login
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  // Toast notification handler for user feedback
   const { toast } = useToast();
-  const { login } = useAuth(); // Get the login function from our context
-  const navigate = useNavigate(); // Hook for redirection
+  // AuthContext hook provides login function
+  const { login } = useAuth();
+  // React Router hook for navigation after login
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  /**
+   * Handles the login form submission.
+   * Prevents default form behavior, sets loading state, and attempts authentication.
+   * Displays toast notifications for success or error feedback.
+   * @param e - React form event
+   */
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setIsLoading(true);
-    
     try {
-      // Use the login function from AuthContext
+      // Attempt login using AuthContext
       await login({ email, password });
-
       toast({
         title: "Login successful",
         description: "Welcome back!",
       });
-      
     } catch (error: any) {
+      // Handle errors from backend or network
       console.error("Login failed:", error);
       const errorData = error.response?.data;
-      let errorMessage = "Please check your email and password."; // Default message
-
+      let errorMessage: string = "Please check your email and password."; // Default message
       if (errorData) {
         if (errorData.detail) {
           errorMessage = errorData.detail;
@@ -47,7 +75,6 @@ export default function Login() {
         // Log the full error response for debugging
         console.error("Backend Error Response:", error.response);
       }
-
       toast({
         title: "Login Failed",
         description: errorMessage,
@@ -59,10 +86,12 @@ export default function Login() {
   };
   
   return (
+    // Main container centers the login card and applies background gradient
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-primary-glow/5 px-4">
       <div className="w-full max-w-md space-y-8">
-        {/* Logo and Header */}
+        {/* Logo and Header Section */}
         <div className="text-center">
+          {/* Factory icon inside a styled container */}
           <div className="mx-auto w-16 h-16 bg-gradient-to-br from-primary to-primary-glow rounded-2xl flex items-center justify-center mb-4 shadow-lg">
             <Factory className="w-8 h-8 text-primary-foreground" />
           </div>
@@ -70,7 +99,7 @@ export default function Login() {
           <p className="text-muted-foreground mt-2">Sign in to your MillDash account</p>
         </div>
 
-        {/* Login Form (No visual changes here) */}
+        {/* Login Form Card */}
         <Card className="shadow-xl border-0 bg-card/80 backdrop-blur">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Sign in</CardTitle>
@@ -78,8 +107,10 @@ export default function Login() {
               Enter your credentials to access your account
             </CardDescription>
           </CardHeader>
+          {/* Form for user login */}
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
+              {/* Email input field */}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -87,11 +118,12 @@ export default function Login() {
                   type="email"
                   placeholder="john@company.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                   required
                   className="transition-all focus:ring-2 focus:ring-primary/20"
                 />
               </div>
+              {/* Password input field with visibility toggle */}
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
@@ -100,10 +132,11 @@ export default function Login() {
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                     required
                     className="pr-10 transition-all focus:ring-2 focus:ring-primary/20"
                   />
+                  {/* Button to toggle password visibility */}
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -113,6 +146,7 @@ export default function Login() {
                   </button>
                 </div>
               </div>
+              {/* Remember me checkbox and forgot password link */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <input
@@ -128,6 +162,7 @@ export default function Login() {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
+              {/* Submit button for login */}
               <Button 
                 type="submit" 
                 className="w-full bg-gradient-to-r from-primary to-primary-glow hover:from-primary/90 hover:to-primary-glow/90 transition-all duration-200"
@@ -135,6 +170,7 @@ export default function Login() {
               >
                 {isLoading ? "Signing in..." : "Sign in"}
               </Button>
+              {/* Link to registration page */}
               <div className="text-center text-sm text-muted-foreground">
                 Don't have an account?{" "}
                 <Link to="/register" className="text-primary hover:underline font-medium">

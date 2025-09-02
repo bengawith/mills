@@ -1,3 +1,9 @@
+
+# ---
+# Data ingestion module for Mill Dash backend.
+# Handles MQTT cut event ingestion, CSV file ingestion, and FourJaw API polling.
+# ---
+
 import time
 import pandas as pd
 import os
@@ -15,15 +21,21 @@ from fourjaw.api import FourJaw
 from fourjaw.data_processor import DataProcessor
 from const.config import config
 
+
 # --- Database Setup ---
-# Create all tables defined in database_models if they don't exist
+# Ensure all tables are created and set up session factory
 Base.metadata.create_all(bind=engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # --- MQTT Ingestion Logic ---
 
+
+# --- MQTT Ingestion Logic ---
+# Callback for when the client connects to the MQTT broker
 def on_connect(client, userdata, flags, rc):
-    """Callback for when the client connects to the MQTT broker."""
+    """
+    Handles MQTT broker connection event. Subscribes to topic if successful.
+    """
     if rc == 0:
         print(f"[{datetime.now()}] MQTT Ingestor: Connected to Broker!")
         client.subscribe(config.MQTT_TOPIC)
@@ -31,13 +43,16 @@ def on_connect(client, userdata, flags, rc):
     else:
         print(f"[{datetime.now()}] MQTT Ingestor: Failed to connect, return code {rc}\n")
 
+
+# Callback for when a message is received from the broker
 def on_message(client, userdata, msg):
-    """Callback for when a message is received from the broker."""
+    """
+    Handles incoming MQTT messages, parses payload, and saves cut event to database.
+    """
     print(f"[{datetime.now()}] MQTT Ingestor: Received message on topic {msg.topic}")
     db = SessionLocal()
     try:
         payload = json.loads(msg.payload.decode())
-        
         cut_event = database_models.CutEvent(
             machine_id=payload.get("machine_id"),
             timestamp_utc=payload.get("timestamp_utc"),
@@ -53,8 +68,13 @@ def on_message(client, userdata, msg):
     finally:
         db.close()
 
+
+# Sets up and connects the MQTT client for cut event ingestion
 def setup_mqtt_client():
-    """Sets up and connects the MQTT client."""
+    """
+    Initializes and connects the MQTT client for cut event ingestion.
+    Returns the client instance or None on failure.
+    """
     client = mqtt.Client(client_id=f"mill-dash-ingestor-{int(time.time())}")
     # client.username_pw_set(config.MQTT_USER, config.MQTT_PASSWORD) # Uncomment if auth is needed
     client.on_connect = on_connect
@@ -68,9 +88,12 @@ def setup_mqtt_client():
 
 # --- FourJaw API Polling Logic (Your existing logic, slightly refactored) ---
 
+
+# Reads and sorts mill CSV files by start_timestamp
 def sort_and_save_csv():
     """
-    Reads a CSV file, sorts it by the 'start_timestamp' column, and overwrites the original file.
+    Reads each mill CSV file, sorts by 'start_timestamp', and overwrites the file.
+    Used to keep historical data ordered for ingestion and analysis.
     """
     for file_name in os.listdir("data"):
         if not file_name.endswith(".csv") or not file_name.startswith("mill_"):
@@ -85,9 +108,12 @@ def sort_and_save_csv():
         except Exception as e:
             print(f"Error processing {file_path}: {e}")
 
+
+# Ingests a DataFrame into the database, handling duplicates and processing
 def ingest_data(df: pd.DataFrame):
     """
-    Ingests a DataFrame into the database.
+    Processes and ingests a DataFrame into the historical_machine_data table.
+    Removes duplicates and filters out records already in the database.
     """
     db_session = SessionLocal()
     try:
@@ -116,9 +142,11 @@ def ingest_data(df: pd.DataFrame):
     finally:
         db_session.close()
 
+
+# Ingests data from all mill CSV files into the database
 def ingest_csv_data():
     """
-    Ingests data from the mill CSV files into the database.
+    Reads all mill CSV files, concatenates, converts timestamps, and ingests into the database.
     """
     print(f"[{datetime.now()}] Starting CSV data ingestion job...")
     csv_files = [f for f in os.listdir("data") if f.startswith("mill_") and f.endswith(".csv")]
@@ -127,28 +155,28 @@ def ingest_csv_data():
     for file in csv_files:
         df = pd.read_csv(os.path.join("data", file))
         data_frames.append(df)
-    
     print(f"[{datetime.now()}] Concatenating DataFrames...")
     df = pd.concat(data_frames, ignore_index=True)
-    
     print(f"[{datetime.now()}] Converting timestamps...")
     # Convert timestamp columns to datetime objects
     df['start_timestamp'] = pd.to_datetime(df['start_timestamp'], format='mixed', utc=True)
     df['end_timestamp'] = pd.to_datetime(df['end_timestamp'], format='mixed', utc=True)
-
     print(f"[{datetime.now()}] Filtering dates...")
-
     print(f"[{datetime.now()}] Ingesting data...")
     ingest_data(df)
 
 
+
+# Queries for the latest end_timestamp for a given machine_id
 def get_latest_timestamp_from_db(db_session, machine_id: str) -> datetime | None:
-    """Queries for the latest end_timestamp for a given machine_id."""
+    """
+    Returns the latest end_timestamp for a given machine_id from the database.
+    Ensures the timestamp is timezone-aware.
+    """
     latest = db_session.query(database_models.HistoricalMachineData.end_timestamp)\
                        .filter(database_models.HistoricalMachineData.machine_id == machine_id)\
                        .order_by(database_models.HistoricalMachineData.end_timestamp.desc())\
                        .first()
-    
     if latest and latest[0]:
         timestamp = latest[0]
         # Ensure the timestamp is timezone-aware (assume UTC if naive)
@@ -158,42 +186,45 @@ def get_latest_timestamp_from_db(db_session, machine_id: str) -> datetime | None
     return None
 
 
+
+# Ingests a processed DataFrame into the database, handling duplicates
 def ingest_dataframe_to_db(df: pd.DataFrame, db):
-    """Ingests a processed DataFrame into the database, handling duplicates."""
+    """
+    Inserts new records from a processed DataFrame into the historical_machine_data table.
+    Filters out records that already exist in the database.
+    """
     if df.empty:
         print(f"[{datetime.now()}] FourJaw Ingestor: No new data to ingest.")
         return
-
     try:
         # Get existing IDs from the DB to prevent duplicates
         existing_ids = pd.read_sql(f"SELECT id FROM {database_models.HistoricalMachineData.__tablename__}", engine)['id'].tolist()
-        
         new_records_df = df[~df['id'].isin(existing_ids)]
-        
         if not new_records_df.empty:
             new_records_df.to_sql(database_models.HistoricalMachineData.__tablename__, engine, if_exists='append', index=False)
             print(f"[{datetime.now()}] FourJaw Ingestor: Ingestion complete. Inserted {len(new_records_df)} new records.")
         else:
             print(f"[{datetime.now()}] FourJaw Ingestor: No new unique records to insert.")
-
     except Exception as e:
         print(f"[{datetime.now()}] FourJaw Ingestor: Error inserting data into the database: {e}")
 
 
+
+# Fetches new data from the FourJaw API since the last recorded entry
 def fetch_and_process_fourjaw_data():
-    """Fetches new data from the FourJaw API since the last recorded entry."""
+    """
+    Polls the FourJaw API for new machine status periods since the last database entry.
+    Uses a rolling time window to fetch and ingest new data for each machine.
+    """
     print(f"[{datetime.now()}] FourJaw Ingestor: Starting API data ingestion job...")
     fourjaw_api = FourJaw()
     processor = DataProcessor()
     db = SessionLocal()
-
     try:
         for machine_id in config.MACHINE_IDS:
             machine_name = config.MACHINE_ID_MAP.get(machine_id, machine_id)
             print(f"\n--- Checking for new data for machine: {machine_name} ---")
-            
             latest_db_timestamp = get_latest_timestamp_from_db(db, machine_id)
-            
             if latest_db_timestamp:
                 # Ensure start_time is timezone-aware
                 start_time = latest_db_timestamp + timedelta(seconds=1)
@@ -203,20 +234,15 @@ def fetch_and_process_fourjaw_data():
             else:
                 # Fallback: If no data exists, fetch the last N days
                 start_time = datetime.now(timezone.utc) - timedelta(days=config.FOURJAW_HISTORICAL_FETCH_DAYS)
-            
             end_time = datetime.now(timezone.utc)
-            
             print(f"Fetching data from {start_time.isoformat()} to {end_time.isoformat()}")
-
             # Using the rolling time-window fetch logic
             all_entries = []
             current_window_end = end_time
             while current_window_end > start_time:
                 window_start = max(start_time, current_window_end - timedelta(days=1))
-                
                 start_iso = window_start.isoformat().replace('+00:00', 'Z')
                 end_iso = current_window_end.isoformat().replace('+00:00', 'Z')
-
                 try:
                     response = fourjaw_api.get_status_periods(
                         start_time=start_iso, end_time=end_iso, machine_ids=machine_id
@@ -226,9 +252,7 @@ def fetch_and_process_fourjaw_data():
                     time.sleep(1)
                 except Exception as e:
                     print(f"An error occurred during API fetch: {e}")
-
                 current_window_end = window_start
-
             if all_entries:
                 new_data_df = pd.DataFrame(all_entries)
                 processed_df = processor.process_data(new_data_df)
@@ -239,15 +263,14 @@ def fetch_and_process_fourjaw_data():
         db.close()
 
 # --- Main Execution Block ---
+# Entry point for running the ingestor as a standalone process
 if __name__ == "__main__":
     # Ingest CSV to begin
     ingest_csv_data()
-
     # Start the MQTT client in a non-blocking background thread
     mqtt_client = setup_mqtt_client()
     if mqtt_client:
         mqtt_client.loop_start()
-
     # Run the FourJaw polling loop indefinitely
     while True:
         fetch_and_process_fourjaw_data()

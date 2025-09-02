@@ -20,18 +20,37 @@ from const.config import config
 logger = logging.getLogger(__name__)
 
 class AnalyticsService(BaseService):
-    """Optimized analytics service using SQL-first approach."""
+    """
+    Optimized analytics service using SQL-first approach.
+    Provides high-performance endpoints for OEE, utilization, and downtime analysis.
+    Inherits from BaseService for common DB operations.
+    """
     
     def __init__(self):
         super().__init__(HistoricalMachineData)
     
-    def get_optimized_oee(self, db: Session, machine_ids: Optional[List[str]] = None,
-                         start_time: Optional[datetime] = None,
-                         end_time: Optional[datetime] = None,
-                         shift: Optional[str] = None,
-                         day_of_week: Optional[str] = None) -> Dict[str, float]:
+    def get_optimized_oee(
+        self,
+        db: Session,
+        machine_ids: Optional[List[str]] = None,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
+        shift: Optional[str] = None,
+        day_of_week: Optional[str] = None
+    ) -> Dict[str, float]:
         """
         Calculate OEE using optimized SQL aggregations.
+        
+        Args:
+            db (Session): SQLAlchemy database session.
+            machine_ids (Optional[List[str]]): List of machine IDs to filter.
+            start_time (Optional[datetime]): Start of time range (UTC).
+            end_time (Optional[datetime]): End of time range (UTC).
+            shift (Optional[str]): Shift name to filter.
+            day_of_week (Optional[str]): Day of week to filter.
+        
+        Returns:
+            Dict[str, float]: Dictionary with OEE, availability, performance, and quality metrics.
         """
         try:
             if machine_ids is None:
@@ -95,13 +114,28 @@ class AnalyticsService(BaseService):
             logger.error(f"Error calculating optimized OEE: {str(e)}")
             raise
     
-    def get_optimized_utilization(self, db: Session, machine_ids: Optional[List[str]] = None,
-                                 start_time: Optional[datetime] = None,
-                                 end_time: Optional[datetime] = None,
-                                 shift: Optional[str] = None,
-                                 day_of_week: Optional[str] = None) -> Dict[str, float]:
+    def get_optimized_utilization(
+        self,
+        db: Session,
+        machine_ids: Optional[List[str]] = None,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
+        shift: Optional[str] = None,
+        day_of_week: Optional[str] = None
+    ) -> Dict[str, float]:
         """
         Calculate utilization using optimized SQL aggregations.
+        
+        Args:
+            db (Session): SQLAlchemy database session.
+            machine_ids (Optional[List[str]]): List of machine IDs to filter.
+            start_time (Optional[datetime]): Start of time range (UTC).
+            end_time (Optional[datetime]): End of time range (UTC).
+            shift (Optional[str]): Shift name to filter.
+            day_of_week (Optional[str]): Day of week to filter.
+        
+        Returns:
+            Dict[str, float]: Dictionary with utilization metrics.
         """
         try:
             if machine_ids is None:
@@ -172,14 +206,30 @@ class AnalyticsService(BaseService):
             logger.error(f"Error calculating optimized utilization: {str(e)}")
             raise
     
-    def get_optimized_downtime_analysis(self, db: Session, machine_ids: Optional[List[str]] = None,
-                                       start_time: Optional[datetime] = None,
-                                       end_time: Optional[datetime] = None,
-                                       shift: Optional[str] = None,
-                                       day_of_week: Optional[str] = None,
-                                       excessive_threshold: int = 3600) -> Dict[str, Any]:
+    def get_optimized_downtime_analysis(
+        self,
+        db: Session,
+        machine_ids: Optional[List[str]] = None,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
+        shift: Optional[str] = None,
+        day_of_week: Optional[str] = None,
+        excessive_threshold: int = 3600
+    ) -> Dict[str, Any]:
         """
         Analyze downtime using optimized SQL queries.
+        
+        Args:
+            db (Session): SQLAlchemy database session.
+            machine_ids (Optional[List[str]]): List of machine IDs to filter.
+            start_time (Optional[datetime]): Start of time range (UTC).
+            end_time (Optional[datetime]): End of time range (UTC).
+            shift (Optional[str]): Shift name to filter.
+            day_of_week (Optional[str]): Day of week to filter.
+            excessive_threshold (int): Threshold for excessive downtime (seconds).
+        
+        Returns:
+            Dict[str, Any]: Dictionary with downtime analysis results.
         """
         try:
             if machine_ids is None:

@@ -1,3 +1,10 @@
+/**
+ * NotFound component.
+ * Displays a 404 error page when a user navigates to a non-existent route.
+ * Logs the attempted route to the console for debugging.
+ * Provides a link to return to the home page.
+ */
+
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 

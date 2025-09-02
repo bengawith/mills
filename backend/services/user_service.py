@@ -15,21 +15,56 @@ import schemas
 logger = logging.getLogger(__name__)
 
 class UserService(BaseService):
-    """Service class for user management operations."""
-    
-    def __init__(self):
+    """
+    Service class for user management operations.
+    Provides methods for user creation, authentication, and retrieval.
+    Inherits from BaseService for common CRUD operations.
+    """
+    def __init__(self) -> None:
+        """
+        Initialize UserService with User as the model.
+        """
         super().__init__(User)
     
-    def get_by_email(self, db: Session, email: str) -> Optional[User]:
-        """Get user by email address."""
+    def get_by_email(
+        self,
+        db: Session,
+        email: str
+    ) -> Optional[User]:
+        """
+        Get user by email address.
+        
+        Args:
+            db (Session): SQLAlchemy database session.
+            email (str): Email address to search for.
+        
+        Returns:
+            Optional[User]: User object if found, else None.
+        """
         try:
             return db.query(User).filter(User.email == email).first()
         except SQLAlchemyError as e:
             logger.error(f"Error fetching user by email {email}: {str(e)}")
             raise
     
-    def create_user(self, db: Session, user_data: schemas.UserCreate) -> User:
-        """Create a new user with hashed password."""
+    def create_user(
+        self,
+        db: Session,
+        user_data: schemas.UserCreate
+    ) -> User:
+        """
+        Create a new user with hashed password.
+        
+        Args:
+            db (Session): SQLAlchemy database session.
+            user_data (schemas.UserCreate): Data for the new user.
+        
+        Returns:
+            User: The created user object.
+        
+        Raises:
+            ValueError: If user already exists.
+        """
         try:
             # Check if user already exists
             existing_user = self.get_by_email(db, user_data.email)
@@ -57,14 +92,31 @@ class UserService(BaseService):
             logger.error(f"Error creating user: {str(e)}")
             raise
     
-    def authenticate_user(self, db: Session, email: str, password: str) -> Optional[User]:
-        """Authenticate user with email and password."""
+    def authenticate_user(
+        self,
+        db: Session,
+        email: str,
+        password: str
+    ) -> Optional[User]:
+        """
+        Authenticate a user by email and password.
+        
+        Args:
+            db (Session): SQLAlchemy database session.
+            email (str): User's email address.
+            password (str): User's password.
+        
+        Returns:
+            Optional[User]: Authenticated user object if credentials are valid, else None.
+        """
         try:
             user = self.get_by_email(db, email)
             if not user:
                 return None
             
-            if not verify_password(password, user.hashed_password):
+            # Fix: Extract string value from SQLAlchemy column if necessary
+            hashed_password = user.hashed_password if isinstance(user.hashed_password, str) else str(user.hashed_password)
+            if not verify_password(password, hashed_password):
                 return None
             
             return user

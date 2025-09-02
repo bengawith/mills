@@ -1,3 +1,9 @@
+/**
+ * Main application component.
+ * Sets up React Query, WebSocket, Tooltip, and Toaster providers.
+ * Defines all application routes, including public, authentication, and protected dashboard routes.
+ */
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";

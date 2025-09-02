@@ -32,10 +32,20 @@ async def get_oee_optimized(
     shift: Optional[str] = Query(None),
     day_of_week: Optional[str] = Query(None),
     db: Session = Depends(get_db)
-):
+) -> schemas.OeeResponse:
     """
     Ultra-fast OEE calculation using SQL aggregations.
-    Up to 10x faster than pandas approach.
+    Args:
+        start_time (Optional[str]): ISO format start time.
+        end_time (Optional[str]): ISO format end time.
+        machine_ids (Optional[List[str]]): List of machine IDs to filter.
+        shift (Optional[str]): Shift name to filter.
+        day_of_week (Optional[str]): Day of week to filter.
+        db (Session): SQLAlchemy database session (injected).
+    Returns:
+        schemas.OeeResponse: OEE metrics response model.
+    Raises:
+        HTTPException: If calculation fails.
     """
     try:
         start_dt = datetime.fromisoformat(start_time) if start_time else None
@@ -64,15 +74,24 @@ async def get_utilization_optimized(
     shift: Optional[str] = Query(None),
     day_of_week: Optional[str] = Query(None),
     db: Session = Depends(get_db)
-):
+) -> schemas.UtilizationResponse:
     """
     Ultra-fast utilization calculation using SQL aggregations.
-    Up to 15x faster than pandas approach.
+    Args:
+        start_time (Optional[str]): ISO format start time.
+        end_time (Optional[str]): ISO format end time.
+        machine_ids (Optional[List[str]]): List of machine IDs to filter.
+        shift (Optional[str]): Shift name to filter.
+        day_of_week (Optional[str]): Day of week to filter.
+        db (Session): SQLAlchemy database session (injected).
+    Returns:
+        schemas.UtilizationResponse: Utilization metrics response model.
+    Raises:
+        HTTPException: If calculation fails.
     """
     try:
         start_dt = datetime.fromisoformat(start_time) if start_time else None
         end_dt = datetime.fromisoformat(end_time) if end_time else None
-        
         utilization_data = analytics_service.get_optimized_utilization(
             db=db,
             machine_ids=machine_ids,
@@ -81,9 +100,7 @@ async def get_utilization_optimized(
             shift=shift,
             day_of_week=day_of_week
         )
-        
         return schemas.UtilizationResponse(**utilization_data)
-        
     except Exception as e:
         logger.error(f"Error in optimized utilization endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail="Error calculating utilization")
@@ -97,15 +114,25 @@ async def get_downtime_analysis_optimized(
     day_of_week: Optional[str] = Query(None),
     excessive_downtime_threshold_seconds: int = Query(3600),
     db: Session = Depends(get_db)
-):
+) -> schemas.DowntimeAnalysisResponse:
     """
     Ultra-fast downtime analysis using SQL aggregations.
-    Up to 20x faster than pandas approach.
+    Args:
+        start_time (Optional[str]): ISO format start time.
+        end_time (Optional[str]): ISO format end time.
+        machine_ids (Optional[List[str]]): List of machine IDs to filter.
+        shift (Optional[str]): Shift name to filter.
+        day_of_week (Optional[str]): Day of week to filter.
+        excessive_downtime_threshold_seconds (int): Threshold for excessive downtime (default: 3600 seconds).
+        db (Session): SQLAlchemy database session (injected).
+    Returns:
+        schemas.DowntimeAnalysisResponse: Downtime analysis response model.
+    Raises:
+        HTTPException: If calculation fails.
     """
     try:
         start_dt = datetime.fromisoformat(start_time) if start_time else None
         end_dt = datetime.fromisoformat(end_time) if end_time else None
-        
         downtime_data = analytics_service.get_optimized_downtime_analysis(
             db=db,
             machine_ids=machine_ids,
@@ -115,12 +142,10 @@ async def get_downtime_analysis_optimized(
             day_of_week=day_of_week,
             excessive_threshold=excessive_downtime_threshold_seconds
         )
-        
         return schemas.DowntimeAnalysisResponse(**downtime_data)
-        
     except Exception as e:
         logger.error(f"Error in optimized downtime analysis endpoint: {str(e)}")
-        raise HTTPException(status_code=500, detail="Error analyzing downtime")
+        raise HTTPException(status_code=500, detail="Error calculating downtime analysis")
 
 @router.get("/performance-summary")
 async def get_performance_summary(

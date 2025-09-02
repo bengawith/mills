@@ -26,9 +26,15 @@ from const.config import config
 logger = logging.getLogger(__name__)
 
 class BackgroundDataProcessor:
-    """Handles background data processing and summarization."""
+    """
+    Handles background data processing and summarization for analytics and dashboard optimization.
+    Includes daily summary processing, machine status updates, and downtime analysis.
+    """
     
-    def __init__(self):
+    def __init__(self) -> None:
+        """
+        Initialize BackgroundDataProcessor with config.
+        """
         self.config = config
     
     def process_daily_summaries(self, target_date: Optional[date] = None) -> bool:

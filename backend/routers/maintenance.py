@@ -20,9 +20,17 @@ router = APIRouter(
 
 
 @router.post("/{ticket_id}/upload-image", response_model=schemas.TicketImage)
-def upload_image_for_ticket(ticket_id: int, db: Session = Depends(get_db), file: UploadFile = File(...)):
+def upload_image_for_ticket(ticket_id: int, db: Session = Depends(get_db), file: UploadFile = File(...)) -> schemas.TicketImage:
     """
     Uploads an image and associates it with a maintenance ticket.
+
+    Args:
+        ticket_id (int): ID of the maintenance ticket.
+        db (Session): SQLAlchemy database session (injected).
+        file (UploadFile): Uploaded image file.
+
+    Returns:
+        schemas.TicketImage: The created ticket image record.
     """
     upload_dir = Path("uploads/ticket_images")
     upload_dir.mkdir(parents=True, exist_ok=True)
@@ -46,8 +54,17 @@ def upload_image_for_ticket(ticket_id: int, db: Session = Depends(get_db), file:
 
 
 @router.post("/", response_model=schemas.MaintenanceTicket, status_code=status.HTTP_201_CREATED)
-def create_maintenance_ticket(ticket: schemas.MaintenanceTicketCreate, db: Session = Depends(get_db)):
-    """Creates a new maintenance ticket."""
+def create_maintenance_ticket(ticket: schemas.MaintenanceTicketCreate, db: Session = Depends(get_db)) -> schemas.MaintenanceTicket:
+    """
+    Creates a new maintenance ticket.
+
+    Args:
+        ticket (schemas.MaintenanceTicketCreate): Maintenance ticket creation data.
+        db (Session): SQLAlchemy database session (injected).
+
+    Returns:
+        schemas.MaintenanceTicket: The created maintenance ticket.
+    """
     db_ticket = database_models.MaintenanceTicket(**ticket.dict())
     db.add(db_ticket)
     db.commit()
@@ -55,8 +72,18 @@ def create_maintenance_ticket(ticket: schemas.MaintenanceTicketCreate, db: Sessi
     return db_ticket
 
 @router.get("/", response_model=List[schemas.MaintenanceTicket])
-def read_maintenance_tickets(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """Retrieves a list of all maintenance tickets."""
+def read_maintenance_tickets(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> List[schemas.MaintenanceTicket]:
+    """
+    Retrieves a list of all maintenance tickets.
+
+    Args:
+        skip (int): Number of records to skip (pagination).
+        limit (int): Maximum number of records to return.
+        db (Session): SQLAlchemy database session (injected).
+
+    Returns:
+        List[schemas.MaintenanceTicket]: List of maintenance tickets.
+    """
     tickets = db.query(database_models.MaintenanceTicket).order_by(database_models.MaintenanceTicket.logged_time.desc()).offset(skip).limit(limit).all()
     return tickets
 

@@ -14,15 +14,37 @@ from database_models import CutEvent, HistoricalMachineData
 logger = logging.getLogger(__name__)
 
 class ProductionService(BaseService):
-    """Service class for production data operations."""
+    """
+    Service class for production data operations.
+    Provides methods for summarizing production events, calculating cut frequency, and other analytics.
+    Inherits from BaseService for common CRUD operations.
+    """
     
-    def __init__(self):
+    def __init__(self) -> None:
+        """
+        Initialize ProductionService with CutEvent as the model.
+        """
         super().__init__(CutEvent)
     
-    def get_production_summary(self, db: Session, machine_id: Optional[str] = None, 
-                              start_date: Optional[datetime] = None,
-                              end_date: Optional[datetime] = None) -> Dict[str, Any]:
-        """Get production summary for specified period."""
+    def get_production_summary(
+        self,
+        db: Session,
+        machine_id: Optional[str] = None,
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None
+    ) -> Dict[str, Any]:
+        """
+        Get production summary for specified period.
+        
+        Args:
+            db (Session): SQLAlchemy database session.
+            machine_id (Optional[str]): Machine ID to filter.
+            start_date (Optional[datetime]): Start of time range (UTC).
+            end_date (Optional[datetime]): End of time range (UTC).
+        
+        Returns:
+            Dict[str, Any]: Dictionary with total cuts, total events, and cut frequency.
+        """
         try:
             query = db.query(CutEvent)
             
@@ -75,9 +97,23 @@ class ProductionService(BaseService):
             logger.error(f"Error calculating production summary: {str(e)}")
             raise
     
-    def get_daily_production(self, db: Session, date: datetime, 
-                           machine_id: Optional[str] = None) -> Dict[str, Any]:
-        """Get production data for a specific day."""
+    def get_daily_production(
+        self,
+        db: Session,
+        date: datetime,
+        machine_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Get production data for a specific day.
+        
+        Args:
+            db (Session): SQLAlchemy database session.
+            date (datetime): Date for which to get production data.
+            machine_id (Optional[str]): Machine ID to filter.
+        
+        Returns:
+            Dict[str, Any]: Dictionary with daily production summary.
+        """
         try:
             start_of_day = date.replace(hour=0, minute=0, second=0, microsecond=0)
             end_of_day = start_of_day + timedelta(days=1)
@@ -89,10 +125,25 @@ class ProductionService(BaseService):
             logger.error(f"Error getting daily production: {str(e)}")
             raise
     
-    def get_machine_utilization(self, db: Session, machine_id: str,
-                               start_date: Optional[datetime] = None,
-                               end_date: Optional[datetime] = None) -> Dict[str, Any]:
-        """Calculate machine utilization based on cut events frequency."""
+    def get_machine_utilization(
+        self,
+        db: Session,
+        machine_id: str,
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None
+    ) -> Dict[str, Any]:
+        """
+        Calculate machine utilization based on cut events frequency.
+        
+        Args:
+            db (Session): SQLAlchemy database session.
+            machine_id (str): Machine ID to calculate utilization for.
+            start_date (Optional[datetime]): Start of time range (UTC).
+            end_date (Optional[datetime]): End of time range (UTC).
+        
+        Returns:
+            Dict[str, Any]: Dictionary with utilization metrics.
+        """
         try:
             if not start_date:
                 start_date = datetime.now(timezone.utc) - timedelta(days=7)
