@@ -26,14 +26,6 @@ export default function Layout({ children }: LayoutProps) {
               <div className="flex items-center space-x-4">
                 {/* WebSocket Connection Status */}
                 <ConnectionStatus compact={true} />
-                
-                <Button variant="outline" size="sm">
-                  <Search className="w-4 h-4 mr-2" />
-                  Search
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Bell className="w-4 h-4" />
-                </Button>
               </div>
             </div>
           </header>
