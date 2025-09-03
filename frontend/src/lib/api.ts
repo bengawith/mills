@@ -37,7 +37,6 @@ apiClient.interceptors.request.use(
 );
 
 // Dashboard Endpoints
-// Deprecated: getAnalyticalData. Use getAnalyticalDataOptimized instead.
 
 // NEW: Optimized analytical data endpoint
 export interface AnalyticalDataParams {
@@ -169,7 +168,16 @@ export const getMaintenanceTickets = async (status: string = 'Open') => {
   return response.data;
 };
 
-export const createMaintenanceTicket = async (payload: any) => {
+
+export interface CreateMaintenanceTicketPayload {
+  machine_id: string;
+  incident_category: string;
+  description: string;
+  priority: string;
+  logged_time: string;
+}
+
+export const createMaintenanceTicket = async (payload: CreateMaintenanceTicketPayload) => {
   const response = await apiClient.post("/api/v1/tickets", payload);
   return response.data;
 };
@@ -184,7 +192,13 @@ export const updateTicketStatus = async (ticketId: number, newStatus: string) =>
   return response.data;
 };
 
-export const addWorkNote = async (ticketId: number, note: any) => {
+
+export interface AddWorkNotePayload {
+  note: string;
+  author: string;
+}
+
+export const addWorkNote = async (ticketId: number, note: AddWorkNotePayload) => {
   const response = await apiClient.post(`/api/v1/tickets/${ticketId}/notes`, note);
   return response.data;
 };
@@ -242,8 +256,14 @@ export const getRealTimeMetrics = async () => {
   return response.data;
 };
 
+
+export interface PerformanceSummaryParams {
+  machine_ids?: string[];
+  hours_back?: number;
+}
+
 export const getPerformanceSummary = async (machineIds?: string[], hoursBack: number = 24) => {
-  const params: any = { hours_back: hoursBack };
+  const params: PerformanceSummaryParams = { hours_back: hoursBack };
   if (machineIds && machineIds.length > 0 && !machineIds.includes("All")) {
     params.machine_ids = machineIds;
   }
@@ -251,8 +271,15 @@ export const getPerformanceSummary = async (machineIds?: string[], hoursBack: nu
   return response.data;
 };
 
+
+export interface TrendsDataParams {
+  machine_ids?: string[];
+  days_back?: number;
+  interval?: string;
+}
+
 export const getTrendsData = async (machineIds?: string[], daysBack: number = 7, interval: string = "daily") => {
-  const params: any = { days_back: daysBack, interval };
+  const params: TrendsDataParams = { days_back: daysBack, interval };
   if (machineIds && machineIds.length > 0 && !machineIds.includes("All")) {
     params.machine_ids = machineIds;
   }
@@ -260,16 +287,29 @@ export const getTrendsData = async (machineIds?: string[], daysBack: number = 7,
   return response.data;
 };
 
+
+export interface MachineComparisonParams {
+  metric: string;
+  start_time?: string;
+  end_time?: string;
+}
+
 export const getMachineComparison = async (metric: string = "utilization", startTime?: string, endTime?: string) => {
-  const params: any = { metric };
+  const params: MachineComparisonParams = { metric };
   if (startTime) params.start_time = startTime;
   if (endTime) params.end_time = endTime;
   const response = await apiClient.get("/api/v1/analytics/machine-comparison", { params });
   return response.data;
 };
 
+
+export interface EfficiencyInsightsParams {
+  machine_ids?: string[];
+  hours_back?: number;
+}
+
 export const getEfficiencyInsights = async (machineIds?: string[], hoursBack: number = 168) => {
-  const params: any = { hours_back: hoursBack };
+  const params: EfficiencyInsightsParams = { hours_back: hoursBack };
   if (machineIds && machineIds.length > 0 && !machineIds.includes("All")) {
     params.machine_ids = machineIds;
   }

@@ -147,31 +147,6 @@ vi.mock('@/lib/api', () => ({
   getMaintenanceData: vi.fn().mockResolvedValue([]),
   getInventoryData: vi.fn().mockResolvedValue([]),
   
-  // Legacy API functions for backward compatibility
-  getOeeData: vi.fn().mockResolvedValue({
-    oee: 75.5,
-    availability: 89.2,
-    performance: 92.1,
-    quality: 91.8,
-    timestamp: '2025-08-26T10:00:00Z'
-  }),
-  getUtilizationData: vi.fn().mockResolvedValue({
-    total_time_seconds: 86400,
-    productive_uptime_seconds: 64800,
-    unproductive_downtime_seconds: 21600,
-    utilization_percentage: 75.0,
-    timestamp: '2025-08-26T10:00:00Z'
-  }),
-  getDowntimeAnalysisData: vi.fn().mockResolvedValue({
-    total_downtime_seconds: 21600,
-    downtime_events: 8,
-    average_downtime_duration: 2700,
-    top_downtime_reasons: [
-      { reason: 'Maintenance', duration_seconds: 10800, percentage: 50.0 },
-      { reason: 'Setup', duration_seconds: 7200, percentage: 33.3 }
-    ],
-    timestamp: '2025-08-26T10:00:00Z'
-  }),
   getRealTimeMetrics: vi.fn().mockResolvedValue({
     active_machines: 12,
     total_machines: 15,

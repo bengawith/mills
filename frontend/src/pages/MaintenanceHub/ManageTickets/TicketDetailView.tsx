@@ -15,6 +15,7 @@
 */
 
 import React, { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTicketDetails, updateTicketStatus } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -54,6 +55,8 @@ export interface TicketDetailViewProps {
 const TicketDetailView: React.FC<TicketDetailViewProps> = ({ ticketId, onClose }: TicketDetailViewProps) => {
   // React Query client for cache management
   const queryClient = useQueryClient();
+  // Toast notification handler for user feedback
+  const { toast } = useToast();
   // State for alert dialog visibility
   const [isAlertOpen, setIsAlertOpen] = useState<boolean>(false);
   // State for new status to be confirmed
@@ -76,6 +79,11 @@ const TicketDetailView: React.FC<TicketDetailViewProps> = ({ ticketId, onClose }
       queryClient.invalidateQueries({ queryKey: ['ticketDetails', ticketId] });
     },
     onError: (err: any): void => {
+      toast({
+        title: 'Error',
+        description: err?.response?.data?.detail || 'Failed to update ticket status.',
+        variant: 'destructive',
+      });
       console.error("Failed to update status", err);
     },
   });
