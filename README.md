@@ -1,6 +1,6 @@
-# Mill Dash
+# Mills
 
-Mill Dash is a comprehensive production dashboard for CSS Support Systems. It provides a solution for real-time monitoring, data analysis, and maintenance tracking for milling machines.
+Mills is a comprehensive production dashboard for CSS Support Systems. It provides a solution for real-time monitoring, data analysis, and maintenance tracking for milling machines.
 
 ## Features
 
