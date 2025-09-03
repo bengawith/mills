@@ -282,7 +282,11 @@ class MachineService(BaseService):
             
             # Determine if machine is currently active (cut within last 10 minutes)
             if latest_cut:
-                time_since_last_cut = datetime.now(timezone.utc) - latest_cut.timestamp_utc
+                # Ensure latest_cut.timestamp_utc is timezone-aware
+                ts = latest_cut.timestamp_utc
+                if ts.tzinfo is None or ts.tzinfo.utcoffset(ts) is None:
+                    ts = ts.replace(tzinfo=timezone.utc)
+                time_since_last_cut = datetime.now(timezone.utc) - ts
                 status["is_active"] = time_since_last_cut < timedelta(minutes=10)
             
             return status

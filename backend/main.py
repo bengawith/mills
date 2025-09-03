@@ -11,7 +11,7 @@ import traceback
 
 
 # Import all routers (API endpoints) for different modules
-from backend.routers import analytics, dashboard
+from routers import analytics, dashboard
 from routers import (
     auth, maintenance, inventory, events, 
     fourjaw_proxy, websocket

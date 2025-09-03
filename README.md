@@ -1,6 +1,6 @@
 # Mill Dash
 
-Mill Dash is a comprehensive production dashboard for CSS Support Systems. It provides real-time monitoring, data analysis, and maintenance tracking for milling machines.
+Mill Dash is a comprehensive production dashboard for CSS Support Systems. It provides a solution for real-time monitoring, data analysis, and maintenance tracking for milling machines.
 
 ## Features
 
@@ -15,8 +15,8 @@ Mill Dash is a comprehensive production dashboard for CSS Support Systems. It pr
 ### Backend
 
 *   **Framework:** FastAPI
-*   **Database:** PostgreSQL
-*   **ORM:** SQLAlchemy with Alembic for migrations
+*   **Database:** PostgreSQL in production, SQLite in development
+*   **ORM:** SQLAlchemy
 *   **Real-time:** Mosquitto (MQTT Broker) and Paho MQTT client
 *   **Authentication:** JWT (JSON Web Tokens)
 *   **Containerization:** Docker

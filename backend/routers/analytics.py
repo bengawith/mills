@@ -48,9 +48,13 @@ async def get_oee_optimized(
         HTTPException: If calculation fails.
     """
     try:
-        start_dt = datetime.fromisoformat(start_time) if start_time else None
-        end_dt = datetime.fromisoformat(end_time) if end_time else None
-        
+        try:
+            start_dt = datetime.fromisoformat(start_time) if start_time else None
+            end_dt = datetime.fromisoformat(end_time) if end_time else None
+        except ValueError as ve:
+            logger.error(f"Invalid date format in OEE endpoint: {ve}")
+            raise HTTPException(status_code=422, detail="Invalid date format")
+
         oee_data = analytics_service.get_optimized_oee(
             db=db,
             machine_ids=machine_ids,
@@ -59,9 +63,11 @@ async def get_oee_optimized(
             shift=shift,
             day_of_week=day_of_week
         )
-        
+
         return schemas.OeeResponse(**oee_data)
-        
+
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error in optimized OEE endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail="Error calculating OEE")
